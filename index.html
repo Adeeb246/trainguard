@@ -365,6 +365,147 @@
       border-color: rgba(0, 0, 0, 0.12);
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
     }
+
+    /* ==========================================================================
+       APPLE DYNAMIC ISLAND (LIQUID GLASS PASSENGER LIVE HUD)
+       ========================================================================== */
+    #dynamic-island-container {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    #dynamic-island {
+      width: min(290px, calc(100vw - 28px));
+      height: 42px;
+      border-radius: 21px; /* Exactly half of 42px height: smooth interpolation to 24px */
+      background: var(--bg-pass);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.2),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.45),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.15),
+        0 14px 32px -6px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      will-change: width, height, border-radius, box-shadow;
+      transition:
+        width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.35s ease,
+        border-color 0.25s ease;
+    }
+
+    #dynamic-island:focus-visible {
+      box-shadow:
+        0 0 0 2px var(--brand-primary),
+        0 14px 32px -6px rgba(0, 0, 0, 0.45);
+    }
+
+    body.light-mode #dynamic-island {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.85),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.6),
+        0 12px 28px -6px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Morph: Expanded State */
+    #dynamic-island.is-expanded {
+      width: min(390px, calc(100vw - 24px));
+      height: 196px;
+      border-radius: 24px;
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.25),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.55),
+        0 24px 48px -8px rgba(0, 0, 0, 0.6);
+      cursor: default;
+    }
+    body.light-mode #dynamic-island.is-expanded {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 1),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        0 20px 42px -8px rgba(15, 23, 42, 0.18);
+    }
+
+    /* Alert Pulse Modes (State C) */
+    #dynamic-island.is-alerting {
+      border-color: var(--gold-primary) !important;
+      box-shadow:
+        0 0 0 2px var(--gold-border),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+        0 16px 36px -4px rgba(245, 158, 11, 0.35);
+    }
+    #dynamic-island.is-mismatch-alert {
+      border-color: var(--status-danger) !important;
+      box-shadow:
+        0 0 0 2px var(--status-danger-border),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+        0 16px 36px -4px rgba(239, 68, 68, 0.35);
+    }
+
+    /* Compact View Cross-Fade */
+    .island-compact-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: nowrap;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: auto;
+    }
+    #dynamic-island.is-expanded .island-compact-view {
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
+    }
+
+    /* Expanded View Cross-Fade */
+    .island-expanded-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    #dynamic-island.is-expanded .island-expanded-view {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dynamic-island {
+        transition: none !important;
+      }
+      .island-compact-view, .island-expanded-view {
+        transition: opacity 0.01ms !important, transform 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
@@ -382,7 +523,75 @@
   </svg>
 
   <!-- Main Container: Standard Premium Responsive Layout -->
-  <div class="w-full max-w-6xl mx-auto space-y-6">
+  <div class="w-full max-w-6xl mx-auto space-y-6 pt-14 sm:pt-16">
+
+    
+  <!-- iOS DYNAMIC ISLAND (Liquid Glass Passenger Live Activity HUD) -->
+  <div id="dynamic-island-container">
+    <div id="dynamic-island"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-haspopup="dialog"
+         aria-label="Live Passenger Dynamic Island: 16629 Malabar Express. Press Enter or Space to expand.">
+
+      <!-- COMPACT HUD VIEW (Persistent Pill) -->
+      <div class="island-compact-view">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+          <span id="island-compact-train" class="font-telemetry font-bold text-xs tracking-tight truncate">16629 MALABAR</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="island-compact-time" class="font-telemetry text-xs font-semibold" style="color: var(--text-secondary);">18:40</span>
+          <span id="island-compact-pf" class="text-[10px] font-bold px-2 py-0.5 rounded-full gold-pill">PF 2</span>
+        </div>
+      </div>
+
+      <!-- EXPANDED LIVE ACTIVITY VIEW -->
+      <div class="island-expanded-view" aria-hidden="true">
+        <!-- Top Row: Route Telemetry & Close Toggle -->
+        <div class="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+          <div class="flex items-center gap-2 overflow-hidden">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+            <div class="truncate">
+              <span id="island-exp-train-name" class="font-syne font-bold text-xs block truncate">16629 MALABAR EXPRESS</span>
+              <span id="island-exp-route" class="font-telemetry text-[11px] block" style="color: var(--text-secondary);">TVC → CAN • Dep 18:40</span>
+            </div>
+          </div>
+          <button id="island-btn-close" class="p-1 rounded-full elevated-tile hover:opacity-80 transition shrink-0 ml-2" title="Collapse Dynamic Island" aria-label="Collapse Dynamic Island">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Middle Row: Coach & Seat Telemetry + Clash Chip -->
+        <div class="space-y-1 py-0.5">
+          <div class="flex items-center justify-between text-xs">
+            <span style="color: var(--text-secondary);">Coach & Berth:</span>
+            <span id="island-exp-seat" class="font-telemetry font-bold">S2 • Berth 35 (MB)</span>
+          </div>
+
+          <!-- Dynamic Clash Status Chip with aria-live -->
+          <div id="island-clash-chip" class="text-[11px] px-2 py-1 rounded-lg elevated-tile flex items-center gap-1.5" aria-live="polite">
+            <span id="island-clash-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+            <span id="island-clash-text" class="truncate font-medium">No timing clash detected at this platform</span>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Quick Actions -->
+        <div class="flex items-center gap-2 pt-1">
+          <button id="island-btn-jump" class="flex-1 text-[11px] font-semibold py-1.5 px-2 rounded-xl gold-pill hover:opacity-90 transition flex items-center justify-center gap-1 shadow-sm">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>View Pass</span>
+          </button>
+          <button id="island-btn-chime" class="text-[11px] font-semibold py-1.5 px-3 rounded-xl elevated-tile hover:opacity-90 transition flex items-center gap-1" title="Test Boarding Audio Chime">
+            <svg class="w-3 h-3 text-[var(--gold-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <span>Chime</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
     <!-- Executive Navigation Bar -->
     <header class="luxury-pass rounded-3xl sm:rounded-full px-5 sm:px-7 py-3.5 flex flex-wrap items-center justify-between gap-3">
@@ -1591,6 +1800,148 @@ function playRailwayChime() {
       elMismatchBanner.classList.add('hidden');
     }
 
+    
+    // ==========================================================================
+    // DYNAMIC ISLAND STATE MANAGEMENT & SPRING PHYSICS
+    // ==========================================================================
+    let isIslandExpanded = false;
+    let islandAlertTimeoutId = null;
+
+    const elIsland = document.getElementById('dynamic-island');
+    const elIslandExpView = document.querySelector('.island-expanded-view');
+    const elIslandBtnClose = document.getElementById('island-btn-close');
+    const elIslandBtnJump = document.getElementById('island-btn-jump');
+    const elIslandBtnChime = document.getElementById('island-btn-chime');
+
+    function expandDynamicIsland() {
+      if (!elIsland) return;
+      isIslandExpanded = true;
+      elIsland.classList.add('is-expanded');
+      elIsland.setAttribute('aria-expanded', 'true');
+      if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'false');
+      if (islandAlertTimeoutId) {
+        clearTimeout(islandAlertTimeoutId);
+        islandAlertTimeoutId = null;
+      }
+    }
+
+    function collapseDynamicIsland() {
+      if (!elIsland) return;
+      isIslandExpanded = false;
+      elIsland.classList.remove('is-expanded');
+      elIsland.setAttribute('aria-expanded', 'false');
+      if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'true');
+    }
+
+    function triggerIslandAlert(type) {
+      if (!elIsland) return;
+      if (islandAlertTimeoutId) {
+        clearTimeout(islandAlertTimeoutId);
+        islandAlertTimeoutId = null;
+      }
+      elIsland.classList.remove('is-alerting', 'is-mismatch-alert');
+
+      if (type === 'mismatch') {
+        elIsland.classList.add('is-mismatch-alert');
+      } else if (type === 'clash') {
+        elIsland.classList.add('is-alerting');
+      }
+
+      // Auto-collapse / settle after 3.5s only if not manually expanded
+      islandAlertTimeoutId = setTimeout(() => {
+        if (!isIslandExpanded) {
+          elIsland.classList.remove('is-alerting', 'is-mismatch-alert');
+        }
+        islandAlertTimeoutId = null;
+      }, 3500);
+    }
+
+    if (elIsland) {
+      elIsland.addEventListener('click', (e) => {
+        if (!isIslandExpanded) {
+          expandDynamicIsland();
+        }
+      });
+
+      elIsland.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (isIslandExpanded) collapseDynamicIsland();
+          else expandDynamicIsland();
+        } else if (e.key === 'Escape' && isIslandExpanded) {
+          collapseDynamicIsland();
+        }
+      });
+    }
+
+    if (elIslandBtnClose) {
+      elIslandBtnClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        collapseDynamicIsland();
+      });
+    }
+
+    if (elIslandBtnJump) {
+      elIslandBtnJump.addEventListener('click', (e) => {
+        e.stopPropagation();
+        collapseDynamicIsland();
+        const pass = document.getElementById('boarding-card');
+        if (pass) pass.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
+    if (elIslandBtnChime) {
+      elIslandBtnChime.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof playRailwayChime === 'function') playRailwayChime();
+        showToast('Boarding Chime Played');
+      });
+    }
+
+    // Dismiss expanded island on outside click
+    document.addEventListener('click', (e) => {
+      if (isIslandExpanded && elIsland && !elIsland.contains(e.target)) {
+        collapseDynamicIsland();
+      }
+    });
+
+    function updateDynamicIslandUI(data) {
+      if (!data) return;
+      const compactTrain = document.getElementById('island-compact-train');
+      const compactTime = document.getElementById('island-compact-time');
+      const compactPf = document.getElementById('island-compact-pf');
+
+      const expTrainName = document.getElementById('island-exp-train-name');
+      const expRoute = document.getElementById('island-exp-route');
+      const expSeat = document.getElementById('island-exp-seat');
+      const clashChip = document.getElementById('island-clash-chip');
+      const clashDot = document.getElementById('island-clash-dot');
+      const clashText = document.getElementById('island-clash-text');
+
+      if (compactTrain) compactTrain.textContent = `${data.trainNo} ${(data.trainName || 'EXP').split(' ')[0]}`;
+      if (compactTime) compactTime.textContent = data.time;
+      if (compactPf) compactPf.textContent = currentPlatform;
+
+      if (expTrainName) expTrainName.textContent = `${data.trainNo} ${data.trainName}`;
+      if (expRoute) expRoute.textContent = `${data.fromStn} → ${data.toStn} • Dep ${data.time}`;
+      if (expSeat) expSeat.textContent = `${data.coach} • Berth ${data.berthNo} ${data.berthType}`;
+
+      if (elIsland) {
+        elIsland.setAttribute('aria-label', `Live Passenger Dynamic Island: ${data.trainNo} ${data.trainName} at ${currentPlatform}. Press Enter to expand.`);
+      }
+
+      if (data.clash) {
+        if (clashDot) clashDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0';
+        if (clashText) clashText.textContent = `⚠️ Clash: ${data.clash.clashName} (${data.clash.clashTime})`;
+        if (clashChip) clashChip.style.borderColor = 'var(--gold-border)';
+        triggerIslandAlert('clash');
+      } else {
+        if (clashDot) clashDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0';
+        if (clashText) clashText.textContent = 'No same-station timing clash detected';
+        if (clashChip) clashChip.style.borderColor = 'var(--border-subtle)';
+      }
+    }
+
     function updateCard(data) {
       if (!data) return;
       currentTicketData = data;
@@ -1612,6 +1963,7 @@ function playRailwayChime() {
       startLiveCountdown(data.departureDate, data.time);
       updateClashMessage();
       updateLeaveTimeAndMismatch(data);
+      updateDynamicIslandUI(data);
     }
 
     function generateIcs(data) {
