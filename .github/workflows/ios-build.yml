@@ -38,21 +38,31 @@ jobs:
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode_15.4.app
 
-      - name: Build iOS App with Xcode
+      - name: Build iOS App for Physical iPhone
         working-directory: trainguard-repo/ios/App
         run: |
           xcodebuild -project App.xcodeproj \
             -scheme App \
-            -destination 'generic/platform=iOS Simulator' \
-            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            SYMROOT="$(pwd)/build" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
 
-      - name: Upload Build Artifacts
+      - name: Package Unsigned IPA for Sideloadly / AltStore
+        working-directory: trainguard-repo/ios/App
+        run: |
+          mkdir -p build/Payload
+          cp -r build/Release-iphoneos/App.app build/Payload/
+          cd build
+          zip -r TrainGuard.ipa Payload
+          cd ..
+
+      - name: Upload TrainGuard IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrainGuard-iOS-Simulator-App
-          path: trainguard-repo/ios/App/build/Release-iphonesimulator/*.app
-          if-no-files-found: ignore
+          name: TrainGuard-iOS-Package
+          path: trainguard-repo/ios/App/build/TrainGuard.ipa
+          if-no-files-found: error

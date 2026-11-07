@@ -30,3 +30,4 @@ public struct TrainGuardAttributes: ActivityAttributes {
         self.seat = seat
     }
 }
+

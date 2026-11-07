@@ -20,3 +20,4 @@ for (const file of filesToCopy) {
 }
 
 console.log('Build complete! www/ ready for Capacitor.');
+
