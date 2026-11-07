@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrainGuard — Native iPhone Simulator</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 20%, #1e2638 0%, #0c101a 60%, #05070c 100%);
+      min-height: 100vh;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+
+    /* Titanium iPhone Chassis Frame */
+    .iphone-chassis {
+      position: relative;
+      width: 393px;
+      height: 852px;
+      border-radius: 54px;
+      background: #1c1f26;
+      padding: 11px;
+      box-shadow:
+        0 0 0 1.5px #4a5568,
+        0 0 0 4px #1a202c,
+        0 0 0 5px #718096,
+        0 35px 80px -15px rgba(0, 0, 0, 0.85),
+        inset 0 0 4px 1px rgba(255, 255, 255, 0.25);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center top;
+    }
+
+    /* Screen Bezel */
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 44px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hardware Buttons */
+    .btn-hardware {
+      position: absolute;
+      background: #2d3748;
+      border-radius: 3px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .hw-action { left: -14px; top: 115px; width: 3px; height: 32px; }
+    .hw-vol-up { left: -14px; top: 165px; width: 3px; height: 56px; }
+    .hw-vol-down { left: -14px; top: 232px; width: 3px; height: 56px; }
+    .hw-power { right: -14px; top: 180px; width: 3px; height: 80px; }
+
+    /* Top Speaker Ear-piece */
+    .speaker-slit {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 54px;
+      height: 4px;
+      border-radius: 9999px;
+      background: #0d1117;
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+      z-index: 40;
+    }
+
+    /* Floating Glass Control Dock */
+    .glass-bar {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 16px 36px -6px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center py-6 px-4">
+
+  <!-- Top Simulator Toolbar -->
+  <header class="glass-bar rounded-2xl px-6 py-3 mb-6 flex flex-wrap items-center justify-between gap-4 max-w-4xl w-full">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+          TrainGuard iPhone 16 Pro Simulator
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">LIVE LOCAL</span>
+        </h1>
+        <p class="text-xs text-slate-400">Manual interactive touch & Dynamic Island testing sandbox</p>
+      </div>
+    </div>
+
+    <!-- Quick Simulator Actions -->
+    <div class="flex items-center gap-2 text-xs">
+      <!-- Device Selector -->
+      <select id="sel-device" class="bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500">
+        <option value="iphone16pro" selected>iPhone 16 Pro (393 × 852)</option>
+        <option value="iphone16promax">iPhone 16 Pro Max (430 × 932)</option>
+        <option value="iphonese">iPhone SE (375 × 667)</option>
+      </select>
+
+      <!-- Zoom Scale -->
+      <select id="sel-scale" class="bg-slate-800/80 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 font-mono">
+        <option value="1">100%</option>
+        <option value="0.9" selected>90%</option>
+        <option value="0.8">80%</option>
+        <option value="0.75">75%</option>
+      </select>
+
+      <!-- Reload Button -->
+      <button id="btn-reload" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl font-medium text-slate-200 transition flex items-center gap-1.5" title="Reload simulator frame">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+        <span>Reload</span>
+      </button>
+
+      <!-- Standalone Window Popup -->
+      <button id="btn-popup" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-blue-600/30" title="Open in separate borderless mobile window">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <span>Open Window</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Simulator Device Stage -->
+  <main class="relative flex items-center justify-center w-full py-2">
+    <!-- Physical iPhone Chassis -->
+    <div id="chassis" class="iphone-chassis">
+      <!-- Hardware Side Buttons -->
+      <div class="btn-hardware hw-action" title="Action Button"></div>
+      <div class="btn-hardware hw-vol-up" title="Volume Up"></div>
+      <div class="btn-hardware hw-vol-down" title="Volume Down"></div>
+      <div class="btn-hardware hw-power" title="Side Button"></div>
+
+      <!-- Ear-piece Speaker -->
+      <div class="speaker-slit"></div>
+
+      <!-- Real Interactive Screen -->
+      <div class="iphone-screen">
+        <iframe id="sim-frame" src="./index.html" class="w-full h-full border-0 select-none" allow="clipboard-read; clipboard-write"></iframe>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Instruction Hints -->
+  <footer class="mt-6 text-center text-xs text-slate-400 max-w-lg space-y-1">
+    <p>💡 <strong class="text-slate-300">How to test:</strong> Click the floating <span class="text-emerald-400 font-semibold">Dynamic Island</span> at the top of the iPhone screen to watch it smoothly expand into the Live Activity card.</p>
+    <p>Scroll down inside the phone to confirm the island stays pinned over ticket inputs and clash alerts.</p>
+  </footer>
+
+  <script>
+    const chassis = document.getElementById('chassis');
+    const simFrame = document.getElementById('sim-frame');
+    const selDevice = document.getElementById('sel-device');
+    const selScale = document.getElementById('sel-scale');
+    const btnReload = document.getElementById('btn-reload');
+    const btnPopup = document.getElementById('btn-popup');
+
+    // Scale handler
+    function applyScale() {
+      const scale = parseFloat(selScale.value);
+      chassis.style.transform = `scale(${scale})`;
+      const baseHeight = parseInt(chassis.style.height || '852', 10);
+      chassis.parentElement.style.height = `${(baseHeight * scale) + 40}px`;
+    }
+
+    selScale.addEventListener('change', applyScale);
+
+    // Device profile handler
+    selDevice.addEventListener('change', (e) => {
+      const dev = e.target.value;
+      if (dev === 'iphone16pro') {
+        chassis.style.width = '393px';
+        chassis.style.height = '852px';
+        chassis.style.borderRadius = '54px';
+      } else if (dev === 'iphone16promax') {
+        chassis.style.width = '430px';
+        chassis.style.height = '932px';
+        chassis.style.borderRadius = '56px';
+      } else if (dev === 'iphonese') {
+        chassis.style.width = '375px';
+        chassis.style.height = '667px';
+        chassis.style.borderRadius = '38px';
+      }
+      applyScale();
+    });
+
+    // Reload iframe
+    btnReload.addEventListener('click', () => {
+      simFrame.src = simFrame.src;
+    });
+
+    // Open frameless popup window
+    btnPopup.addEventListener('click', () => {
+      window.open('./index.html', 'TrainGuardEmulator', 'width=414,height=896,menubar=no,toolbar=no,location=no,status=no');
+    });
+
+    // Initial scale on load
+    applyScale();
+  </script>
+</body>
+</html>
