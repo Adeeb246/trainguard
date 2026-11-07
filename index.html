@@ -14,34 +14,66 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-canvas: #090A0F;
-      --bg-pass: #111420;
-      --bg-elevated: #171B2B;
-      --bg-plaque: #0A0D15;
-      --text-primary: #F7F5EE;
-      --text-secondary: #9DA1B4;
-      --text-muted: #64687D;
-      --gold-primary: #ECC774;
-      --gold-soft: rgba(236, 199, 116, 0.12);
-      --gold-border: rgba(236, 199, 116, 0.28);
+    :root, body[data-theme="sapphire"] {
+      --bg-canvas: #040711;
+      --bg-pass: #0A1020;
+      --bg-elevated: #10182E;
+      --bg-plaque: #050914;
+      --text-primary: #FCFBF7;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --gold-primary: #F5C542;
+      --gold-soft: rgba(245, 197, 66, 0.14);
+      --gold-border: rgba(245, 197, 66, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --emerald-accent: #10B981;
+      --crimson-accent: #FF3864;
+      --blue-accent: #38BDF8;
+    }
+    body[data-theme="obsidian"] {
+      --bg-canvas: #070708;
+      --bg-pass: #0F0F13;
+      --bg-elevated: #17171E;
+      --bg-plaque: #09090B;
+      --text-primary: #FFFFFF;
+      --text-secondary: #A1A1AA;
+      --text-muted: #71717A;
+      --gold-primary: #E5A91A;
+      --gold-soft: rgba(229, 169, 26, 0.14);
+      --gold-border: rgba(229, 169, 26, 0.35);
       --border-subtle: rgba(255, 255, 255, 0.08);
       --emerald-accent: #10B981;
       --crimson-accent: #F43F5E;
-      --blue-accent: #38BDF8;
+      --blue-accent: #60A5FA;
     }
-    body.light-mode {
-      --bg-canvas: #F4F1EA;
+    body[data-theme="emerald"] {
+      --bg-canvas: #030A06;
+      --bg-pass: #091711;
+      --bg-elevated: #0F231B;
+      --bg-plaque: #040E0A;
+      --text-primary: #F7FBF8;
+      --text-secondary: #8EAA9C;
+      --text-muted: #5A7768;
+      --gold-primary: #E8C872;
+      --gold-soft: rgba(232, 200, 114, 0.14);
+      --gold-border: rgba(232, 200, 114, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --emerald-accent: #34D399;
+      --crimson-accent: #FB7185;
+      --blue-accent: #2DD4BF;
+    }
+    body.light-mode, body[data-theme="light"] {
+      --bg-canvas: #F6F4EE;
       --bg-pass: #FFFFFF;
-      --bg-elevated: #F8F6F0;
-      --bg-plaque: #181715;
-      --text-primary: #1C1917;
-      --text-secondary: #44403C;
-      --text-muted: #78716C;
-      --gold-primary: #92620A;
-      --gold-soft: rgba(146, 98, 10, 0.1);
-      --gold-border: rgba(146, 98, 10, 0.32);
-      --border-subtle: rgba(28, 25, 23, 0.12);
+      --bg-elevated: #F1ECE2;
+      --bg-plaque: #0A1020;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --gold-primary: #94640A;
+      --gold-soft: rgba(148, 100, 10, 0.1);
+      --gold-border: rgba(148, 100, 10, 0.35);
+      --border-subtle: rgba(15, 23, 42, 0.1);
       --emerald-accent: #059669;
       --crimson-accent: #E11D48;
       --blue-accent: #0284C7;
@@ -51,10 +83,10 @@
       background-color: var(--bg-canvas);
       color: var(--text-primary);
       background-image:
-        radial-gradient(circle at 50% -10%, rgba(236, 199, 116, 0.14), transparent 50%),
-        radial-gradient(circle at 95% 85%, rgba(16, 185, 129, 0.06), transparent 45%),
-        radial-gradient(circle at 5% 90%, rgba(56, 189, 248, 0.05), transparent 45%);
-      transition: background-color 0.25s ease, color 0.25s ease;
+        radial-gradient(circle at 50% -12%, rgba(245, 197, 66, 0.18), transparent 52%),
+        radial-gradient(circle at 95% 85%, rgba(16, 185, 129, 0.07), transparent 45%),
+        radial-gradient(circle at 5% 90%, rgba(56, 189, 248, 0.06), transparent 45%);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .font-syne { font-family: 'Syne', sans-serif; }
     .font-serif-editorial { font-family: 'Instrument Serif', serif; }
@@ -193,9 +225,47 @@
         <button id="btn-sound-toggle" title="Toggle Boarding Audio Chime" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px] flex items-center gap-1">
           <span id="sound-icon">🔔</span> <span class="hidden md:inline">Chime</span>
         </button>
-        <button id="btn-theme-toggle" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
-          🌙 Dark
-        </button>
+
+        <!-- Luxury Palette Dropdown -->
+        <div class="relative">
+          <button id="btn-theme-picker" class="text-xs font-semibold px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px] flex items-center gap-1.5" title="Switch luxury color palette">
+            <span id="theme-icon">👑</span> <span id="theme-label" class="hidden sm:inline">Sapphire</span> <span class="text-[9px] opacity-70">▾</span>
+          </button>
+          <div id="theme-menu" class="hidden absolute right-0 mt-2 z-40 luxury-pass rounded-2xl p-2 shadow-2xl border w-56 text-xs space-y-1" style="border-color: var(--gold-border);">
+            <div class="px-2 py-1 font-syne font-bold text-[10px] uppercase tracking-wider border-b" style="border-color: var(--border-subtle); color: var(--gold-primary);">
+              Executive Color Palettes
+            </div>
+            <button class="theme-opt w-full text-left px-2.5 py-1.5 rounded-xl flex items-center gap-2 hover:bg-white/10 transition" data-theme="sapphire">
+              <span class="w-3.5 h-3.5 rounded-full bg-blue-600 border border-amber-300 shrink-0"></span>
+              <div>
+                <span class="font-bold block text-white">Royal Sapphire</span>
+                <span class="text-[10px] text-white/60">Midnight Navy & 24K Gold</span>
+              </div>
+            </button>
+            <button class="theme-opt w-full text-left px-2.5 py-1.5 rounded-xl flex items-center gap-2 hover:bg-white/10 transition" data-theme="obsidian">
+              <span class="w-3.5 h-3.5 rounded-full bg-neutral-900 border border-amber-400 shrink-0"></span>
+              <div>
+                <span class="font-bold block text-white">Obsidian Noir</span>
+                <span class="text-[10px] text-white/60">Pitch Carbon & Titanium</span>
+              </div>
+            </button>
+            <button class="theme-opt w-full text-left px-2.5 py-1.5 rounded-xl flex items-center gap-2 hover:bg-white/10 transition" data-theme="emerald">
+              <span class="w-3.5 h-3.5 rounded-full bg-emerald-800 border border-amber-300 shrink-0"></span>
+              <div>
+                <span class="font-bold block text-white">Imperial Emerald</span>
+                <span class="text-[10px] text-white/60">Heritage Express & Brass</span>
+              </div>
+            </button>
+            <button class="theme-opt w-full text-left px-2.5 py-1.5 rounded-xl flex items-center gap-2 hover:bg-white/10 transition" data-theme="light">
+              <span class="w-3.5 h-3.5 rounded-full bg-amber-100 border border-amber-700 shrink-0"></span>
+              <div>
+                <span class="font-bold block text-white">Warm Alabaster</span>
+                <span class="text-[10px] text-white/60">Daylight Ivory & Amber</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <button id="btn-install-pwa" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
           📲 <span class="hidden xs:inline">Install</span>
         </button>
@@ -205,8 +275,8 @@
       </div>
     </header>
 
-    <!-- Global Toast Notification Banner -->
-    <div id="global-toast" class="hidden luxury-pass rounded-2xl p-3 text-xs text-center font-semibold border transition-all animate-bounce" style="border-color: var(--gold-border); color: var(--gold-primary);">
+    <!-- Global Floating Toast Notification Pill -->
+    <div id="global-toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 luxury-pass rounded-full px-5 py-2.5 text-xs text-center font-semibold border shadow-2xl transition-all duration-300 flex items-center gap-2 pointer-events-none" style="border-color: var(--gold-border); color: var(--gold-primary);">
       Notification message
     </div>
 
@@ -325,7 +395,7 @@
 
               <!-- Curved Route Arc SVG & Dynamic Countdown Pill -->
               <div class="flex flex-col items-center justify-center">
-                <span id="disp-countdown" class="font-telemetry text-[11px] font-bold px-2.5 py-0.5 rounded-full gold-pill mb-1 pulse-glow text-center">
+                <span id="disp-countdown" role="status" aria-atomic="true" class="font-telemetry text-[11px] font-bold px-2.5 py-0.5 rounded-full gold-pill mb-1 pulse-glow text-center whitespace-nowrap">
                   In 04h 12m 30s
                 </span>
                 <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
@@ -884,10 +954,55 @@ Status: CNF`
       if (isSoundEnabled) playRailwayChime();
     });
 
-    elBtnTheme.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      elBtnTheme.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+    // Luxury Color Palette Management
+    const elBtnThemePicker = document.getElementById('btn-theme-picker');
+    const elThemeMenu = document.getElementById('theme-menu');
+    const elThemeIcon = document.getElementById('theme-icon');
+    const elThemeLabel = document.getElementById('theme-label');
+
+    const THEMES = {
+      sapphire: { name: 'Sapphire', icon: '👑', isLight: false },
+      obsidian: { name: 'Obsidian', icon: '🖤', isLight: false },
+      emerald: { name: 'Emerald', icon: '🌲', isLight: false },
+      light: { name: 'Alabaster', icon: '☀️', isLight: true }
+    };
+
+    function applyTheme(themeKey) {
+      const cfg = THEMES[themeKey] || THEMES.sapphire;
+      document.body.setAttribute('data-theme', themeKey);
+      if (cfg.isLight) {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+      if (elThemeIcon) elThemeIcon.textContent = cfg.icon;
+      if (elThemeLabel) elThemeLabel.textContent = cfg.name;
+      try {
+        localStorage.setItem('trainguard_saved_theme_v1', themeKey);
+      } catch (e) {}
+      triggerHaptic(10);
+      showToast(`✓ Applied ${cfg.name} luxury palette`);
+    }
+
+    if (elBtnThemePicker) {
+      elBtnThemePicker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        elThemeMenu.classList.toggle('hidden');
+      });
+    }
+
+    document.querySelectorAll('.theme-opt').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        const theme = opt.getAttribute('data-theme');
+        applyTheme(theme);
+        if (elThemeMenu) elThemeMenu.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (elThemeMenu && !elThemeMenu.contains(e.target) && e.target !== elBtnThemePicker) {
+        elThemeMenu.classList.add('hidden');
+      }
     });
 
     // Platform Selector logic
@@ -1702,6 +1817,9 @@ Status: CNF`
 
     window.addEventListener('load', () => {
       setupPWA();
+
+      const savedTheme = localStorage.getItem('trainguard_saved_theme_v1') || 'sapphire';
+      applyTheme(savedTheme);
 
       const savedPf = localStorage.getItem(STORAGE_PF_KEY);
       if (savedPf) currentPlatform = savedPf;
