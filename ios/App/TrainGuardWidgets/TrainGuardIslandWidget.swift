@@ -9,29 +9,44 @@ struct TrainGuardIslandWidget: Widget {
             // ==========================================
             // LOCK SCREEN LIVE ACTIVITY BANNER
             // ==========================================
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .center) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(context.attributes.trainName)
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("Coach \(context.attributes.coach) • Seat \(context.attributes.seat)")
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
-                            .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35)) // #C5A059 Gold
+                    HStack(spacing: 8) {
+                        Image(systemName: "tram.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.08))
+                            .clipShape(Circle())
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(context.attributes.trainNumber) \(context.attributes.trainName)")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                            Text("Coach \(context.attributes.coach) • Berth \(cleanSeat(context.attributes.seat))")
+                                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                        }
                     }
                     Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
+                    VStack(alignment: .trailing, spacing: 3) {
                         Text(context.state.platform)
                             .font(.system(size: 13, weight: .bold, design: .monospaced))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color.white.opacity(0.12))
+                            .background(Color.white.opacity(0.14))
                             .cornerRadius(6)
                             .foregroundColor(.white)
                         
-                        Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
-                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                            .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35)) // #34C759 Green
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .frame(width: 5, height: 5)
+                            Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
+                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                        }
                     }
                 }
 
@@ -39,91 +54,193 @@ struct TrainGuardIslandWidget: Widget {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                         Text(context.state.clashDetails)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.15))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.18))
                     .cornerRadius(8)
                 }
             }
             .padding(14)
-            .background(Color(red: 0.04, green: 0.05, blue: 0.09)) // #0A0E17 Canvas
+            .background(Color(red: 0.05, green: 0.06, blue: 0.10))
         } dynamicIsland: { context in
             DynamicIsland {
                 // ==========================================
-                // 1. EXPANDED VIEW (Long-press Dynamic Island)
+                // 1. EXPANDED VIEW: LEADING
                 // ==========================================
                 DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(context.attributes.trainName)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("Coach \(context.attributes.coach) • Seat \(context.attributes.seat)")
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                    HStack(spacing: 7) {
+                        Image(systemName: "tram.fill")
+                            .font(.system(size: 12, weight: .bold))
                             .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            .frame(width: 26, height: 26)
+                            .background(Color.white.opacity(0.08))
+                            .clipShape(Circle())
+
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(context.attributes.trainNumber)
+                                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            Text(context.attributes.trainName)
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                        }
                     }
-                    .padding(.leading, 6)
+                    .padding(.leading, 2)
                 }
 
+                // ==========================================
+                // 2. EXPANDED VIEW: TRAILING
+                // ==========================================
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(context.state.platform)
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
-                            .padding(.horizontal, 6)
+                            .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color.white.opacity(0.12))
+                            .background(Color.white.opacity(0.14))
                             .cornerRadius(6)
                             .foregroundColor(.white)
-                        
-                        Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
-                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                            .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+
+                        HStack(spacing: 3) {
+                            Circle()
+                                .fill(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .frame(width: 5, height: 5)
+                            Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
+                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                        }
                     }
-                    .padding(.trailing, 6)
+                    .padding(.trailing, 2)
                 }
 
+                // ==========================================
+                // 3. EXPANDED VIEW: BOTTOM (Rich Telemetry Grid)
+                // ==========================================
                 DynamicIslandExpandedRegion(.bottom) {
-                    if context.state.hasClash {
-                        HStack(spacing: 5) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
-                                .font(.system(size: 11))
-                            Text(context.state.clashDetails)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                    VStack(spacing: 7) {
+                        // 3-Column Glass Card
+                        HStack(spacing: 6) {
+                            // Column 1: Coach
+                            VStack(spacing: 1) {
+                                Text("COACH")
+                                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.55))
+                                Text(context.attributes.coach)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.07))
+                            .cornerRadius(8)
+
+                            // Column 2: Berth
+                            VStack(spacing: 1) {
+                                Text("BERTH")
+                                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.55))
+                                Text(cleanSeat(context.attributes.seat))
+                                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                    .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.07))
+                            .cornerRadius(8)
+
+                            // Column 3: Dep Time
+                            VStack(spacing: 1) {
+                                Text("DEP TIME")
+                                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.55))
+                                Text(context.state.departureTime)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.07))
+                            .cornerRadius(8)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.15))
-                        .cornerRadius(8)
+
+                        // Bottom Status Row
+                        if context.state.hasClash {
+                            HStack(spacing: 5) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                                    .font(.system(size: 10))
+                                Text(context.state.clashDetails)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                                    .lineLimit(1)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.18))
+                            .cornerRadius(6)
+                        } else {
+                            HStack(spacing: 5) {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                    .font(.system(size: 10))
+                                Text("Verified Boarding • Safe Departure")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.65))
+                                Spacer()
+                                Text("TrainGuard")
+                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.35))
+                            }
+                            .padding(.horizontal, 4)
+                        }
                     }
+                    .padding(.top, 4)
+                    .padding(.horizontal, 2)
+                    .padding(.bottom, 2)
                 }
             } compactLeading: {
                 // ==========================================
-                // 2. COMPACT LEADING (Left of camera pill)
+                // 4. COMPACT LEADING
                 // ==========================================
-                Text(context.state.departureTime)
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                HStack(spacing: 3) {
+                    Image(systemName: "tram.fill")
+                        .font(.system(size: 9))
+                        .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                    Text(context.state.departureTime)
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                }
             } compactTrailing: {
                 // ==========================================
-                // 3. COMPACT TRAILING (Right of camera pill)
+                // 5. COMPACT TRAILING
                 // ==========================================
                 Text(context.state.platform)
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1.5)
+                    .background(Color.white.opacity(0.16))
+                    .cornerRadius(4)
                     .foregroundColor(context.state.hasClash ? Color(red: 1.0, green: 0.27, blue: 0.23) : .white)
             } minimal: {
                 // ==========================================
-                // 4. MINIMAL VIEW (When 2 apps share island)
+                // 6. MINIMAL VIEW
                 // ==========================================
                 Image(systemName: "tram.fill")
                     .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
             }
         }
     }
-}
 
+    private func cleanSeat(_ seat: String) -> String {
+        return seat
+            .replacingOccurrences(of: "((", with: "(")
+            .replacingOccurrences(of: "))", with: ")")
+    }
+}

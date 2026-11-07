@@ -2287,11 +2287,13 @@ Status: CNF`
       const plugin = getLiveActivityPlugin();
       if (plugin && typeof plugin.startActivity === 'function') {
         try {
+          const cleanBerthType = (data.berthType || 'SL').replace(/^\(|\)$/g, '');
+          const formattedSeat = data.berthNo ? `${data.berthNo} (${cleanBerthType})` : `31 (${cleanBerthType})`;
           plugin.startActivity({
             trainNumber: String(data.trainNo || '16629'),
             trainName: String(data.trainName || 'Malabar Express'),
             coach: String(data.coach || 'B4'),
-            seat: `${data.berthNo || '31'} (${data.berthType || 'SL'})`,
+            seat: formattedSeat,
             platform: String(currentPlatform || 'PF 2'),
             departureTime: String(data.time || '18:40'),
             etaMinutes: 105,
@@ -2299,7 +2301,6 @@ Status: CNF`
             clashDetails: data.clash ? `⚠️ Clash with ${data.clash.clashName} (${data.clash.clashTime})` : 'No timing clash'
           }).then(function(res) {
             console.log('Dynamic Island Live Activity started:', res);
-            showToast('Dynamic Island synced with ticket 🚆');
           }).catch(function(err) {
             console.debug('Live Activity sync error:', err);
           });
@@ -2519,21 +2520,42 @@ Status: CNF`
       window.open(gcalUrl, '_blank');
     }
 
-    function generateWakeUpAlarm() {
+    async function generateWakeUpAlarm() {
       if (!currentTicketData) return;
       const d = currentTicketData;
       const approxDurationHrs = 8;
       const arrivalDate = new Date(d.departureDate.getTime() + approxDurationHrs * 60 * 60 * 1000);
       const wakeAlarmDate = new Date(arrivalDate.getTime() - 30 * 60 * 1000);
-      const pad = (n) => String(n).padStart(2, '0');
+      const title = `⏰ WAKE UP: Arriving at ${d.toStn} in 30 mins! (${d.trainNo} Coach ${d.coach})`;
+      const cleanBerthType = (d.berthType || 'SL').replace(/^\(|\)$/g, '');
+      const notes = `TrainGuard Wake-Up Alert:\nTrain: ${d.trainNo} (${d.trainName})\nApproaching: ${d.toStn} in 30 mins\nCoach: ${d.coach} | Berth: ${d.berthNo} (${cleanBerthType})\nGather luggage and prepare to deboard.`;
 
+      const plugin = getLiveActivityPlugin();
+      if (plugin && typeof plugin.addToCalendar === 'function') {
+        try {
+          await plugin.addToCalendar({
+            title: title,
+            location: `${d.toStn} Railway Station`,
+            notes: notes,
+            startDate: wakeAlarmDate.getTime(),
+            endDate: arrivalDate.getTime(),
+            alarmMinutes: 0
+          });
+          triggerHaptic('success');
+          showToast(`Wake-up alarm scheduled in Apple Calendar ⏰`);
+          return;
+        } catch (err) {
+          console.warn('Native wake alarm calendar error, using .ics fallback:', err);
+        }
+      }
+
+      const pad = (n) => String(n).padStart(2, '0');
       const formatIcs = (dateObj) => {
         return `${dateObj.getFullYear()}${pad(dateObj.getMonth() + 1)}${pad(dateObj.getDate())}T${pad(dateObj.getHours())}${pad(dateObj.getMinutes())}00`;
       };
 
       const startStr = formatIcs(wakeAlarmDate);
       const endStr = formatIcs(arrivalDate);
-      const title = `⏰ WAKE UP: Arriving at ${d.toStn} in 30 mins! (${d.trainNo} Coach ${d.coach})`;
 
       const ics = [
         'BEGIN:VCALENDAR',
@@ -2545,7 +2567,7 @@ Status: CNF`
         `DTSTART:${startStr}`,
         `DTEND:${endStr}`,
         `SUMMARY:${title}`,
-        `DESCRIPTION:TrainGuard Wake-Up Alert: Train ${d.trainNo} approaching ${d.toStn}. Gather luggage and verify Coach ${d.coach}.`,
+        `DESCRIPTION:${notes}`,
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
         `DESCRIPTION:Wake up! 30 mins to ${d.toStn}!`,
