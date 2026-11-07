@@ -1940,6 +1940,28 @@ function playRailwayChime() {
         if (clashText) clashText.textContent = 'No same-station timing clash detected';
         if (clashChip) clashChip.style.borderColor = 'var(--border-subtle)';
       }
+
+      syncHardwareDynamicIsland(data);
+    }
+
+    function syncHardwareDynamicIsland(data) {
+      if (window.Capacitor && window.Capacitor.isPluginAvailable && window.Capacitor.isPluginAvailable('LiveActivity')) {
+        try {
+          window.Capacitor.Plugins.LiveActivity.startActivity({
+            trainNumber: String(data.trainNo || '16629'),
+            trainName: String(data.trainName || 'Malabar Express'),
+            coach: String(data.coach || 'B4'),
+            seat: `${data.berthNo || '31'} (${data.berthType || 'SL'})`,
+            platform: String(currentPlatform || 'PF 2'),
+            departureTime: String(data.time || '18:40'),
+            etaMinutes: 105,
+            hasClash: !!data.clash,
+            clashDetails: data.clash ? `⚠️ Clash with ${data.clash.clashName} (${data.clash.clashTime})` : 'No timing clash'
+          }).catch(function(err) { console.debug('Live Activity sync error:', err); });
+        } catch (e) {
+          console.debug('ActivityKit bridge not available in web session');
+        }
+      }
     }
 
     function updateCard(data) {

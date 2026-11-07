@@ -1,3 +1,4 @@
 @echo off
 echo Starting Responsively App with TrainGuard...
 start "" "%LOCALAPPDATA%\Programs\ResponsivelyApp\ResponsivelyApp.exe" http://localhost:3300/
+

@@ -4,6 +4,7 @@
   "description": "Zero-confusion Indian Railways boarding guard PWA, clash detector, and calendar alarm generator.",
   "main": "src/parser.js",
   "scripts": {
+    "build": "node scripts/build.js",
     "test": "node tests/parser.test.js"
   },
   "keywords": [
@@ -13,5 +14,10 @@
     "pwa",
     "boarding-pass"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0"
+  }
 }

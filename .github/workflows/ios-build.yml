@@ -1,0 +1,58 @@
+name: Build iOS Native App & Dynamic Island
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: trainguard-repo/package-lock.json
+
+      - name: Install dependencies
+        working-directory: trainguard-repo
+        run: npm ci
+
+      - name: Run unit test suite
+        working-directory: trainguard-repo
+        run: npm test
+
+      - name: Build web bundle & Sync Capacitor iOS
+        working-directory: trainguard-repo
+        run: |
+          npm run build
+          npx cap sync ios
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Build iOS App with Xcode
+        working-directory: trainguard-repo/ios/App
+        run: |
+          xcodebuild -project App.xcodeproj \
+            -scheme App \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrainGuard-iOS-Simulator-App
+          path: trainguard-repo/ios/App/build/Release-iphonesimulator/*.app
+          if-no-files-found: ignore

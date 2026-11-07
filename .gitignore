@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Build outputs
+www/
+dist/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.log
+.gemini/
+
+# Scratch & test outputs
+scratch/
