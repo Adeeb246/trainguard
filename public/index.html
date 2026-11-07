@@ -1,0 +1,2546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080B14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TrainGuard">
+  <link rel="manifest" href="./manifest.json">
+  <title>TrainGuard — Executive Railway Boarding Pass & Platform Concierge</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* APPLE LIQUID GLASS - DARK MODE TOKENS (iOS 26 & MockFlow Spec) */
+      --bg-canvas: #0A0E17;
+      --bg-pass: rgba(28, 28, 30, 0.78);
+      --bg-elevated: rgba(44, 44, 46, 0.65);
+      --bg-plaque: rgba(18, 18, 20, 0.85);
+      --text-primary: #FFFFFF;
+      --text-secondary: rgba(235, 235, 245, 0.72);
+      --text-muted: #8E8E93;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-strong: rgba(255, 255, 255, 0.24);
+      --brand-primary: #0A84FF;
+      --brand-soft: rgba(10, 132, 255, 0.15);
+      --brand-border: rgba(10, 132, 255, 0.32);
+      --status-live: #30D158;
+      --status-danger: #FF453A;
+      --status-danger-soft: rgba(255, 69, 58, 0.12);
+      --status-danger-border: rgba(255, 69, 58, 0.28);
+      --gold-primary: #FF9F0A;
+      --gold-soft: rgba(255, 159, 10, 0.15);
+      --gold-border: rgba(255, 159, 10, 0.3);
+      --crimson-accent: #FF453A;
+      --emerald-accent: #30D158;
+    }
+
+    body.light-mode {
+      /* APPLE LIQUID GLASS - LIGHT MODE TOKENS (Canonical Apple #F2F2F7 & #007AFF) */
+      --bg-canvas: #F2F2F7; /* Apple canonical soft silver-white */
+      --bg-pass: rgba(255, 255, 255, 0.85); /* Pure white glass surface */
+      --bg-elevated: rgba(255, 255, 255, 0.75);
+      --bg-plaque: rgba(255, 255, 255, 0.96);
+      --text-primary: #000000; /* Apple bold black */
+      --text-secondary: #3C3C43; /* Apple deep gray */
+      --text-muted: #8E8E93;
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.18);
+      --brand-primary: #007AFF; /* Apple vibrant system blue */
+      --brand-soft: rgba(0, 122, 255, 0.1);
+      --brand-border: rgba(0, 122, 255, 0.25);
+      --status-live: #34C759;
+      --status-danger: #FF3B30;
+      --status-danger-soft: #FFF2F2;
+      --status-danger-border: #FFD1D0;
+      --gold-primary: #FF9500;
+      --gold-soft: rgba(255, 149, 0, 0.1);
+      --gold-border: rgba(255, 149, 0, 0.24);
+      --crimson-accent: #FF3B30;
+      --emerald-accent: #34C759;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glow shapes to exhibit authentic glass refraction & blur */
+    .bg-glass-ambient {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(110px);
+      pointer-events: none;
+      z-index: -1;
+      will-change: transform;
+    }
+    .ambient-1 {
+      width: 450px;
+      height: 450px;
+      background: #2563EB;
+      top: -60px;
+      right: 5%;
+      opacity: 0.12;
+    }
+    .ambient-2 {
+      width: 420px;
+      height: 420px;
+      background: #0284C7;
+      bottom: -60px;
+      left: 3%;
+      opacity: 0.09;
+    }
+    body.light-mode .ambient-1 {
+      background: #3B82F6;
+      opacity: 0.06;
+    }
+    body.light-mode .ambient-2 {
+      background: #60A5FA;
+      opacity: 0.04;
+    }
+
+    .font-syne, .font-serif-editorial {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-style: normal;
+    }
+    .font-telemetry {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* APPLE LIQUID GLASS SLAB (Core Cards) */
+    .luxury-pass {
+      position: relative;
+      background: var(--bg-pass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      /* iOS 26 Liquid Glass Specular Edge & Refraction Shadows */
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.35),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.16),
+        0 24px 48px -12px rgba(0, 0, 0, 0.45);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    body.light-mode .luxury-pass {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.65),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.55),
+        0 20px 40px -12px rgba(15, 23, 42, 0.07);
+    }
+
+    /* NESTED LIQUID GLASS CONTROLS & TILES (iOS 26 Spec) */
+    .elevated-tile {
+      background: var(--bg-elevated);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.1),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.2),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .elevated-tile:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.32),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.16),
+        0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    body.light-mode .elevated-tile {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.6),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.9),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.5),
+        0 1px 4px rgba(15, 23, 42, 0.04);
+    }
+    body.light-mode .elevated-tile:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border-strong);
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.9),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.7),
+        0 4px 14px rgba(15, 23, 42, 0.07);
+    }
+
+    /* CENTER HERO PLAQUE */
+    .plaque-surface {
+      background: var(--bg-plaque);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+        inset 0 2px 8px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
+    }
+    body.light-mode .plaque-surface {
+      box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.02),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    }
+
+    #disp-train-no {
+      color: var(--text-primary);
+    }
+    body.light-mode #disp-train-no {
+      color: #0F172A;
+    }
+    #disp-train-name {
+      color: var(--text-secondary);
+    }
+    body.light-mode #disp-train-name {
+      color: #475569;
+    }
+
+    /* Perforated Ticket Notches */
+    .notch-cutout-l, .notch-cutout-r {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 9999px;
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+    }
+    .notch-cutout-l { left: -14px; }
+    .notch-cutout-r { right: -14px; }
+
+    /* iOS Native Modal Sheet Backdrop */
+    .ios-sheet-backdrop {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+    }
+    .ios-sheet {
+      background: rgba(28, 28, 30, 0.88);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+    }
+    body.light-mode .ios-sheet {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 30px 60px rgba(15, 23, 42, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 1);
+      color: #0F172A;
+    }
+    .ios-card {
+      background: rgba(44, 44, 46, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    }
+    body.light-mode .ios-card {
+      background: rgba(241, 245, 249, 0.8);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+    }
+    .ios-divider {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    body.light-mode .ios-divider {
+      border-color: rgba(15, 23, 42, 0.08);
+    }
+    button, a, select, input, .cursor-pointer {
+      cursor: pointer;
+    }
+
+    /* Apple Fluid Touch Response for Glass Buttons */
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Browser Fallbacks when backdrop-filter is unsupported (Abi Nandhan guide) */
+    @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      .luxury-pass {
+        background: rgba(16, 23, 38, 0.96) !important;
+      }
+      body.light-mode .luxury-pass {
+        background: rgba(255, 255, 255, 0.97) !important;
+      }
+      .elevated-tile {
+        background: rgba(25, 33, 52, 0.95) !important;
+      }
+      body.light-mode .elevated-tile {
+        background: rgba(241, 245, 249, 0.95) !important;
+      }
+      .ios-sheet {
+        background: rgba(28, 28, 30, 0.98) !important;
+      }
+      body.light-mode .ios-sheet {
+        background: rgba(255, 255, 255, 0.98) !important;
+      }
+    }
+
+    /* Accessibility: Respect Reduced Motion (Abi Nandhan guide) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .bg-glass-ambient {
+        display: none !important;
+      }
+    }
+
+    /* Apple Glossy Pill Button Specification (MockFlow & iOS 26) */
+    .gold-pill {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%), var(--gold-soft);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-primary);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    body.light-mode .gold-pill {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 237, 0.9) 100%);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-primary);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1), 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    #btn-parse-ticket {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.02) 100%), var(--brand-primary) !important;
+      color: #FFFFFF !important;
+      border-radius: 9999px !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.25),
+        0 4px 14px rgba(0, 122, 255, 0.4) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #btn-parse-ticket:hover {
+      transform: translateY(-1px) !important;
+      box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.85),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.25),
+        0 6px 20px rgba(0, 122, 255, 0.5) !important;
+    }
+    #btn-parse-ticket:active {
+      transform: scale(0.98) !important;
+    }
+
+    /* Apple Input Fields: Rounded Rectangles with Subtle Inset Feel */
+    #ticket-input, #expected-train-input, #travel-mins-select {
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.12);
+      transition: all 0.2s ease;
+    }
+    #ticket-input:focus, #expected-train-input:focus, #travel-mins-select:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.08), 0 0 0 3px var(--brand-soft);
+    }
+    body.light-mode #ticket-input,
+    body.light-mode #expected-train-input,
+    body.light-mode #travel-mins-select {
+      background: #FFFFFF;
+      color: #000000;
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ==========================================================================
+       APPLE DYNAMIC ISLAND (LIQUID GLASS PASSENGER LIVE HUD)
+       ========================================================================== */
+    #dynamic-island-container {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    #dynamic-island {
+      width: min(290px, calc(100vw - 28px));
+      height: 42px;
+      border-radius: 21px; /* Exactly half of 42px height: smooth interpolation to 24px */
+      background: var(--bg-pass);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.2),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.45),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.15),
+        0 14px 32px -6px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      will-change: width, height, border-radius, box-shadow;
+      transition:
+        width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        border-radius 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.35s ease,
+        border-color 0.25s ease;
+    }
+
+    #dynamic-island:focus-visible {
+      box-shadow:
+        0 0 0 2px var(--brand-primary),
+        0 14px 32px -6px rgba(0, 0, 0, 0.45);
+    }
+
+    body.light-mode #dynamic-island {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.85),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.6),
+        0 12px 28px -6px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Morph: Expanded State */
+    #dynamic-island.is-expanded {
+      width: min(390px, calc(100vw - 24px));
+      height: 196px;
+      border-radius: 24px;
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.25),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.55),
+        0 24px 48px -8px rgba(0, 0, 0, 0.6);
+      cursor: default;
+    }
+    body.light-mode #dynamic-island.is-expanded {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 1),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        0 20px 42px -8px rgba(15, 23, 42, 0.18);
+    }
+
+    /* Alert Pulse Modes (State C) */
+    #dynamic-island.is-alerting {
+      border-color: var(--gold-primary) !important;
+      box-shadow:
+        0 0 0 2px var(--gold-border),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+        0 16px 36px -4px rgba(245, 158, 11, 0.35);
+    }
+    #dynamic-island.is-mismatch-alert {
+      border-color: var(--status-danger) !important;
+      box-shadow:
+        0 0 0 2px var(--status-danger-border),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+        0 16px 36px -4px rgba(239, 68, 68, 0.35);
+    }
+
+    /* Compact View Cross-Fade */
+    .island-compact-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      white-space: nowrap;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: auto;
+    }
+    #dynamic-island.is-expanded .island-compact-view {
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
+    }
+
+    /* Expanded View Cross-Fade */
+    .island-expanded-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transform: scale(0.96);
+      transition: opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1), transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    #dynamic-island.is-expanded .island-expanded-view {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dynamic-island {
+        transition: none !important;
+      }
+      .island-compact-view, .island-expanded-view {
+        transition: opacity 0.01ms !important, transform 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
+
+  <!-- Ambient background glow elements for Apple Liquid Glass refraction & depth -->
+  <div class="bg-glass-ambient ambient-1" aria-hidden="true"></div>
+  <div class="bg-glass-ambient ambient-2" aria-hidden="true"></div>
+
+  <!-- Hidden SVG Filter for Optical Pixel Refraction (Apple Liquid Glass) -->
+  <svg class="svg-filters" style="display:none;" aria-hidden="true">
+    <filter id="liquid-refraction">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- Main Container: Standard Premium Responsive Layout -->
+  <div class="w-full max-w-6xl mx-auto space-y-6 pt-14 sm:pt-16">
+
+    
+  <!-- iOS DYNAMIC ISLAND (Liquid Glass Passenger Live Activity HUD) -->
+  <div id="dynamic-island-container">
+    <div id="dynamic-island"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         aria-haspopup="dialog"
+         aria-label="Live Passenger Dynamic Island: 16629 Malabar Express. Press Enter or Space to expand.">
+
+      <!-- COMPACT HUD VIEW (Persistent Pill) -->
+      <div class="island-compact-view">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+          <span id="island-compact-train" class="font-telemetry font-bold text-xs tracking-tight truncate">16629 MALABAR</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="island-compact-time" class="font-telemetry text-xs font-semibold" style="color: var(--text-secondary);">18:40</span>
+          <span id="island-compact-pf" class="text-[10px] font-bold px-2 py-0.5 rounded-full gold-pill">PF 2</span>
+        </div>
+      </div>
+
+      <!-- EXPANDED LIVE ACTIVITY VIEW -->
+      <div class="island-expanded-view" aria-hidden="true">
+        <!-- Top Row: Route Telemetry & Close Toggle -->
+        <div class="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+          <div class="flex items-center gap-2 overflow-hidden">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+            <div class="truncate">
+              <span id="island-exp-train-name" class="font-syne font-bold text-xs block truncate">16629 MALABAR EXPRESS</span>
+              <span id="island-exp-route" class="font-telemetry text-[11px] block" style="color: var(--text-secondary);">TVC → CAN • Dep 18:40</span>
+            </div>
+          </div>
+          <button id="island-btn-close" class="p-1 rounded-full elevated-tile hover:opacity-80 transition shrink-0 ml-2" title="Collapse Dynamic Island" aria-label="Collapse Dynamic Island">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Middle Row: Coach & Seat Telemetry + Clash Chip -->
+        <div class="space-y-1 py-0.5">
+          <div class="flex items-center justify-between text-xs">
+            <span style="color: var(--text-secondary);">Coach & Berth:</span>
+            <span id="island-exp-seat" class="font-telemetry font-bold">S2 • Berth 35 (MB)</span>
+          </div>
+
+          <!-- Dynamic Clash Status Chip with aria-live -->
+          <div id="island-clash-chip" class="text-[11px] px-2 py-1 rounded-lg elevated-tile flex items-center gap-1.5" aria-live="polite">
+            <span id="island-clash-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+            <span id="island-clash-text" class="truncate font-medium">No timing clash detected at this platform</span>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Quick Actions -->
+        <div class="flex items-center gap-2 pt-1">
+          <button id="island-btn-jump" class="flex-1 text-[11px] font-semibold py-1.5 px-2 rounded-xl gold-pill hover:opacity-90 transition flex items-center justify-center gap-1 shadow-sm">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>View Pass</span>
+          </button>
+          <button id="island-btn-chime" class="text-[11px] font-semibold py-1.5 px-3 rounded-xl elevated-tile hover:opacity-90 transition flex items-center gap-1" title="Test Boarding Audio Chime">
+            <svg class="w-3 h-3 text-[var(--gold-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <span>Chime</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    <!-- Executive Navigation Bar -->
+    <header class="luxury-pass rounded-3xl sm:rounded-full px-5 sm:px-7 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl gold-pill flex items-center justify-center shadow-md shrink-0">
+          <svg class="w-5 h-5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="16" height="16" x="4" y="3" rx="3"/>
+            <path d="M4 11h16"/>
+            <path d="M12 3v8"/>
+            <path d="m8 19-2 3"/>
+            <path d="m18 22-2-3"/>
+            <circle cx="8.5" cy="15.5" r="1"/>
+            <circle cx="15.5" cy="15.5" r="1"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-syne text-lg sm:text-xl font-extrabold tracking-tight">TrainGuard</h1>
+            <span id="offline-badge" class="font-telemetry text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full gold-pill">
+              Offline Ready
+            </span>
+          </div>
+          <p class="font-serif-editorial italic text-xs sm:text-sm tracking-wide" style="color: var(--text-secondary);">
+            Executive Railway Boarding Pass & Platform Concierge
+          </p>
+        </div>
+      </div>
+
+      <!-- Header Controls with Standard SVG Icons -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-sound-toggle" title="Toggle Boarding Audio Chime" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition min-h-[36px] flex items-center gap-1.5">
+          <svg id="sound-icon-svg" class="w-4 h-4 text-[var(--brand-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="hidden md:inline">Chime</span>
+        </button>
+
+        <!-- Standard Dark / Light Mode Toggle Button -->
+        <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition min-h-[36px] flex items-center gap-1.5" title="Switch between Dark and Light mode">
+          <span id="theme-toggle-icon" class="w-4 h-4 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </span>
+          <span id="theme-toggle-label" class="hidden sm:inline">Light</span>
+        </button>
+
+        <button id="btn-install-pwa" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition min-h-[36px] flex items-center gap-1.5">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+          <span class="hidden xs:inline">Install</span>
+        </button>
+
+        <button id="btn-quick-sample" class="text-xs font-semibold px-3 py-1.5 rounded-xl elevated-tile text-[var(--text-primary)] hover:border-[var(--brand-primary)] transition min-h-[36px]">
+          Sample
+        </button>
+      </div>
+    </header>
+
+    <!-- Global Floating Toast Notification Pill -->
+    <div id="global-toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 luxury-pass rounded-full px-5 py-2.5 text-xs text-center font-semibold border shadow-2xl transition-all duration-300 flex items-center gap-2 pointer-events-none" style="border-color: var(--gold-border); color: var(--gold-primary);">
+      Notification message
+    </div>
+
+    <!-- Install Guide Drawer -->
+    <section id="pwa-install-drawer" class="hidden luxury-pass rounded-2xl p-4 text-xs space-y-2.5">
+      <div class="flex items-center justify-between pb-2 border-b" style="border-color: var(--border-subtle);">
+        <span class="font-syne font-bold text-sm" style="color: var(--gold-primary);">Install TrainGuard on Your Phone</span>
+        <button id="btn-close-install" class="px-2.5 py-1 rounded-lg elevated-tile font-semibold flex items-center gap-1.5 hover:opacity-85 transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          <span>Close</span>
+        </button>
+      </div>
+      <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">
+        Your boarding pass is stored on-device in <code class="font-telemetry">localStorage</code> for zero-signal platform reliability. No internet required while on the train.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+        <div class="elevated-tile rounded-xl p-3">
+          <strong class="block mb-0.5 text-amber-400">iPhone (Safari)</strong>
+          <span style="color: var(--text-secondary);">Open this link in Safari, tap <strong>Share [↑]</strong>, and select <strong>Add to Home Screen</strong>.</span>
+        </div>
+        <div class="elevated-tile rounded-xl p-3">
+          <strong class="block mb-0.5 text-amber-400">Android (Chrome)</strong>
+          <span style="color: var(--text-secondary);">Tap Chrome menu <strong>(⋮)</strong> and tap <strong>Install App</strong> or <strong>Add to Home screen</strong>.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expectation Mismatch Alert Banner -->
+    <div id="mismatch-banner" class="hidden rounded-2xl p-4 text-white border-2 border-rose-300 shadow-2xl transition-all" style="background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-black/30 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="space-y-1.5 flex-1">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="font-syne text-sm font-bold uppercase tracking-wider">Critical Boarding Mismatch Detected</h2>
+            <span class="text-[10px] uppercase font-telemetry bg-black/40 px-2 py-0.5 rounded-full">Different Train Booked</span>
+          </div>
+          <p id="mismatch-detail" class="text-xs leading-relaxed opacity-95">
+            You entered <strong class="underline">16604</strong>, but your ticket is booked on <strong class="font-telemetry underline">16629 MALABAR EXPRESS</strong> departing at <strong class="font-telemetry">18:40</strong>.
+          </p>
+          <div class="text-[11px] bg-black/25 rounded-lg p-2 font-medium flex items-center gap-2">
+            <svg class="w-4 h-4 text-rose-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            <span>Do NOT wait for the other train. Confirm your coach and board the train shown on your ticket below.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DUAL-PANE INTERACTIVE GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN: The Sculpted First-Class Boarding Pass -->
+      <div class="lg:col-span-7 space-y-4">
+
+        <main id="boarding-card" class="luxury-pass rounded-[28px] overflow-hidden relative">
+
+          <!-- Card Header Bar with Interactive Platform Selector -->
+          <div class="px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="font-semibold tracking-wider uppercase text-[11px] text-[var(--text-secondary)]">
+                Verified Railway Pass
+              </span>
+            </div>
+
+            <!-- Tappable Platform Selector Pill -->
+            <div class="relative">
+              <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to set platform number announced at station">
+                <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 4v16M15 4v16M4 12h16"/></svg>
+                <span id="disp-platform-pill">PF 2</span>
+                <svg class="w-3 h-3 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+
+              <!-- Platform Dropdown Picker -->
+              <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
+                <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
+                  <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
+                  <button id="btn-close-platform" class="p-1 rounded-lg opacity-60 hover:opacity-100 transition" title="Close platform picker">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 font-telemetry text-center">
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
+                </div>
+                <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 flex items-center justify-center gap-1.5 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
+                  <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>TBA (Announcing Soon)</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 font-telemetry text-xs">
+              <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
+              <span style="color: var(--text-muted);">•</span>
+              <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
+            </div>
+          </div>
+
+          <!-- Route Arc & Station Codes -->
+          <div class="p-5 sm:p-6 pb-4">
+            <div class="grid grid-cols-3 items-center gap-2">
+              <!-- Origin -->
+              <div>
+                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Boarding from</span>
+                <div id="disp-station" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5">
+                  <span>TVC</span>
+                </div>
+                <span id="disp-origin-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Thiruvananthapuram</span>
+              </div>
+
+              <!-- Curved Route Arc SVG & Dynamic Countdown Pill -->
+              <div class="flex flex-col items-center justify-center">
+                <span id="disp-countdown" role="status" aria-atomic="true" class="font-telemetry text-[11px] font-semibold px-2.5 py-0.5 rounded-full elevated-tile mb-1 text-center whitespace-nowrap text-[var(--text-primary)]">
+                  In 04h 12m 30s
+                </span>
+                <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
+                  <path d="M 8 22 Q 60 -2 112 22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" style="color: var(--border-strong); opacity: 0.8;"/>
+                  <circle cx="8" cy="22" r="3" style="fill: var(--text-muted);"/>
+                  <circle cx="60" cy="10" r="3.5" style="fill: var(--brand-primary);"/>
+                  <circle cx="112" cy="22" r="3" style="fill: var(--text-muted);"/>
+                </svg>
+                <span class="text-[10px] font-medium tracking-wider uppercase text-emerald-600 dark:text-emerald-400">Confirmed Seat</span>
+              </div>
+
+              <!-- Destination -->
+              <div class="text-right">
+                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Destination</span>
+                <div class="mt-0.5">
+                  <span id="disp-dest" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight">CAN</span>
+                </div>
+                <span id="disp-dest-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Kannur Main</span>
+              </div>
+            </div>
+
+            <!-- Hero Train Number Cockpit Plaque -->
+            <div class="plaque-surface rounded-2xl p-5 mt-5 text-center relative overflow-hidden">
+              <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
+                <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Check Coach Boards For This Number</span>
+              </div>
+
+              <div id="disp-train-no" class="font-telemetry text-6xl sm:text-7xl font-bold tracking-tight leading-none py-1 select-all cursor-pointer" title="Click to copy train number">
+                16629
+              </div>
+
+              <div id="disp-train-name" class="font-syne text-xs sm:text-sm font-semibold tracking-[0.16em] uppercase mt-1">
+                MALABAR EXPRESS
+              </div>
+
+              <!-- Dynamic Coach Rake Position Visualizer -->
+              <div class="mt-4 pt-3 border-t border-[var(--border-subtle)]">
+                <div class="flex items-center justify-between text-xs mb-2 px-1">
+                  <span class="text-[var(--text-secondary)] font-medium">Coach Platform Position:</span>
+                  <span id="rake-position-hint" class="font-telemetry text-[var(--text-primary)] font-semibold">Middle-Forward of Platform</span>
+                </div>
+                <div id="rake-container" class="flex items-center justify-start sm:justify-center gap-1 overflow-x-auto pb-1 text-xs select-none">
+                  <!-- Dynamically populated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 3-Column Executive Telemetry Row -->
+            <div class="grid grid-cols-3 gap-2.5 mt-4">
+              <div class="elevated-tile rounded-2xl p-3 text-center">
+                <span class="text-xs font-medium block text-[var(--text-secondary)]">Coach</span>
+                <span id="disp-coach" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">S2</span>
+              </div>
+              <div id="btn-open-berth-map" class="elevated-tile rounded-2xl p-3 text-center cursor-pointer group hover:border-[var(--brand-primary)] transition" title="Tap to locate berth inside coach">
+                <div class="flex items-center justify-center gap-1.5">
+                  <span class="text-xs font-medium block text-[var(--text-secondary)]">Berth</span>
+                  <svg class="w-3.5 h-3.5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <span id="disp-berth" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">35 <span class="text-xs font-normal text-[var(--text-secondary)]">(MB)</span></span>
+              </div>
+              <div class="elevated-tile rounded-2xl p-3 text-center">
+                <span class="text-xs font-medium block text-[var(--text-secondary)]">Departure</span>
+                <span id="disp-time" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">18:40</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Perforated Ticket Tear-line & Notches -->
+          <div class="relative h-6 flex items-center justify-center overflow-hidden">
+            <div class="notch-cutout-l"></div>
+            <div class="w-full border-t-2 border-dashed mx-5" style="border-color: var(--gold-border);"></div>
+            <div class="notch-cutout-r"></div>
+          </div>
+
+          <!-- Bottom Section: Clash Guard, Leave Time & Multi-Platform Actions -->
+          <div class="px-5 sm:px-6 pb-6 pt-2 space-y-4">
+
+            <!-- Same-Station Clash Guard with Multi-Language Switcher -->
+            <div id="clash-warning" class="rounded-2xl p-3.5 border-l-4 elevated-tile" style="border-left-color: var(--crimson-accent);">
+              <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                <div class="flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <span class="font-semibold text-xs uppercase tracking-wider text-rose-600 dark:text-rose-400">Same-Station Clash Guard</span>
+                </div>
+                <!-- Regional Language Switcher Pills -->
+                <div class="flex items-center gap-1 font-telemetry text-[10px]">
+                  <button class="lang-pill px-1.5 py-0.5 rounded bg-[var(--brand-primary)] text-white font-semibold" data-lang="en">EN</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ml">മലയാളം</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="hi">हिंदी</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ta">தமிழ்</button>
+                </div>
+              </div>
+              <p id="clash-text" class="text-xs leading-relaxed text-[var(--text-secondary)]">
+                <strong class="font-telemetry font-bold text-[var(--text-primary)]">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-semibold text-[var(--text-primary)]">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-600 dark:text-emerald-400">16629</strong>, not 16604.
+              </p>
+            </div>
+
+            <!-- Leave For Station By Row -->
+            <div class="elevated-tile rounded-2xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold block text-[var(--text-primary)]">Leave home / office by</span>
+                <span id="disp-leave-note" class="text-[11px] text-[var(--text-secondary)]">(30m commute + 30m station buffer)</span>
+              </div>
+              <span id="disp-leave-time" class="font-telemetry text-2xl font-bold text-[var(--text-primary)]">17:40</span>
+            </div>
+
+            <!-- QR Code & Calendar Action Hub -->
+            <div class="elevated-tile rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4">
+              <!-- Stylized Boarding Aztec / QR Code Graphic -->
+              <div class="flex flex-col items-center justify-center p-2 rounded-xl plaque-surface shrink-0" title="TrainGuard Offline Digital Verification Stamp">
+                <svg class="w-16 h-16 text-[var(--brand-primary)]" viewBox="0 0 100 100" fill="currentColor">
+                  <rect x="5" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="13" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="65" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="73" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="5" y="65" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="13" y="73" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="42" y="8" width="6" height="6" fill="currentColor"/>
+                  <rect x="52" y="16" width="6" height="6" fill="currentColor"/>
+                  <rect x="42" y="24" width="6" height="6" fill="currentColor"/>
+                  <rect x="10" y="44" width="6" height="6" fill="currentColor"/>
+                  <rect x="22" y="44" width="8" height="6" fill="currentColor"/>
+                  <rect x="36" y="38" width="6" height="14" fill="currentColor"/>
+                  <rect x="48" y="44" width="10" height="10" rx="1" fill="currentColor"/>
+                  <rect x="66" y="44" width="6" height="8" fill="currentColor"/>
+                  <rect x="80" y="44" width="12" height="6" fill="currentColor"/>
+                  <rect x="42" y="65" width="6" height="6" fill="currentColor"/>
+                  <rect x="52" y="72" width="8" height="6" fill="currentColor"/>
+                  <rect x="42" y="82" width="6" height="10" fill="currentColor"/>
+                  <rect x="68" y="66" width="8" height="8" fill="currentColor"/>
+                  <rect x="82" y="66" width="10" height="6" fill="currentColor"/>
+                  <rect x="72" y="80" width="6" height="12" fill="currentColor"/>
+                  <rect x="84" y="78" width="8" height="14" fill="currentColor"/>
+                </svg>
+                <span class="text-[9px] font-telemetry uppercase tracking-wider text-white/50 mt-1">OFFLINE CNF</span>
+              </div>
+
+              <!-- Multi-Action Hub with Crisp SVG Icons -->
+              <div class="w-full space-y-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button id="btn-export-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs bg-slate-900 text-white dark:bg-white dark:text-slate-950 hover:opacity-90 shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    <span>Apple Calendar (.ics)</span>
+                  </button>
+                  <button id="btn-google-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition active:scale-[0.98] flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="14" r="2"/></svg>
+                    <span>Google Calendar</span>
+                  </button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button id="btn-whatsapp-share" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    <span>WhatsApp</span>
+                  </button>
+                  <button id="btn-wake-alarm" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Set a 30m wake-up alarm before reaching destination">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>
+                    <span>Wake Alarm</span>
+                  </button>
+                  <button id="btn-share-link" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Copy shareable link with pre-filled pass">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Share Link</span>
+                  </button>
+                  <button id="btn-save-image" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Save pass as HD image for phone gallery or lock screen">
+                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    <span>Save Pass</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indian Railways Emergency Helpline Bar -->
+            <div class="pt-1 flex flex-wrap items-center justify-between text-[11px] gap-2 border-t border-white/10" style="color: var(--text-secondary);">
+              <span class="font-medium text-white/70">Emergency Helplines:</span>
+              <div class="flex items-center gap-3 font-telemetry">
+                <a href="tel:139" class="hover:text-amber-400 transition flex items-center gap-1">
+                  <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  139 (Security)
+                </a>
+                <span>•</span>
+                <a href="tel:112" class="hover:text-rose-400 transition flex items-center gap-1">
+                  <svg class="w-3 h-3 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 12-7-7-7 7m14 6-7-7-7 7"/></svg>
+                  112 (Medical)
+                </a>
+                <span>•</span>
+                <a href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener" class="hover:text-sky-400 transition flex items-center gap-1">
+                  <svg class="w-3 h-3 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  RailMadad
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Ticket Inspector, Expectation Mismatch Studio & Fast Presets -->
+      <div class="lg:col-span-5 space-y-4">
+
+        <!-- Quick 1-Click Test Scenarios Card -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">Quick Test Scenarios</span>
+            <span class="text-[10px] text-[var(--text-muted)] font-mono">1-Click Presets</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button id="preset-malabar-clash" class="elevated-tile rounded-xl p-3 text-left hover:border-[var(--brand-primary)] transition">
+              <span class="font-semibold block text-[var(--text-primary)]">Malabar vs Maveli</span>
+              <span class="text-[11px] font-mono block text-[var(--text-secondary)] mt-0.5">16629 (18:40) vs 16604</span>
+            </button>
+            <button id="preset-vande-bharat" class="elevated-tile rounded-xl p-3 text-left hover:border-[var(--brand-primary)] transition">
+              <span class="font-semibold block text-[var(--text-primary)]">Vande Bharat</span>
+              <span class="text-[11px] font-mono block text-[var(--text-secondary)] mt-0.5">20634 TVC → KGQ (16:05)</span>
+            </button>
+            <button id="preset-kerala-exp" class="elevated-tile rounded-xl p-3 text-left hover:border-[var(--brand-primary)] transition">
+              <span class="font-semibold block text-[var(--text-primary)]">Kerala Express</span>
+              <span class="text-[11px] font-mono block text-[var(--text-secondary)] mt-0.5">12625 TVC → NDLS (12:30)</span>
+            </button>
+            <button id="preset-jan-shatabdi" class="elevated-tile rounded-xl p-3 text-left hover:border-[var(--brand-primary)] transition">
+              <span class="font-semibold block text-[var(--text-primary)]">Jan Shatabdi</span>
+              <span class="text-[11px] font-mono block text-[var(--text-secondary)] mt-0.5">12076 CLT → TVC (14:50)</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Ticket Inspector & Expectation Mismatch Studio -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <label for="ticket-input" class="font-syne text-sm font-bold">
+              Paste Ticket / IRCTC SMS
+            </label>
+            <div class="flex items-center gap-2">
+              <button id="btn-paste-clipboard" class="text-xs font-semibold px-2.5 py-1 rounded-lg gold-pill hover:opacity-90 transition flex items-center gap-1 shadow-sm">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+                Paste Clipboard
+              </button>
+              <button id="btn-clear-input" class="text-xs font-medium underline hover:opacity-75 transition" style="color: var(--text-secondary);">Clear</button>
+            </div>
+          </div>
+
+          <textarea id="ticket-input" rows="3" placeholder="Paste IRCTC SMS, confirmation email, or PNR text..." class="w-full elevated-tile rounded-xl p-3 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 transition resize-none leading-relaxed"></textarea>
+
+          <div class="space-y-3">
+            <div>
+              <label for="expected-train-input" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
+                Train you think you booked (Mismatch Safeguard)
+              </label>
+              <input id="expected-train-input" type="text" placeholder="e.g. 16604 or Maveli" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]" />
+            </div>
+
+            <div>
+              <label for="travel-mins-select" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
+                Your travel time to railway station
+              </label>
+              <select id="travel-mins-select" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]">
+                <option value="15">15 mins commute (+30m station buffer = 45m before)</option>
+                <option value="30" selected>30 mins commute (+30m station buffer = 60m before)</option>
+                <option value="45">45 mins commute (+30m station buffer = 75m before)</option>
+                <option value="60">60 mins commute (+30m station buffer = 90m before)</option>
+                <option value="90">90 mins commute (+30m station buffer = 120m before)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-1 flex gap-2">
+            <button id="btn-parse-ticket" class="flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Verify My Train</span>
+            </button>
+            <button id="btn-test-mismatch" class="text-xs font-semibold px-3.5 py-2.5 rounded-xl elevated-tile hover:opacity-80 transition min-h-[44px]" style="color: var(--crimson-accent);">
+              Trigger Mismatch
+            </button>
+          </div>
+        </section>
+
+        <!-- Useful Live Railway Tools Shortcuts -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-2.5 text-xs">
+          <h4 class="font-semibold text-xs uppercase tracking-wider text-[var(--text-primary)]">
+            Official Travel Resources
+          </h4>
+          <div class="grid grid-cols-3 gap-2 text-center font-medium">
+            <a href="https://enquiry.indianrail.gov.in" target="_blank" rel="noopener" class="elevated-tile p-3 rounded-xl hover:border-[var(--border-strong)] transition flex flex-col items-center justify-center gap-1.5 group text-[var(--text-primary)]">
+              <svg class="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Live NTES</span>
+            </a>
+            <a href="https://www.confirmtkt.com" target="_blank" rel="noopener" class="elevated-tile p-3 rounded-xl hover:border-[var(--border-strong)] transition flex flex-col items-center justify-center gap-1.5 group text-[var(--text-primary)]">
+              <svg class="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              <span>PNR Status</span>
+            </a>
+            <a href="https://www.ecatering.irctc.co.in" target="_blank" rel="noopener" class="elevated-tile p-3 rounded-xl hover:border-[var(--border-strong)] transition flex flex-col items-center justify-center gap-1.5 group text-[var(--text-primary)]">
+              <svg class="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+              <span>eCatering</span>
+            </a>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- BERTH BAY LOCATOR MODAL -->
+  <div id="berth-modal" class="hidden fixed inset-0 z-50 ios-sheet-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="luxury-pass w-full max-w-[460px] rounded-t-[28px] sm:rounded-[28px] overflow-hidden shadow-2xl border max-h-[92vh] flex flex-col" style="border-color: var(--gold-border);">
+      <div class="py-3 px-5 border-b flex items-center justify-between" style="border-color: var(--border-subtle); background-color: var(--gold-soft);">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <span class="font-syne font-bold text-sm" style="color: var(--gold-primary);">Coach Seat & Berth Locator</span>
+        </div>
+        <button id="btn-close-berth-modal" class="text-xs px-2.5 py-1 rounded-lg elevated-tile font-semibold flex items-center gap-1 hover:opacity-85 transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          <span>Close</span>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto text-xs">
+        <div class="elevated-tile rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-[var(--text-secondary)] block text-[11px]">Your Coach & Berth</span>
+            <div class="flex items-baseline gap-2 mt-0.5">
+              <span id="modal-coach-num" class="font-telemetry font-bold text-2xl text-[var(--brand-primary)]">S2</span>
+              <span class="text-[var(--text-muted)]">/</span>
+              <span id="modal-berth-num" class="font-telemetry font-bold text-2xl text-[var(--text-primary)]">35</span>
+              <span id="modal-berth-type" class="font-semibold text-xs text-[var(--text-secondary)]">(Mid Berth)</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[var(--text-secondary)] block text-[11px]">Compartment Bay</span>
+            <span id="modal-bay-num" class="font-telemetry font-bold text-lg text-[var(--brand-primary)]">Bay 5</span>
+            <span class="text-[10px] text-[var(--text-muted)] block">Center of Coach</span>
+          </div>
+        </div>
+
+        <div class="plaque-surface rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between text-[11px] font-telemetry">
+            <span class="text-[var(--text-muted)]">◀ Coach Entrance</span>
+            <span class="text-[var(--text-primary)] font-bold uppercase tracking-wider">Bay 5 Layout</span>
+            <span class="text-[var(--text-muted)]">Other End ▶</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="elevated-tile rounded-xl p-3 space-y-2">
+              <span class="font-semibold text-[11px] text-[var(--text-primary)] uppercase tracking-wider block border-b pb-1 border-[var(--border-subtle)]">Main Cubicle (6 Berths)</span>
+              <div class="grid grid-cols-2 gap-2 text-center font-telemetry text-xs" id="bay-main-cubicle">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <div class="elevated-tile rounded-xl p-3 space-y-2 flex flex-col justify-between">
+              <div>
+                <span class="font-semibold text-[11px] text-[var(--text-primary)] uppercase tracking-wider block border-b pb-1 border-[var(--border-subtle)]">Side Aisle (2 Berths)</span>
+                <div class="space-y-2 pt-2 text-center font-telemetry text-xs" id="bay-side-berths">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+              <div class="text-[10px] text-[var(--text-muted)] text-center border-t pt-1.5 border-[var(--border-subtle)]">
+                Window Corridor Aisle
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="elevated-tile rounded-2xl p-3.5 space-y-1.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          <div class="flex items-center gap-1.5 text-[var(--text-primary)] font-semibold">
+            <svg class="w-3.5 h-3.5 text-[var(--brand-primary)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+            <span>IRCTC Boarding Rules:</span>
+          </div>
+          <p>
+            • <strong>Sleeping Hours:</strong> Middle berths may be folded down from <strong>10:00 PM to 6:00 AM</strong>. Lower berth passengers must accommodate middle berth passengers during sleeping hours.
+          </p>
+          <p>
+            • <strong>Luggage Space:</strong> Space under lower berths is shared equitably among all passengers in that bay.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLE CALENDAR NATIVE-STYLE PREVIEW MODAL SHEET -->
+  <div id="apple-cal-modal" class="hidden fixed inset-0 z-50 ios-sheet-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="ios-sheet w-full max-w-[440px] rounded-t-[24px] sm:rounded-[24px] overflow-hidden shadow-2xl border border-white/10 max-h-[90vh] flex flex-col">
+      <div class="pt-2 pb-3 px-4 border-b ios-divider">
+        <div class="w-9 h-1.5 rounded-full bg-gray-500/50 mx-auto mb-2.5"></div>
+        <div class="flex items-center justify-between">
+          <button id="btn-cal-cancel" class="text-[#FF453A] text-[15px] font-medium px-1 py-1">Cancel</button>
+          <span class="text-[15px] font-semibold">New Event</span>
+          <button id="btn-cal-confirm-add" class="text-[#FF453A] font-bold text-[15px] px-1 py-1">Add</button>
+        </div>
+      </div>
+
+      <div class="p-4 space-y-3.5 overflow-y-auto text-[14px]">
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2">
+          <div id="modal-cal-title" class="font-semibold text-[15px] leading-snug pb-2 border-b ios-divider">
+            16629 MALABAR · S2/35 · 18:40 TVC
+          </div>
+          <div id="modal-cal-location" class="text-[13px] opacity-70">
+            TVC Railway Station (Platform 2) → CAN
+          </div>
+        </div>
+
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2.5">
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Starts</span>
+            <span id="modal-cal-start" class="font-telemetry font-medium px-2.5 py-1 rounded-md bg-white/10 text-[13px]">06-NOV-2026, 18:40</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="opacity-80">Ends</span>
+            <span id="modal-cal-end" class="font-telemetry font-medium px-2.5 py-1 rounded-md bg-white/10 text-[13px]">02:40 (+1 day)</span>
+          </div>
+        </div>
+
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2.5">
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Calendar</span>
+            <span class="flex items-center gap-1.5 font-medium text-[13px]">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#FF453A]"></span>
+              Apple Calendar (Default)
+            </span>
+          </div>
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Alert 1</span>
+            <span class="text-[13px] opacity-75">3 hours before (Prepare to leave)</span>
+          </div>
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Alert 2</span>
+            <span class="text-[13px] opacity-75">1 hour before (Head to platform)</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="opacity-80">Alert 3</span>
+            <span class="text-[13px] font-semibold text-[#FF453A]">15 minutes before (Board ONLY this train)</span>
+          </div>
+        </div>
+
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-1">
+          <span class="text-[11px] uppercase tracking-wider opacity-50 font-semibold block">Notes</span>
+          <p id="modal-cal-notes" class="text-[12px] leading-relaxed opacity-85 font-telemetry whitespace-pre-line"></p>
+        </div>
+
+        <div class="pt-1 pb-2 space-y-2">
+          <button id="btn-cal-open-ios" class="w-full py-3 px-4 rounded-xl bg-[#FF453A] hover:opacity-95 text-white font-semibold text-[15px] shadow-md transition active:scale-[0.99]">
+            Save to Apple Calendar
+          </button>
+          <button id="btn-cal-share-ios" class="w-full py-2.5 px-4 rounded-xl ios-card font-medium text-[13px] border ios-divider transition active:scale-[0.99]">
+            Share via iOS Sheet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFUSION_PAIRS = {
+      '16629': { clashNo: '16604', clashName: 'Maveli Express', clashTime: '19:30' },
+      '16604': { clashNo: '16629', clashName: 'Malabar Express', clashTime: '18:40' },
+      '16630': { clashNo: '16603', clashName: 'Maveli Express', clashTime: '17:30' },
+      '16603': { clashNo: '16630', clashName: 'Malabar Express', clashTime: '18:15' },
+      '12625': { clashNo: '12623', clashName: 'Trivandrum Mail', clashTime: '14:50' },
+      '12623': { clashNo: '12625', clashName: 'Kerala Express', clashTime: '12:30' },
+      '16347': { clashNo: '16349', clashName: 'Rajya Rani Express', clashTime: '20:30' },
+      '16349': { clashNo: '16347', clashName: 'Mangaluru Express', clashTime: '20:50' },
+      '12076': { clashNo: '12082', clashName: 'Jan Shatabdi Exp', clashTime: '14:30' },
+      '12082': { clashNo: '12076', clashName: 'Jan Shatabdi Exp', clashTime: '14:50' },
+      '20634': { clashNo: '20632', clashName: 'Vande Bharat Exp', clashTime: '16:05' },
+      '20632': { clashNo: '20634', clashName: 'Vande Bharat Exp', clashTime: '15:15' }
+    };
+
+    const CLASH_TRANSLATIONS = {
+      '16629': {
+        en: '<strong class="font-telemetry font-bold">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16629</strong>, not 16604.',
+        ml: '<strong class="font-telemetry font-bold">16604 മാവേലി എക്സ്പ്രസ്സ്</strong> 19:30 ന് ഇതേ സ്റ്റേഷനിൽ നിന്ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16629 മലബാർ എക്സ്പ്രസ്സിലാണ്</strong> കയറേണ്ടത്, 16604 മാവേലിയിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16604 मावेली एक्सप्रेस</strong> 19:30 बजे रवाना होगी। ध्यान दें: केवल <strong class="font-telemetry underline text-emerald-400">16629 मलाबार एक्सप्रेस</strong> में ही बैठें, 16604 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16604 மாவோலி எக்ஸ்பிரஸ்</strong> 19:30 மணிக்கு புறப்படும். கவனம்: <strong class="font-telemetry underline text-emerald-400">16629</strong> ரயிலில் மட்டுமே ஏறவும், 16604 இல் ஏற வேண்டாம்!'
+      },
+      '16604': {
+        en: '<strong class="font-telemetry font-bold">16629 MALABAR EXP</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">18:40</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16604</strong>, not 16629.',
+        ml: '<strong class="font-telemetry font-bold">16629 മലബാർ എക്സ്പ്രസ്സ്</strong> 18:40 ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16604 മാവേലിയിലാണ്</strong> കയറേണ്ടത്, 16629 മലബാറിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16629 मलाबार एक्सप्रेस</strong> 18:40 बजे रवाना होगी। केवल <strong class="font-telemetry underline text-emerald-400">16604</strong> में ही बैठें, 16629 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16629 மலபார் எக்ஸ்பிரஸ்</strong> 18:40 மணிக்கு புறப்படும். கவனம்: <strong class="font-telemetry underline text-emerald-400">16604</strong> ரயிலில் மட்டுமே ஏறவும்!'
+      }
+    };
+
+    const STATION_NAMES = {
+      'TVC': 'Thiruvananthapuram',
+      'CAN': 'Kannur Main',
+      'MAQ': 'Mangaluru Central',
+      'CLT': 'Kozhikode',
+      'ERS': 'Ernakulam South',
+      'ERN': 'Ernakulam Town',
+      'NDLS': 'New Delhi',
+      'KGQ': 'Kasaragod',
+      'MAS': 'Chennai Central',
+      'SBC': 'Bengaluru City',
+      'CSMT': 'Mumbai CSMT',
+      'HWH': 'Howrah Junction'
+    };
+
+    const STORAGE_KEY = 'trainguard_saved_ticket_v1';
+    const STORAGE_PF_KEY = 'trainguard_saved_platform_v1';
+
+    const PRESETS = {
+      malabar: `PNR: 4447552121
+Train: 16629 / MALABAR EXPRESS
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 18:40
+To: CAN (Kannur)
+Coach: S2, Berth: 35, Mid Berth (MB)
+Status: CNF`,
+
+      vandeBharat: `PNR: 8821903412
+Train: 20634 / VANDE BHARAT EXP
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 16:05
+To: KGQ (Kasaragod)
+Coach: C3, Berth: 42, Window (WS)
+Status: CNF`,
+
+      keralaExp: `PNR: 2190441582
+Train: 12625 / KERALA EXPRESS
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 12:30
+To: NDLS (New Delhi)
+Coach: B2, Berth: 21, Lower Berth (LB)
+Status: CNF`,
+
+      janShatabdi: `PNR: 6632194810
+Train: 12076 / JAN SHATABDI EXP
+Date of Journey: 06-11-2026
+From: CLT (Kozhikode) at 14:50
+To: TVC (Thiruvananthapuram)
+Coach: D1, Berth: 55, Window (WS)
+Status: CNF`
+    };
+
+    let currentTicketData = null;
+    let currentPlatform = 'PF 2';
+    let currentClashLang = 'en';
+    let deferredInstallPrompt = null;
+    let countdownIntervalId = null;
+    let isSoundEnabled = true;
+
+    // UI elements
+    const elInput = document.getElementById('ticket-input');
+    const elExpectedInput = document.getElementById('expected-train-input');
+    const elTravelSelect = document.getElementById('travel-mins-select');
+    const elBtnSample = document.getElementById('btn-quick-sample');
+    const elBtnClear = document.getElementById('btn-clear-input');
+    const elBtnParse = document.getElementById('btn-parse-ticket');
+    const elBtnTestMismatch = document.getElementById('btn-test-mismatch');
+    const elBtnPasteClipboard = document.getElementById('btn-paste-clipboard');
+    const elBtnCalendar = document.getElementById('btn-export-calendar');
+    const elBtnGoogleCal = document.getElementById('btn-google-calendar');
+    const elBtnWhatsApp = document.getElementById('btn-whatsapp-share');
+    const elBtnWakeAlarm = document.getElementById('btn-wake-alarm');
+    const elBtnShareLink = document.getElementById('btn-share-link');
+    const elBtnSaveImage = document.getElementById('btn-save-image');
+    const elGlobalToast = document.getElementById('global-toast');
+    const elBtnInstall = document.getElementById('btn-install-pwa');
+    const elInstallDrawer = document.getElementById('pwa-install-drawer');
+    const elBtnCloseInstall = document.getElementById('btn-close-install');
+    const elBtnSound = document.getElementById('btn-sound-toggle');
+    const elSoundIconSvg = document.getElementById('sound-icon-svg');
+    const elRakeContainer = document.getElementById('rake-container');
+    const elRakePositionHint = document.getElementById('rake-position-hint');
+
+    const elBtnPlatformToggle = document.getElementById('btn-toggle-platform');
+    const elPlatformPill = document.getElementById('disp-platform-pill');
+    const elPlatformPicker = document.getElementById('platform-picker');
+    const elBtnClosePlatform = document.getElementById('btn-close-platform');
+
+    const elBtnOpenBerthMap = document.getElementById('btn-open-berth-map');
+    const elBerthModal = document.getElementById('berth-modal');
+    const elBtnCloseBerthModal = document.getElementById('btn-close-berth-modal');
+
+    const elCalModal = document.getElementById('apple-cal-modal');
+    const elBtnCalCancel = document.getElementById('btn-cal-cancel');
+    const elBtnCalConfirm = document.getElementById('btn-cal-confirm-add');
+    const elBtnCalOpenIos = document.getElementById('btn-cal-open-ios');
+    const elBtnCalShareIos = document.getElementById('btn-cal-share-ios');
+    const elModalTitle = document.getElementById('modal-cal-title');
+    const elModalLocation = document.getElementById('modal-cal-location');
+    const elModalStart = document.getElementById('modal-cal-start');
+    const elModalEnd = document.getElementById('modal-cal-end');
+    const elModalNotes = document.getElementById('modal-cal-notes');
+
+    const elMismatchBanner = document.getElementById('mismatch-banner');
+    const elMismatchDetail = document.getElementById('mismatch-detail');
+
+    const dispTrainNo = document.getElementById('disp-train-no');
+    const dispTrainName = document.getElementById('disp-train-name');
+    const dispStation = document.getElementById('disp-station');
+    const dispOriginCity = document.getElementById('disp-origin-city');
+    const dispDest = document.getElementById('disp-dest');
+    const dispDestCity = document.getElementById('disp-dest-city');
+    const dispTime = document.getElementById('disp-time');
+    const dispLeaveTime = document.getElementById('disp-leave-time');
+    const dispLeaveNote = document.getElementById('disp-leave-note');
+    const dispCountdown = document.getElementById('disp-countdown');
+    const dispCoach = document.getElementById('disp-coach');
+    const dispBerth = document.getElementById('disp-berth');
+    const dispDate = document.getElementById('disp-date');
+    const dispPnr = document.getElementById('disp-pnr');
+    const clashBox = document.getElementById('clash-warning');
+    const clashText = document.getElementById('clash-text');
+
+    const elBtnThemeToggle = document.getElementById('btn-theme-toggle');
+    const elThemeToggleIcon = document.getElementById('theme-toggle-icon');
+    const elThemeToggleLabel = document.getElementById('theme-toggle-label');
+
+    function applyTheme(themeKey) {
+      const isLight = (themeKey === 'light');
+      if (isLight) {
+        document.body.classList.add('light-mode');
+        document.body.setAttribute('data-theme', 'light');
+        if (elThemeToggleIcon) {
+          elThemeToggleIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+        }
+        if (elThemeToggleLabel) elThemeToggleLabel.textContent = 'Dark';
+      } else {
+        document.body.classList.remove('light-mode');
+        document.body.setAttribute('data-theme', 'dark');
+        if (elThemeToggleIcon) {
+          elThemeToggleIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+        }
+        if (elThemeToggleLabel) elThemeToggleLabel.textContent = 'Light';
+      }
+      try {
+        localStorage.setItem('trainguard_theme_v2', isLight ? 'light' : 'dark');
+      } catch (e) {}
+
+      if (currentTicketData) {
+        buildCoachRake(currentTicketData.coach);
+      }
+    }
+
+    if (elBtnThemeToggle) {
+      elBtnThemeToggle.addEventListener('click', () => {
+        const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        applyTheme(next);
+        showToast(`Switched to ${next === 'light' ? 'Light' : 'Dark'} mode`);
+      });
+    }
+function playRailwayChime() {
+      if (!isSoundEnabled) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        gain1.gain.setValueAtTime(0.12, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.35);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880, now + 0.16);
+        gain2.gain.setValueAtTime(0.15, now + 0.16);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.16);
+        osc2.stop(now + 0.65);
+      } catch (e) {}
+    }
+
+    elBtnSound.addEventListener('click', () => {
+      isSoundEnabled = !isSoundEnabled;
+      if (isSoundEnabled) {
+        elSoundIconSvg.classList.remove('opacity-40');
+        elBtnSound.title = 'Audio chime enabled';
+        playRailwayChime();
+      } else {
+        elSoundIconSvg.classList.add('opacity-40');
+        elBtnSound.title = 'Audio chime muted';
+      }
+    });
+
+    // Platform Selector logic
+    elBtnPlatformToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elPlatformPicker.classList.toggle('hidden');
+    });
+
+    elBtnClosePlatform.addEventListener('click', () => {
+      elPlatformPicker.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.pf-opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-pf');
+        setPlatform(val);
+        elPlatformPicker.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!elPlatformPicker.contains(e.target) && e.target !== elBtnPlatformToggle) {
+        elPlatformPicker.classList.add('hidden');
+      }
+    });
+
+    function setPlatform(pf) {
+      currentPlatform = pf;
+      elPlatformPill.textContent = pf;
+      try {
+        localStorage.setItem(STORAGE_PF_KEY, pf);
+      } catch (e) {}
+      triggerHaptic(15);
+      showToast(`Station Platform set to ${pf}`);
+    }
+
+    // Berth Locator Modal Logic
+    function openBerthLocator() {
+      const d = currentTicketData;
+      const bNum = parseInt(d.berthNo, 10) || 35;
+      const bay = Math.ceil(bNum / 8);
+      const bayStart = (bay - 1) * 8 + 1;
+      const isLight = document.body.classList.contains('light-mode');
+
+      document.getElementById('modal-coach-num').textContent = d.coach;
+      document.getElementById('modal-berth-num').textContent = d.berthNo;
+      document.getElementById('modal-berth-type').textContent = d.berthType;
+      document.getElementById('modal-bay-num').textContent = `Bay ${bay}`;
+
+      const mainEl = document.getElementById('bay-main-cubicle');
+      const sideEl = document.getElementById('bay-side-berths');
+
+      const berths = [
+        { num: bayStart, type: 'LB' },
+        { num: bayStart + 1, type: 'MB' },
+        { num: bayStart + 2, type: 'UB' },
+        { num: bayStart + 3, type: 'LB' },
+        { num: bayStart + 4, type: 'MB' },
+        { num: bayStart + 5, type: 'UB' },
+        { num: bayStart + 6, type: 'SL' },
+        { num: bayStart + 7, type: 'SU' }
+      ];
+
+      mainEl.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const item = berths[i];
+        const isYou = (item.num === bNum);
+        const div = document.createElement('div');
+        if (isYou) {
+          div.className = 'p-2 rounded-lg bg-blue-600 text-white font-bold shadow-sm ring-2 ring-blue-400/50';
+          div.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-white mr-1 align-middle"></span>${item.num}<br><span class="text-[9px] uppercase tracking-wider">${item.type} (YOU)</span>`;
+        } else {
+          div.className = isLight 
+            ? 'p-2 rounded-lg bg-slate-100 text-slate-800 border border-slate-200' 
+            : 'p-2 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60';
+          div.innerHTML = `${item.num}<br><span class="text-[9px] opacity-70 uppercase">${item.type}</span>`;
+        }
+        mainEl.appendChild(div);
+      }
+
+      sideEl.innerHTML = '';
+      for (let i = 6; i < 8; i++) {
+        const item = berths[i];
+        const isYou = (item.num === bNum);
+        const div = document.createElement('div');
+        if (isYou) {
+          div.className = 'p-2 rounded-lg bg-blue-600 text-white font-bold shadow-sm ring-2 ring-blue-400/50';
+          div.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-white mr-1 align-middle"></span>${item.num} (${item.type} - YOU)`;
+        } else {
+          div.className = isLight 
+            ? 'p-2 rounded-lg bg-slate-100 text-slate-800 border border-slate-200' 
+            : 'p-2 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60';
+          div.innerHTML = `${item.num} (${item.type})`;
+        }
+        sideEl.appendChild(div);
+      }
+
+      elBerthModal.classList.remove('hidden');
+      triggerHaptic(15);
+    }
+
+    if (elBtnOpenBerthMap) elBtnOpenBerthMap.addEventListener('click', openBerthLocator);
+    if (elBtnCloseBerthModal) elBtnCloseBerthModal.addEventListener('click', () => elBerthModal.classList.add('hidden'));
+    if (elBerthModal) {
+      elBerthModal.addEventListener('click', (e) => {
+        if (e.target === elBerthModal) elBerthModal.classList.add('hidden');
+      });
+    }
+
+    // Multi-Language Clash Alert Toggle
+    document.querySelectorAll('.lang-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.lang-pill').forEach(p => {
+          p.classList.remove('bg-[var(--brand-primary)]', 'text-white', 'font-semibold');
+          p.classList.add('elevated-tile', 'text-[var(--text-secondary)]');
+        });
+        pill.classList.remove('elevated-tile', 'text-[var(--text-secondary)]');
+        pill.classList.add('bg-[var(--brand-primary)]', 'text-white', 'font-semibold');
+
+        currentClashLang = pill.getAttribute('data-lang');
+        updateClashMessage();
+      });
+    });
+
+    function updateClashMessage() {
+      if (!currentTicketData) return;
+      const clash = CONFUSION_PAIRS[currentTicketData.trainNo];
+      if (!clash) {
+        clashBox.classList.add('hidden');
+        return;
+      }
+      clashBox.classList.remove('hidden');
+
+      const pairTrans = CLASH_TRANSLATIONS[currentTicketData.trainNo];
+      if (pairTrans && pairTrans[currentClashLang]) {
+        clashText.innerHTML = pairTrans[currentClashLang];
+      } else {
+        clashText.innerHTML = `<strong class="font-telemetry font-bold">${clash.clashNo} ${clash.clashName.toUpperCase()}</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">${clash.clashTime}</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">${currentTicketData.trainNo}</strong>, not ${clash.clashNo}.`;
+      }
+    }
+
+    function saveTicketOffline(rawText) {
+      try {
+        localStorage.setItem(STORAGE_KEY, rawText);
+        showToast('Ticket saved offline');
+      } catch (e) {}
+    }
+
+    function loadTicketOffline() {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setupPWA() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+    }
+
+    function parseTicketText(raw) {
+      if (!raw || !raw.trim()) return null;
+
+      const text = raw.replace(/[\r\n]+/g, ' ');
+
+      const trainMatch = text.match(/\b([012]\d{4})\b/);
+      const trainNo = trainMatch ? trainMatch[1] : '16629';
+
+      let trainName = 'EXPRESS';
+      const nameMatch = text.match(/(?:Train\s*:?\s*(?:[012]\d{4})?\s*[\/-]?\s*)([A-Za-z\s]+?)(?:Express|Exp)?(?:\b|,|\d|\()/i);
+      if (text.toUpperCase().includes('MALABAR')) trainName = 'MALABAR EXPRESS';
+      else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
+      else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
+      else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
+      else if (text.toUpperCase().includes('JAN SHATABDI')) trainName = 'JAN SHATABDI EXP';
+      else if (nameMatch && nameMatch[1].trim().length > 2) trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
+
+      const timeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+      const time = timeMatch ? timeMatch[0] : '18:40';
+
+      const fromMatch = text.match(/(?:From\s*:?\s*|Dep\s*:?\s*)([A-Z]{2,4})\b/i);
+      const fromStn = fromMatch ? fromMatch[1].toUpperCase() : 'TVC';
+
+      const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,4})\b/i);
+      const toStn = toMatch ? toMatch[1].toUpperCase() : 'CAN';
+
+      const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|C\d{1,2}|D\d{1,2}|E\d{1,2}|GEN)\b/i);
+      const coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
+
+      const berthMatch = text.match(/(?:Berth|Seat|Bth)?\s*:?\s*(\d{1,3})\s*(?:\(([A-Za-z]+)\))?/i);
+      const berthNo = berthMatch ? berthMatch[1] : '35';
+      const berthType = berthMatch && berthMatch[2] ? `(${berthMatch[2].toUpperCase()})` : '(MB)';
+
+      const pnrMatch = text.match(/\b(\d{10})\b/);
+      const pnr = pnrMatch ? pnrMatch[1] : '4447552121';
+
+      const dateMatch = text.match(/\b(\d{1,2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](\d{2,4})\b/);
+      let date = '06-NOV-2026';
+      let year = 2026, month = 10, day = 6;
+
+      if (dateMatch) {
+        day = parseInt(dateMatch[1], 10);
+        const mStr = dateMatch[2];
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const mIdx = months.indexOf(mStr.toUpperCase());
+        if (mIdx !== -1) {
+          month = mIdx;
+        } else {
+          month = parseInt(mStr, 10) - 1;
+        }
+        let y = parseInt(dateMatch[3], 10);
+        year = y < 100 ? 2000 + y : y;
+        date = `${day < 10 ? '0' + day : day}-${months[month]}-${year}`;
+      }
+
+      const [hours, mins] = time.split(':').map(n => parseInt(n, 10));
+
+      return {
+        trainNo, trainName, time, fromStn, toStn, coach, berthNo, berthType, pnr, date,
+        departureDate: new Date(year, month, day, hours, mins, 0)
+      };
+    }
+
+    function buildCoachRake(coach) {
+      if (!elRakeContainer) return;
+      const c = coach.toUpperCase();
+      let coaches = [];
+      let positionText = 'Middle of Platform';
+
+      if (c.startsWith('S')) {
+        coaches = ['LOCO', 'GEN', 'S1', 'S2', 'S3', 'S4', 'S5', 'B1', 'SLR'];
+        positionText = 'Middle-Forward of Platform';
+      } else if (c.startsWith('B') || c.startsWith('M')) {
+        coaches = ['LOCO', 'GEN', 'S6', 'B1', 'B2', 'B3', 'B4', 'A1', 'SLR'];
+        positionText = 'Middle-Rear of Platform (AC Rake)';
+      } else if (c.startsWith('A') || c.startsWith('H')) {
+        coaches = ['LOCO', 'B4', 'B5', 'A1', 'A2', 'H1', 'GEN', 'SLR'];
+        positionText = 'Center of Platform (First/2nd AC)';
+      } else if (c.startsWith('C') || c.startsWith('E') || c.startsWith('D')) {
+        coaches = ['CAB', 'C1', 'C2', 'C3', 'C4', 'E1', 'E2', 'CAB'];
+        positionText = 'Platform Chair Car Markings';
+      } else if (c.includes('GEN') || c.includes('GS')) {
+        coaches = ['LOCO', 'GEN', 'GEN', 'S1', 'S2', 'S3', 'B1', 'SLR'];
+        positionText = 'Extreme End of Platform (Engine / Guard End)';
+      } else {
+        coaches = ['LOCO', 'GEN', 'S1', c, 'B1', 'A1', 'SLR'];
+        positionText = 'Verify Platform Digital Coach Display';
+      }
+
+      if (!coaches.includes(c)) coaches[3] = c;
+
+      if (elRakePositionHint) elRakePositionHint.textContent = positionText;
+
+      const isLight = document.body.classList.contains('light-mode');
+      elRakeContainer.innerHTML = '';
+      coaches.forEach((item, index) => {
+        const isCurrent = (item === c);
+        const span = document.createElement('span');
+        if (isCurrent) {
+          span.className = 'px-2 py-0.5 rounded bg-blue-600 text-white font-semibold font-mono text-xs shadow-sm';
+          span.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-white mr-1 align-middle"></span>${item} (YOU)`;
+        } else {
+          span.className = isLight
+            ? 'px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono text-xs'
+            : 'px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60 font-mono text-xs';
+          span.textContent = item;
+        }
+        elRakeContainer.appendChild(span);
+
+        if (index < coaches.length - 1) {
+          const dash = document.createElement('span');
+          dash.className = isLight ? 'text-slate-300' : 'text-slate-600';
+          dash.textContent = '-';
+          elRakeContainer.appendChild(dash);
+        }
+      });
+    }
+
+    function startLiveCountdown(departureDate, timeStr) {
+      if (countdownIntervalId) clearInterval(countdownIntervalId);
+
+      const tick = () => {
+        const now = new Date();
+        const diffMs = departureDate.getTime() - now.getTime();
+
+        if (diffMs > 0) {
+          const totalSec = Math.floor(diffMs / 1000);
+          const h = Math.floor(totalSec / 3600);
+          const m = Math.floor((totalSec % 3600) / 60);
+          const s = totalSec % 60;
+          const pad = (n) => String(n).padStart(2, '0');
+
+          if (h > 0) {
+            dispCountdown.textContent = `In ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+          } else {
+            dispCountdown.textContent = `BOARDING: ${pad(m)}m ${pad(s)}s`;
+          }
+        } else if (diffMs > -3600000) {
+          const pastMins = Math.abs(Math.floor(diffMs / 60000));
+          dispCountdown.textContent = `Departed ${pastMins}m ago`;
+        } else {
+          dispCountdown.textContent = `Dep ${timeStr}`;
+        }
+      };
+
+      tick();
+      countdownIntervalId = setInterval(tick, 1000);
+    }
+
+    function updateLeaveTimeAndMismatch(data) {
+      if (!data) return;
+
+      const travelMins = parseInt(elTravelSelect.value, 10) || 30;
+      const stationBufferMins = 30;
+      const totalLeadMins = travelMins + stationBufferMins;
+
+      const leaveDate = new Date(data.departureDate.getTime() - totalLeadMins * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, '0');
+      dispLeaveTime.textContent = `${pad(leaveDate.getHours())}:${pad(leaveDate.getMinutes())}`;
+      dispLeaveNote.textContent = `(${travelMins}m commute + 30m station buffer = ${totalLeadMins}m before)`;
+
+      const expectedRaw = elExpectedInput.value.trim().toUpperCase();
+      if (expectedRaw.length >= 3) {
+        const matchesNo = data.trainNo.includes(expectedRaw) || expectedRaw.includes(data.trainNo);
+        const matchesName = data.trainName.toUpperCase().includes(expectedRaw) || expectedRaw.includes(data.trainName.split(' ')[0]);
+        if (!matchesNo && !matchesName) {
+          elMismatchBanner.classList.remove('hidden');
+          elMismatchDetail.innerHTML = `You expected <strong class="underline">${expectedRaw}</strong>, but your confirmed ticket is for <strong class="font-telemetry underline">${data.trainNo} ${data.trainName}</strong> departing at <strong class="font-telemetry">${data.time}</strong>.`;
+          return;
+        }
+      }
+      elMismatchBanner.classList.add('hidden');
+    }
+
+    
+    // ==========================================================================
+    // DYNAMIC ISLAND STATE MANAGEMENT & SPRING PHYSICS
+    // ==========================================================================
+    let isIslandExpanded = false;
+    let islandAlertTimeoutId = null;
+
+    const elIsland = document.getElementById('dynamic-island');
+    const elIslandExpView = document.querySelector('.island-expanded-view');
+    const elIslandBtnClose = document.getElementById('island-btn-close');
+    const elIslandBtnJump = document.getElementById('island-btn-jump');
+    const elIslandBtnChime = document.getElementById('island-btn-chime');
+
+    function expandDynamicIsland() {
+      if (!elIsland) return;
+      isIslandExpanded = true;
+      elIsland.classList.add('is-expanded');
+      elIsland.setAttribute('aria-expanded', 'true');
+      if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'false');
+      if (islandAlertTimeoutId) {
+        clearTimeout(islandAlertTimeoutId);
+        islandAlertTimeoutId = null;
+      }
+    }
+
+    function collapseDynamicIsland() {
+      if (!elIsland) return;
+      isIslandExpanded = false;
+      elIsland.classList.remove('is-expanded');
+      elIsland.setAttribute('aria-expanded', 'false');
+      if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'true');
+    }
+
+    function triggerIslandAlert(type) {
+      if (!elIsland) return;
+      if (islandAlertTimeoutId) {
+        clearTimeout(islandAlertTimeoutId);
+        islandAlertTimeoutId = null;
+      }
+      elIsland.classList.remove('is-alerting', 'is-mismatch-alert');
+
+      if (type === 'mismatch') {
+        elIsland.classList.add('is-mismatch-alert');
+      } else if (type === 'clash') {
+        elIsland.classList.add('is-alerting');
+      }
+
+      // Auto-collapse / settle after 3.5s only if not manually expanded
+      islandAlertTimeoutId = setTimeout(() => {
+        if (!isIslandExpanded) {
+          elIsland.classList.remove('is-alerting', 'is-mismatch-alert');
+        }
+        islandAlertTimeoutId = null;
+      }, 3500);
+    }
+
+    if (elIsland) {
+      elIsland.addEventListener('click', (e) => {
+        if (!isIslandExpanded) {
+          expandDynamicIsland();
+        }
+      });
+
+      elIsland.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (isIslandExpanded) collapseDynamicIsland();
+          else expandDynamicIsland();
+        } else if (e.key === 'Escape' && isIslandExpanded) {
+          collapseDynamicIsland();
+        }
+      });
+    }
+
+    if (elIslandBtnClose) {
+      elIslandBtnClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        collapseDynamicIsland();
+      });
+    }
+
+    if (elIslandBtnJump) {
+      elIslandBtnJump.addEventListener('click', (e) => {
+        e.stopPropagation();
+        collapseDynamicIsland();
+        const pass = document.getElementById('boarding-card');
+        if (pass) pass.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
+    if (elIslandBtnChime) {
+      elIslandBtnChime.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof playRailwayChime === 'function') playRailwayChime();
+        showToast('Boarding Chime Played');
+      });
+    }
+
+    // Dismiss expanded island on outside click
+    document.addEventListener('click', (e) => {
+      if (isIslandExpanded && elIsland && !elIsland.contains(e.target)) {
+        collapseDynamicIsland();
+      }
+    });
+
+    function updateDynamicIslandUI(data) {
+      if (!data) return;
+      const compactTrain = document.getElementById('island-compact-train');
+      const compactTime = document.getElementById('island-compact-time');
+      const compactPf = document.getElementById('island-compact-pf');
+
+      const expTrainName = document.getElementById('island-exp-train-name');
+      const expRoute = document.getElementById('island-exp-route');
+      const expSeat = document.getElementById('island-exp-seat');
+      const clashChip = document.getElementById('island-clash-chip');
+      const clashDot = document.getElementById('island-clash-dot');
+      const clashText = document.getElementById('island-clash-text');
+
+      if (compactTrain) compactTrain.textContent = `${data.trainNo} ${(data.trainName || 'EXP').split(' ')[0]}`;
+      if (compactTime) compactTime.textContent = data.time;
+      if (compactPf) compactPf.textContent = currentPlatform;
+
+      if (expTrainName) expTrainName.textContent = `${data.trainNo} ${data.trainName}`;
+      if (expRoute) expRoute.textContent = `${data.fromStn} → ${data.toStn} • Dep ${data.time}`;
+      if (expSeat) expSeat.textContent = `${data.coach} • Berth ${data.berthNo} ${data.berthType}`;
+
+      if (elIsland) {
+        elIsland.setAttribute('aria-label', `Live Passenger Dynamic Island: ${data.trainNo} ${data.trainName} at ${currentPlatform}. Press Enter to expand.`);
+      }
+
+      if (data.clash) {
+        if (clashDot) clashDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0';
+        if (clashText) clashText.textContent = `⚠️ Clash: ${data.clash.clashName} (${data.clash.clashTime})`;
+        if (clashChip) clashChip.style.borderColor = 'var(--gold-border)';
+        triggerIslandAlert('clash');
+      } else {
+        if (clashDot) clashDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0';
+        if (clashText) clashText.textContent = 'No same-station timing clash detected';
+        if (clashChip) clashChip.style.borderColor = 'var(--border-subtle)';
+      }
+
+      syncHardwareDynamicIsland(data);
+    }
+
+    function syncHardwareDynamicIsland(data) {
+      if (window.Capacitor && window.Capacitor.isPluginAvailable && window.Capacitor.isPluginAvailable('LiveActivity')) {
+        try {
+          window.Capacitor.Plugins.LiveActivity.startActivity({
+            trainNumber: String(data.trainNo || '16629'),
+            trainName: String(data.trainName || 'Malabar Express'),
+            coach: String(data.coach || 'B4'),
+            seat: `${data.berthNo || '31'} (${data.berthType || 'SL'})`,
+            platform: String(currentPlatform || 'PF 2'),
+            departureTime: String(data.time || '18:40'),
+            etaMinutes: 105,
+            hasClash: !!data.clash,
+            clashDetails: data.clash ? `⚠️ Clash with ${data.clash.clashName} (${data.clash.clashTime})` : 'No timing clash'
+          }).catch(function(err) { console.debug('Live Activity sync error:', err); });
+        } catch (e) {
+          console.debug('ActivityKit bridge not available in web session');
+        }
+      }
+    }
+
+    function updateCard(data) {
+      if (!data) return;
+      currentTicketData = data;
+
+      dispTrainNo.textContent = data.trainNo;
+      dispTrainName.textContent = data.trainName;
+      dispStation.firstElementChild.textContent = data.fromStn;
+      dispDest.textContent = data.toStn;
+      dispTime.textContent = data.time;
+      dispCoach.textContent = data.coach;
+      dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--text-secondary);">${data.berthType}</span>`;
+      dispDate.textContent = `Date: ${data.date}`;
+      dispPnr.textContent = `PNR: ${data.pnr}`;
+
+      if (dispOriginCity) dispOriginCity.textContent = STATION_NAMES[data.fromStn] || data.fromStn;
+      if (dispDestCity) dispDestCity.textContent = STATION_NAMES[data.toStn] || data.toStn;
+
+      buildCoachRake(data.coach);
+      startLiveCountdown(data.departureDate, data.time);
+      updateClashMessage();
+      updateLeaveTimeAndMismatch(data);
+      updateDynamicIslandUI(data);
+    }
+
+    function generateIcs(data) {
+      const dt = data.departureDate;
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIcsDate = (d) => {
+        return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+      };
+
+      const dtEnd = new Date(dt.getTime() + (8 * 60 * 60 * 1000));
+      const dtStamp = formatIcsDate(new Date()) + 'Z';
+      const startStr = formatIcsDate(dt);
+      const endStr = formatIcsDate(dtEnd);
+
+      const title = `${data.trainNo} ${data.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${data.coach} / Berth ${data.berthNo} · ${data.time} ${data.fromStn} (${currentPlatform})`;
+      const description = `BOARDING SAFEGUARD REMINDER:\\n\\nTrain: ${data.trainNo} - ${data.trainName}\\nPlatform: ${currentPlatform}\\nCoach: ${data.coach} | Berth: ${data.berthNo} ${data.berthType}\\nDeparture: ${data.time} from ${data.fromStn}\\nDestination: ${data.toStn}\\nPNR: ${data.pnr}\\n\\n⚠️ CRITICAL: Check train number ${data.trainNo} on coach body before boarding!`;
+
+      return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//TrainGuard//Train Boarding Reminder//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:trainguard-${data.trainNo}-${Date.now()}@trainguard.local`,
+        `DTSTAMP:${dtStamp}`,
+        `DTSTART:${startStr}`,
+        `DTEND:${endStr}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${description}`,
+        `LOCATION:${data.fromStn} Railway Station - ${currentPlatform}`,
+        'STATUS:CONFIRMED',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:TrainGuard: 3 Hours to Departure. Head towards station.',
+        'TRIGGER:-PT3H',
+        'END:VALARM',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:TrainGuard: 1 Hour! Head to ${currentPlatform}. Look for Train ${data.trainNo}.`,
+        'TRIGGER:-PT1H',
+        'END:VALARM',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:🚨 TrainGuard BOARDING NOW: Board ONLY train ${data.trainNo} at ${currentPlatform}!`,
+        'TRIGGER:-PT15M',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+    }
+
+    function openAppleCalendarPreview() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const shortName = d.trainName.replace(/ EXPRESS| EXP/g, '');
+      elModalTitle.textContent = `${d.trainNo} ${shortName} · ${d.coach}/${d.berthNo} · ${d.time} ${d.fromStn} (${currentPlatform})`;
+      elModalLocation.textContent = `${d.fromStn} Railway Station (${currentPlatform}) → ${d.toStn}`;
+      elModalStart.textContent = `${d.date}, ${d.time}`;
+      const dtEnd = new Date(d.departureDate.getTime() + (8 * 60 * 60 * 1000));
+      const pad = (n) => String(n).padStart(2, '0');
+      elModalEnd.textContent = `${pad(dtEnd.getHours())}:${pad(dtEnd.getMinutes())} (+1 day)`;
+
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let notes = `YOUR EXACT TRAIN: ${d.trainNo} (${d.trainName})\nPlatform: ${currentPlatform}\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nPNR: ${d.pnr}`;
+      if (clash) {
+        notes += `\n\n⚠️ CLASH GUARD: ${clash.clashNo} ${clash.clashName} departs nearby at ${clash.clashTime}. Board ONLY ${d.trainNo}!`;
+      }
+      elModalNotes.textContent = notes;
+      elCalModal.classList.remove('hidden');
+    }
+
+    function triggerNativeAppleCalendar() {
+      if (!currentTicketData) return;
+      const icsData = generateIcs(currentTicketData);
+      const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsData);
+
+      const link = document.createElement('a');
+      link.href = dataUri;
+      link.download = `TrainGuard-${currentTicketData.trainNo}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      elCalModal.classList.add('hidden');
+      showToast('Apple Calendar invite downloaded');
+    }
+
+    async function shareToAppleCalendar() {
+      if (!currentTicketData) return;
+      const icsData = generateIcs(currentTicketData);
+      const fileName = `TrainGuard-${currentTicketData.trainNo}.ics`;
+      try {
+        const file = new File([icsData], fileName, { type: 'text/calendar' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `${currentTicketData.trainNo} Boarding Pass`,
+            files: [file]
+          });
+          elCalModal.classList.add('hidden');
+          return;
+        }
+      } catch (e) {}
+      triggerNativeAppleCalendar();
+    }
+
+    function openGoogleCalendar() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const dt = d.departureDate;
+      const dtEnd = new Date(dt.getTime() + (8 * 60 * 60 * 1000));
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIso = (dateObj) => {
+        return `${dateObj.getFullYear()}${pad(dateObj.getMonth() + 1)}${pad(dateObj.getDate())}T${pad(dateObj.getHours())}${pad(dateObj.getMinutes())}00`;
+      };
+
+      const title = `${d.trainNo} ${d.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${d.coach} / Berth ${d.berthNo} · ${d.time} ${d.fromStn} (${currentPlatform})`;
+      const location = `${d.fromStn} Railway Station - ${currentPlatform}`;
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let details = `TrainGuard Boarding Pass:\nTrain: ${d.trainNo} - ${d.trainName}\nPlatform: ${currentPlatform}\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nDeparture: ${d.time} from ${d.fromStn}\nDestination: ${d.toStn}\nPNR: ${d.pnr}`;
+      if (clash) {
+        details += `\n\n⚠️ IMPORTANT: Train ${clash.clashNo} (${clash.clashName}) departs at ${clash.clashTime}. Verify you board ${d.trainNo}!`;
+      }
+
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatIso(dt)}/${formatIso(dtEnd)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+      window.open(gcalUrl, '_blank');
+    }
+
+    function generateWakeUpAlarm() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const approxDurationHrs = 8;
+      const arrivalDate = new Date(d.departureDate.getTime() + approxDurationHrs * 60 * 60 * 1000);
+      const wakeAlarmDate = new Date(arrivalDate.getTime() - 30 * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIcs = (dateObj) => {
+        return `${dateObj.getFullYear()}${pad(dateObj.getMonth() + 1)}${pad(dateObj.getDate())}T${pad(dateObj.getHours())}${pad(dateObj.getMinutes())}00`;
+      };
+
+      const startStr = formatIcs(wakeAlarmDate);
+      const endStr = formatIcs(arrivalDate);
+      const title = `⏰ WAKE UP: Arriving at ${d.toStn} in 30 mins! (${d.trainNo} Coach ${d.coach})`;
+
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//TrainGuard//Destination Wakeup//EN',
+        'BEGIN:VEVENT',
+        `UID:trainguard-wake-${Date.now()}@trainguard.local`,
+        `DTSTAMP:${formatIcs(new Date())}Z`,
+        `DTSTART:${startStr}`,
+        `DTEND:${endStr}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:TrainGuard Wake-Up Alert: Train ${d.trainNo} approaching ${d.toStn}. Gather luggage and verify Coach ${d.coach}.`,
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:Wake up! 30 mins to ${d.toStn}!`,
+        'TRIGGER:-PT0M',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const link = document.createElement('a');
+      link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+      link.download = `WakeUp-${d.toStn}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`Wake alarm downloaded for 30m before arriving at ${d.toStn}`);
+    }
+
+    function shareToWhatsApp() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let text = `🚂 *TrainGuard Boarding Reminder*\n\n` +
+        `🚆 *Train:* ${d.trainNo} - ${d.trainName}\n` +
+        `🚉 *Platform:* ${currentPlatform}\n` +
+        `📍 *Route:* ${d.fromStn} ➔ ${d.toStn}\n` +
+        `⏰ *Departure:* ${d.time} (${d.date})\n` +
+        `💺 *Seat:* Coach ${d.coach}, Berth ${d.berthNo} ${d.berthType}\n` +
+        `🎫 *PNR:* ${d.pnr}\n`;
+
+      if (clash) {
+        text += `\n⚠️ *CRITICAL:* ${clash.clashNo} ${clash.clashName} departs at ${clash.clashTime}. Make sure to board *${d.trainNo}* at ${currentPlatform}!`;
+      }
+
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function copyShareableLink() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const url = new URL(window.location.href);
+      url.searchParams.set('train', d.trainNo);
+      url.searchParams.set('name', d.trainName);
+      url.searchParams.set('from', d.fromStn);
+      url.searchParams.set('to', d.toStn);
+      url.searchParams.set('coach', d.coach);
+      url.searchParams.set('berth', d.berthNo);
+      url.searchParams.set('btype', d.berthType.replace(/[()]/g, ''));
+      url.searchParams.set('time', d.time);
+      url.searchParams.set('date', d.date);
+      url.searchParams.set('pnr', d.pnr);
+      url.searchParams.set('pf', currentPlatform);
+
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        showToast('Live pass link copied to clipboard');
+      }).catch(() => {
+        showToast('Link generated in browser address bar');
+      });
+    }
+
+    function downloadPassAsImage() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const canvas = document.createElement('canvas');
+      canvas.width = 900;
+      canvas.height = 1100;
+      const ctx = canvas.getContext('2d');
+
+      const isLight = document.body.classList.contains('light-mode');
+      ctx.fillStyle = isLight ? '#F8FAFC' : '#060913';
+      ctx.fillRect(0, 0, 900, 1100);
+
+      ctx.fillStyle = isLight ? '#FFFFFF' : '#0D1322';
+      ctx.strokeStyle = '#E5C172';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(40, 40, 820, 1020, 28);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#A16207' : '#E5C172';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText('TRAINGUARD BOARDING PASS', 70, 95);
+
+      ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+      ctx.font = '20px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${d.date} • PNR: ${d.pnr}`, 830, 95);
+      ctx.textAlign = 'left';
+
+      ctx.strokeStyle = '#E5C17244';
+      ctx.beginPath();
+      ctx.moveTo(40, 130);
+      ctx.lineTo(860, 130);
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#0F172A' : '#F8FAFC';
+      ctx.font = 'bold 52px sans-serif';
+      ctx.fillText(d.fromStn, 70, 210);
+      ctx.textAlign = 'right';
+      ctx.fillText(d.toStn, 830, 210);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+      ctx.font = 'italic 24px serif';
+      ctx.fillText(STATION_NAMES[d.fromStn] || d.fromStn, 70, 245);
+      ctx.textAlign = 'right';
+      ctx.fillText(STATION_NAMES[d.toStn] || d.toStn, 830, 245);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#E5C172';
+      ctx.font = 'bold 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`DEPARTURE: ${d.time}  •  ${currentPlatform}`, 450, 210);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = isLight ? '#F1F5F9' : '#0D1522';
+      ctx.strokeStyle = isLight ? '#CBD5E1' : '#334155';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(70, 280, 760, 220, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#059669' : '#10B981';
+      ctx.font = 'bold 16px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('VERIFIED BOARDING TRAIN NUMBER', 450, 325);
+
+      ctx.fillStyle = isLight ? '#0F172A' : '#F8FAFC';
+      ctx.font = 'bold 94px monospace';
+      ctx.fillText(d.trainNo, 450, 420);
+
+      ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText(d.trainName, 450, 465);
+
+      const drawTile = (x, y, w, h, label, val) => {
+        ctx.fillStyle = isLight ? '#F1F5F9' : '#131A2D';
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 16);
+        ctx.fill();
+        ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+        ctx.font = '18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x + w / 2, y + 35);
+        ctx.fillStyle = isLight ? '#0F172A' : '#F8FAFC';
+        ctx.font = 'bold 36px monospace';
+        ctx.fillText(val, x + w / 2, y + 80);
+      };
+
+      drawTile(70, 530, 240, 105, 'Coach', d.coach);
+      drawTile(330, 530, 240, 105, 'Berth', `${d.berthNo} ${d.berthType}`);
+      drawTile(590, 530, 240, 105, 'Platform', currentPlatform);
+
+      ctx.strokeStyle = '#E5C172';
+      ctx.setLineDash([12, 10]);
+      ctx.beginPath();
+      ctx.moveTo(40, 675);
+      ctx.lineTo(860, 675);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      if (clash) {
+        ctx.fillStyle = isLight ? '#FFF1F2' : '#2A1016';
+        ctx.beginPath();
+        ctx.roundRect(70, 705, 760, 110, 16);
+        ctx.fill();
+        ctx.fillStyle = '#F43F5E';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('CRITICAL: SAME-STATION CLASH SAFEGUARD', 95, 745);
+        ctx.fillStyle = isLight ? '#0F172A' : '#FFFFFF';
+        ctx.font = '18px sans-serif';
+        ctx.fillText(`Train ${clash.clashNo} (${clash.clashName}) departs at ${clash.clashTime}.`, 95, 775);
+        ctx.fillStyle = '#10B981';
+        ctx.font = 'bold 18px monospace';
+        ctx.fillText(`DO NOT BOARD ${clash.clashNo}! BOARD ONLY ${d.trainNo}!`, 95, 800);
+      }
+
+      ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+      ctx.font = '16px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TrainGuard Executive Railway Boarding Pass • Offline Verified', 450, 1030);
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `TrainGuard-${d.trainNo}-${d.coach}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      triggerHaptic(20);
+      showToast(`Pass image saved as TrainGuard-${d.trainNo}-${d.coach}.png`);
+    }
+
+    // 1-Tap Paste from Clipboard
+    elBtnPasteClipboard.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          elInput.value = text;
+          const data = parseTicketText(text);
+          if (data) {
+            updateCard(data);
+            saveTicketOffline(text);
+            playRailwayChime();
+            showToast('Ticket pasted & verified');
+          } else {
+            showToast('Text pasted. Click "Verify My Train" to parse.');
+          }
+        } else {
+          showToast('Clipboard is empty. Copy your IRCTC SMS first.');
+        }
+      } catch (err) {
+        showToast('Browser blocked clipboard access. Please paste manually.');
+      }
+    });
+
+    // Preset button handlers
+    document.getElementById('preset-malabar-clash').addEventListener('click', () => {
+      elInput.value = PRESETS.malabar;
+      elExpectedInput.value = '16604 Maveli';
+      const data = parseTicketText(PRESETS.malabar);
+      setPlatform('PF 2');
+      updateCard(data);
+      saveTicketOffline(PRESETS.malabar);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-vande-bharat').addEventListener('click', () => {
+      elInput.value = PRESETS.vandeBharat;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.vandeBharat);
+      setPlatform('PF 1');
+      updateCard(data);
+      saveTicketOffline(PRESETS.vandeBharat);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-kerala-exp').addEventListener('click', () => {
+      elInput.value = PRESETS.keralaExp;
+      elExpectedInput.value = '12623 Trivandrum Mail';
+      const data = parseTicketText(PRESETS.keralaExp);
+      setPlatform('PF 3');
+      updateCard(data);
+      saveTicketOffline(PRESETS.keralaExp);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-jan-shatabdi').addEventListener('click', () => {
+      elInput.value = PRESETS.janShatabdi;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.janShatabdi);
+      setPlatform('PF 1');
+      updateCard(data);
+      saveTicketOffline(PRESETS.janShatabdi);
+      playRailwayChime();
+    });
+
+    elBtnSample.addEventListener('click', () => {
+      elInput.value = PRESETS.malabar;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.malabar);
+      setPlatform('PF 2');
+      updateCard(data);
+      saveTicketOffline(PRESETS.malabar);
+      playRailwayChime();
+    });
+
+    elBtnClear.addEventListener('click', () => {
+      elInput.value = '';
+      elExpectedInput.value = '';
+      elMismatchBanner.classList.add('hidden');
+      elInput.focus();
+    });
+
+    elBtnParse.addEventListener('click', () => {
+      const text = elInput.value.trim();
+      if (!text) {
+        elInput.placeholder = 'Please paste your ticket text here first.';
+        return;
+      }
+      const data = parseTicketText(text);
+      updateCard(data);
+      saveTicketOffline(text);
+      playRailwayChime();
+    });
+
+    elBtnTestMismatch.addEventListener('click', () => {
+      elInput.value = PRESETS.malabar;
+      elExpectedInput.value = '16604 Maveli';
+      const data = parseTicketText(PRESETS.malabar);
+      updateCard(data);
+      playRailwayChime();
+    });
+
+    dispTrainNo.addEventListener('click', () => {
+      if (currentTicketData) {
+        navigator.clipboard.writeText(currentTicketData.trainNo);
+        showToast(`Copied train number ${currentTicketData.trainNo}`);
+      }
+    });
+
+    elExpectedInput.addEventListener('input', () => {
+      if (currentTicketData) updateLeaveTimeAndMismatch(currentTicketData);
+    });
+
+    elTravelSelect.addEventListener('change', () => {
+      if (currentTicketData) updateLeaveTimeAndMismatch(currentTicketData);
+    });
+
+    elBtnCalendar.addEventListener('click', openAppleCalendarPreview);
+    elBtnGoogleCal.addEventListener('click', openGoogleCalendar);
+    elBtnWhatsApp.addEventListener('click', shareToWhatsApp);
+    elBtnWakeAlarm.addEventListener('click', generateWakeUpAlarm);
+    elBtnShareLink.addEventListener('click', copyShareableLink);
+    elBtnSaveImage.addEventListener('click', downloadPassAsImage);
+
+    elBtnCalCancel.addEventListener('click', () => elCalModal.classList.add('hidden'));
+    elBtnCalConfirm.addEventListener('click', triggerNativeAppleCalendar);
+    elBtnCalOpenIos.addEventListener('click', triggerNativeAppleCalendar);
+    elBtnCalShareIos.addEventListener('click', shareToAppleCalendar);
+
+    elCalModal.addEventListener('click', (e) => {
+      if (e.target === elCalModal) elCalModal.classList.add('hidden');
+    });
+
+    elBtnInstall.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        elInstallDrawer.classList.toggle('hidden');
+      }
+    });
+
+    elBtnCloseInstall.addEventListener('click', () => {
+      elInstallDrawer.classList.add('hidden');
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    // Check for Deep-link URL parameters
+    function parseUrlParams() {
+      const p = new URLSearchParams(window.location.search);
+      const train = p.get('train');
+      if (train) {
+        const time = p.get('time') || '18:40';
+        const date = p.get('date') || '06-NOV-2026';
+        const [h, m] = time.split(':').map(n => parseInt(n, 10));
+        return {
+          trainNo: train,
+          trainName: p.get('name') || 'EXPRESS',
+          fromStn: (p.get('from') || 'TVC').toUpperCase(),
+          toStn: (p.get('to') || 'CAN').toUpperCase(),
+          coach: (p.get('coach') || 'S2').toUpperCase(),
+          berthNo: p.get('berth') || '35',
+          berthType: `(${p.get('btype') || 'MB'})`,
+          pnr: p.get('pnr') || '4447552121',
+          date: date,
+          departureDate: new Date(2026, 10, 6, h, m, 0)
+        };
+      }
+      return null;
+    }
+
+    window.addEventListener('load', () => {
+      setupPWA();
+
+      const savedTheme = localStorage.getItem('trainguard_theme_v2') || 'dark';
+      applyTheme(savedTheme);
+
+      const savedPf = localStorage.getItem(STORAGE_PF_KEY);
+      if (savedPf) currentPlatform = savedPf;
+      elPlatformPill.textContent = currentPlatform;
+
+      const urlData = parseUrlParams();
+      if (urlData) {
+        updateCard(urlData);
+        showToast('Boarding pass loaded from shared link');
+        return;
+      }
+
+      const saved = loadTicketOffline();
+      const initialText = saved || PRESETS.malabar;
+      if (saved) elInput.value = saved;
+      const initialData = parseTicketText(initialText);
+      updateCard(initialData);
+    });
+  </script>
+</body>
+</html>
