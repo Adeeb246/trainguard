@@ -609,6 +609,16 @@
           <span class="hidden md:inline">Chime</span>
         </button>
 
+        <!-- Haptics Tactile Toggle -->
+        <button id="btn-haptic-toggle" title="Toggle Tactile Haptics" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition min-h-[36px] flex items-center gap-1.5">
+          <svg id="haptic-icon-svg" class="w-4 h-4 text-[var(--brand-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 1 0 8"/>
+            <path d="M6 8a6 6 0 0 0 0 8"/>
+            <rect width="8" height="14" x="8" y="5" rx="1.5"/>
+          </svg>
+          <span class="hidden md:inline">Haptic</span>
+        </button>
+
         <!-- Standard Dark / Light Mode Toggle Button -->
         <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition min-h-[36px] flex items-center gap-1.5" title="Switch between Dark and Light mode">
           <span id="theme-toggle-icon" class="w-4 h-4 flex items-center justify-center">
@@ -1536,11 +1546,181 @@ function playRailwayChime() {
       }
     });
 
-    function triggerHaptic(ms = 15) {
+    // ==========================================================================
+    // MULTI-TIER HAPTIC ENGINE (Capacitor iOS Taptic Engine, Web Vibration API, Tactile Audio)
+    // ==========================================================================
+    let isHapticEnabled = true;
+    try {
+      const savedHaptic = localStorage.getItem('trainguard_haptic_enabled');
+      if (savedHaptic !== null) isHapticEnabled = (savedHaptic === 'true');
+    } catch (e) {}
+
+    let lastHapticTs = 0;
+    let audioHapticCtx = null;
+
+    function playMicroTactileClick(style = 'light') {
       try {
-        if ('vibrate' in navigator) navigator.vibrate(ms);
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!audioHapticCtx) {
+          audioHapticCtx = new AudioCtx();
+        }
+        if (audioHapticCtx.state === 'suspended') {
+          audioHapticCtx.resume();
+        }
+        const now = audioHapticCtx.currentTime;
+        const osc = audioHapticCtx.createOscillator();
+        const gain = audioHapticCtx.createGain();
+
+        // 6-22ms damped mechanical impulse mimicking hardware tactile switches
+        let freq = 125;
+        let dur = 0.012;
+        let vol = 0.04;
+
+        if (style === 'selection') {
+          freq = 155; dur = 0.008; vol = 0.035;
+        } else if (style === 'medium') {
+          freq = 105; dur = 0.016; vol = 0.055;
+        } else if (style === 'heavy') {
+          freq = 75; dur = 0.024; vol = 0.07;
+        } else if (style === 'warning' || style === 'danger') {
+          freq = 180; dur = 0.032; vol = 0.08;
+        } else if (style === 'success') {
+          freq = 140; dur = 0.018; vol = 0.06;
+        }
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + dur);
+
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+        osc.connect(gain);
+        gain.connect(audioHapticCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + dur);
       } catch (e) {}
     }
+
+    function triggerHaptic(type = 'light') {
+      if (!isHapticEnabled) return;
+
+      const now = Date.now();
+      if (now - lastHapticTs < 60) return; // Prevent double-trigger within 60ms
+      lastHapticTs = now;
+
+      // Normalize numeric ms from legacy callers (e.g. triggerHaptic(15))
+      let style = type;
+      if (typeof type === 'number') {
+        if (type <= 10) style = 'selection';
+        else if (type <= 20) style = 'light';
+        else if (type <= 35) style = 'medium';
+        else style = 'heavy';
+      }
+
+      // 1. Native iOS / Android Capacitor Plugin (Real Apple Taptic Engine)
+      const capHaptics = window.Capacitor?.Plugins?.Haptics;
+      if (capHaptics) {
+        try {
+          if (style === 'selection') {
+            capHaptics.selectionChanged();
+          } else if (style === 'light') {
+            capHaptics.impact({ style: 'LIGHT' });
+          } else if (style === 'medium') {
+            capHaptics.impact({ style: 'MEDIUM' });
+          } else if (style === 'heavy') {
+            capHaptics.impact({ style: 'HEAVY' });
+          } else if (style === 'success') {
+            capHaptics.notification({ type: 'SUCCESS' });
+          } else if (style === 'warning' || style === 'danger') {
+            capHaptics.notification({ type: 'WARNING' });
+          } else if (style === 'error') {
+            capHaptics.notification({ type: 'ERROR' });
+          }
+          return;
+        } catch (e) {}
+      }
+
+      // 2. Web Vibration API (Android Chrome, Firefox, Mobile Edge)
+      let vibrated = false;
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try {
+          if (style === 'selection') {
+            vibrated = navigator.vibrate(8);
+          } else if (style === 'light') {
+            vibrated = navigator.vibrate(14);
+          } else if (style === 'medium') {
+            vibrated = navigator.vibrate(26);
+          } else if (style === 'heavy') {
+            vibrated = navigator.vibrate(45);
+          } else if (style === 'success') {
+            vibrated = navigator.vibrate([15, 30, 20]);
+          } else if (style === 'warning' || style === 'danger') {
+            vibrated = navigator.vibrate([35, 45, 35]);
+          } else if (style === 'error') {
+            vibrated = navigator.vibrate([50, 40, 50, 40]);
+          }
+        } catch (e) {}
+      }
+
+      // 3. Tactile Micro-Click Fallback for iOS Safari Web / Desktop
+      if (!vibrated) {
+        playMicroTactileClick(style);
+      }
+    }
+
+    const elBtnHaptic = document.getElementById('btn-haptic-toggle');
+    const elHapticIconSvg = document.getElementById('haptic-icon-svg');
+    if (elBtnHaptic) {
+      if (!isHapticEnabled && elHapticIconSvg) {
+        elHapticIconSvg.classList.add('opacity-40');
+        elBtnHaptic.title = 'Tactile haptics muted';
+      }
+      elBtnHaptic.addEventListener('click', () => {
+        isHapticEnabled = !isHapticEnabled;
+        try {
+          localStorage.setItem('trainguard_haptic_enabled', String(isHapticEnabled));
+        } catch (e) {}
+
+        if (isHapticEnabled) {
+          if (elHapticIconSvg) elHapticIconSvg.classList.remove('opacity-40');
+          elBtnHaptic.title = 'Tactile haptics enabled';
+          triggerHaptic('success');
+          showToast('Tactile Haptics Enabled');
+        } else {
+          if (elHapticIconSvg) elHapticIconSvg.classList.add('opacity-40');
+          elBtnHaptic.title = 'Tactile haptics muted';
+          showToast('Tactile Haptics Muted');
+        }
+      });
+    }
+
+    // Attach zero-latency tactile feedback on finger contact (pointerdown) for all buttons
+    document.addEventListener('pointerdown', (e) => {
+      const target = e.target;
+      if (!target) return;
+      const btn = target.closest('button, [role="button"], .pf-opt, .lang-pill, .chip-btn, summary, select, input[type="button"], input[type="submit"]');
+      if (!btn) return;
+
+      if (btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+
+      let style = btn.getAttribute('data-haptic');
+      if (!style) {
+        if (btn.id === 'btn-test-mismatch' || btn.id === 'btn-clear-input' || btn.classList.contains('text-[#FF453A]')) {
+          style = 'warning';
+        } else if (btn.id === 'btn-parse-ticket' || btn.id === 'btn-empty-paste' || btn.id === 'btn-export-calendar' || btn.id === 'btn-save-image' || btn.id === 'btn-empty-demo') {
+          style = 'medium';
+        } else if (btn.classList.contains('pf-opt') || btn.classList.contains('lang-pill') || btn.id === 'btn-theme-toggle' || btn.id === 'btn-sound-toggle' || btn.id === 'btn-haptic-toggle') {
+          style = 'selection';
+        } else {
+          style = 'light';
+        }
+      }
+
+      triggerHaptic(style);
+    }, { passive: true });
 
     function setPlatform(pf) {
       currentPlatform = pf;
@@ -1548,7 +1728,7 @@ function playRailwayChime() {
       try {
         localStorage.setItem(STORAGE_PF_KEY, pf);
       } catch (e) {}
-      triggerHaptic(15);
+      triggerHaptic('selection');
       showToast(`Station Platform set to ${pf}`);
     }
 
@@ -1618,7 +1798,7 @@ function playRailwayChime() {
       }
 
       elBerthModal.classList.remove('hidden');
-      triggerHaptic(15);
+      triggerHaptic('medium');
     }
 
     if (elBtnOpenBerthMap) elBtnOpenBerthMap.addEventListener('click', openBerthLocator);
@@ -1880,6 +2060,7 @@ function playRailwayChime() {
     function expandDynamicIsland() {
       if (!elIsland) return;
       isIslandExpanded = true;
+      triggerHaptic('medium');
       elIsland.classList.add('is-expanded');
       elIsland.setAttribute('aria-expanded', 'true');
       if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'false');
@@ -1892,6 +2073,7 @@ function playRailwayChime() {
     function collapseDynamicIsland() {
       if (!elIsland) return;
       isIslandExpanded = false;
+      triggerHaptic('light');
       elIsland.classList.remove('is-expanded');
       elIsland.setAttribute('aria-expanded', 'false');
       if (elIslandExpView) elIslandExpView.setAttribute('aria-hidden', 'true');
@@ -1899,6 +2081,7 @@ function playRailwayChime() {
 
     function triggerIslandAlert(type) {
       if (!elIsland) return;
+      triggerHaptic(type === 'mismatch' ? 'warning' : 'medium');
       if (islandAlertTimeoutId) {
         clearTimeout(islandAlertTimeoutId);
         islandAlertTimeoutId = null;
@@ -2292,8 +2475,10 @@ function playRailwayChime() {
       url.searchParams.set('pf', currentPlatform);
 
       navigator.clipboard.writeText(url.toString()).then(() => {
+        triggerHaptic('success');
         showToast('Live pass link copied to clipboard');
       }).catch(() => {
+        triggerHaptic('selection');
         showToast('Link generated in browser address bar');
       });
     }
@@ -2432,7 +2617,7 @@ function playRailwayChime() {
       a.click();
       document.body.removeChild(a);
 
-      triggerHaptic(20);
+      triggerHaptic('success');
       showToast(`Pass image saved as TrainGuard-${d.trainNo}-${d.coach}.png`);
     }
 
@@ -2447,14 +2632,18 @@ function playRailwayChime() {
             updateCard(data);
             saveTicketOffline(text);
             playRailwayChime();
+            triggerHaptic('success');
             showToast('Ticket pasted & verified');
           } else {
+            triggerHaptic('medium');
             showToast('Text pasted. Click "Verify My Train" to parse.');
           }
         } else {
+          triggerHaptic('warning');
           showToast('Clipboard is empty. Copy your IRCTC SMS first.');
         }
       } catch (err) {
+        triggerHaptic('warning');
         showToast('Browser blocked clipboard access. Please paste manually into the box.');
         elInput.focus();
       }
@@ -2477,6 +2666,7 @@ function playRailwayChime() {
         updateCard(data);
         saveTicketOffline(PRESETS.malabar);
         playRailwayChime();
+        triggerHaptic('success');
         showToast('Sample Malabar Express ticket loaded');
       });
     }
@@ -2548,12 +2738,20 @@ function playRailwayChime() {
       const text = elInput.value.trim();
       if (!text) {
         elInput.placeholder = 'Please paste your ticket text here first.';
+        triggerHaptic('warning');
+        showToast('Please paste IRCTC SMS or ticket text first');
         return;
       }
       const data = parseTicketText(text);
-      updateCard(data);
-      saveTicketOffline(text);
-      playRailwayChime();
+      if (data) {
+        updateCard(data);
+        saveTicketOffline(text);
+        playRailwayChime();
+        triggerHaptic('success');
+      } else {
+        triggerHaptic('warning');
+        showToast('Could not parse train ticket. Please check format.');
+      }
     });
 
     elBtnTestMismatch.addEventListener('click', () => {
@@ -2562,11 +2760,13 @@ function playRailwayChime() {
       const data = parseTicketText(PRESETS.malabar);
       updateCard(data);
       playRailwayChime();
+      triggerHaptic('warning');
     });
 
     dispTrainNo.addEventListener('click', () => {
       if (currentTicketData) {
         navigator.clipboard.writeText(currentTicketData.trainNo);
+        triggerHaptic('selection');
         showToast(`Copied train number ${currentTicketData.trainNo}`);
       }
     });
