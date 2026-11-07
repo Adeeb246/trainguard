@@ -173,18 +173,18 @@
       </div>
 
       <!-- Quick Action Controls -->
-      <div class="flex items-center gap-2">
-        <button id="btn-sound-toggle" title="Toggle Boarding Audio Chime" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px] flex items-center gap-1.5">
-          <span id="sound-icon">🔔</span> <span class="hidden sm:inline">Chime</span>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-sound-toggle" title="Toggle Boarding Audio Chime" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px] flex items-center gap-1">
+          <span id="sound-icon">🔔</span> <span class="hidden md:inline">Chime</span>
         </button>
-        <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
+        <button id="btn-theme-toggle" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
           🌙 Dark
         </button>
-        <button id="btn-install-pwa" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
-          📲 Install
+        <button id="btn-install-pwa" class="text-xs font-medium px-2 sm:px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
+          📲 <span class="hidden xs:inline">Install</span>
         </button>
-        <button id="btn-quick-sample" class="text-xs font-semibold px-3 py-1.5 rounded-xl gold-pill hover:opacity-90 transition min-h-[36px]">
-          Try Sample
+        <button id="btn-quick-sample" class="text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-xl gold-pill hover:opacity-90 transition min-h-[36px]">
+          Sample
         </button>
       </div>
     </header>
@@ -351,7 +351,7 @@
                   <span class="text-white/60 font-medium">Coach Platform Position:</span>
                   <span id="rake-position-hint" class="font-telemetry text-amber-300 font-semibold">Middle-Forward of Platform</span>
                 </div>
-                <div id="rake-container" class="flex items-center justify-center gap-1 overflow-x-auto pb-1 text-[10px] font-telemetry select-none">
+                <div id="rake-container" class="flex items-center justify-start sm:justify-center gap-1 overflow-x-auto pb-1 text-[10px] font-telemetry select-none">
                   <!-- Dynamically populated by JS -->
                 </div>
               </div>
