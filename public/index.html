@@ -1621,46 +1621,60 @@ Status: CNF`
     let lastHapticTs = 0;
     let audioHapticCtx = null;
 
+    // Tactile Audio Feedback for Web (iOS Safari, PC, Desktop browsers)
     function playMicroTactileClick(style = 'light') {
       try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        if (!audioHapticCtx) {
-          audioHapticCtx = new AudioCtx();
-        }
-        if (audioHapticCtx.state === 'suspended') {
-          audioHapticCtx.resume();
-        }
-        const now = audioHapticCtx.currentTime;
-        const osc = audioHapticCtx.createOscillator();
-        const gain = audioHapticCtx.createGain();
+        const ctx = getSharedAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
 
-        // 6-22ms damped mechanical impulse mimicking hardware tactile switches
-        let freq = 125;
-        let dur = 0.012;
-        let vol = 0.04;
+        if (style === 'success') {
+          // Double crisp tick
+          [0.0, 0.07].forEach((t, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(idx === 0 ? 520 : 680, now + t);
+            osc.frequency.exponentialRampToValueAtTime(80, now + t + 0.018);
+            gain.gain.setValueAtTime(0.0001, now + t);
+            gain.gain.linearRampToValueAtTime(0.18, now + t + 0.002);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.018);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + t);
+            osc.stop(now + t + 0.018);
+          });
+          return;
+        }
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+
+        // Crisp iOS keyboard-style tactile click
+        let freq = 360;
+        let dur = 0.016;
+        let vol = 0.16;
 
         if (style === 'selection') {
-          freq = 155; dur = 0.008; vol = 0.035;
+          freq = 480; dur = 0.012; vol = 0.14;
         } else if (style === 'medium') {
-          freq = 105; dur = 0.016; vol = 0.055;
+          freq = 280; dur = 0.022; vol = 0.20;
         } else if (style === 'heavy') {
-          freq = 75; dur = 0.024; vol = 0.07;
+          freq = 190; dur = 0.030; vol = 0.24;
         } else if (style === 'warning' || style === 'danger') {
-          freq = 180; dur = 0.032; vol = 0.08;
-        } else if (style === 'success') {
-          freq = 140; dur = 0.018; vol = 0.06;
+          freq = 220; dur = 0.035; vol = 0.22;
         }
 
-        osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(35, now + dur);
+        osc.frequency.exponentialRampToValueAtTime(60, now + dur);
 
-        gain.gain.setValueAtTime(vol, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.002);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
         osc.connect(gain);
-        gain.connect(audioHapticCtx.destination);
+        gain.connect(ctx.destination);
 
         osc.start(now);
         osc.stop(now + dur);
