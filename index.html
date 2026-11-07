@@ -258,6 +258,46 @@
     button, a, select, input, .cursor-pointer {
       cursor: pointer;
     }
+
+    /* Apple Fluid Touch Response for Glass Buttons */
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Browser Fallbacks when backdrop-filter is unsupported (Abi Nandhan guide) */
+    @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      .luxury-pass {
+        background: rgba(16, 23, 38, 0.96) !important;
+      }
+      body.light-mode .luxury-pass {
+        background: rgba(255, 255, 255, 0.97) !important;
+      }
+      .elevated-tile {
+        background: rgba(25, 33, 52, 0.95) !important;
+      }
+      body.light-mode .elevated-tile {
+        background: rgba(241, 245, 249, 0.95) !important;
+      }
+      .ios-sheet {
+        background: rgba(28, 28, 30, 0.98) !important;
+      }
+      body.light-mode .ios-sheet {
+        background: rgba(255, 255, 255, 0.98) !important;
+      }
+    }
+
+    /* Accessibility: Respect Reduced Motion (Abi Nandhan guide) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .bg-glass-ambient {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
