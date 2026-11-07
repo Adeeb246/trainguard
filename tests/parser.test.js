@@ -40,4 +40,20 @@ assert.strictEqual(parseTicketText(''), null, 'Empty string should return null')
 assert.strictEqual(parseTicketText('Random text without train number'), null, 'Non-ticket text should return null');
 console.log('✓ Test 4 Passed: Edge cases handled cleanly');
 
-console.log('\nAll 4 test suites passed! 🎉');
+// Test 5: Vande Bharat Express and Chair Car coach (C3)
+const smsVB = `PNR: 8821903412
+Train: 20634 / VANDE BHARAT EXP
+Date: 06-11-2026
+From: TVC at 16:05
+To: KGQ
+Coach: C3, Seat: 42 (WS)
+Status: CNF`;
+const res5 = parseTicketText(smsVB);
+assert.strictEqual(res5.trainNo, '20634', 'Should extract 20634');
+assert.strictEqual(res5.trainName, 'VANDE BHARAT EXP', 'Should extract Vande Bharat');
+assert.strictEqual(res5.coach, 'C3', 'Should extract Chair Car C3');
+assert.ok(res5.clash, 'Should detect clash for 20634');
+assert.strictEqual(res5.clash.clashNo, '20632', 'Should flag 20632 clash');
+console.log('✓ Test 5 Passed: Vande Bharat & Chair Car parsing');
+
+console.log('\nAll 5 test suites passed! 🎉');

@@ -34,6 +34,8 @@ function parseTicketText(raw) {
   if (text.toUpperCase().includes('MALABAR')) trainName = 'MALABAR EXPRESS';
   else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
   else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
+  else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
+  else if (text.toUpperCase().includes('JAN SHATABDI')) trainName = 'JAN SHATABDI EXP';
   else if (nameMatch && nameMatch[1].trim().length > 2) {
     trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
   }
@@ -49,8 +51,8 @@ function parseTicketText(raw) {
   const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,4})\b/i);
   const toStn = toMatch ? toMatch[1].toUpperCase() : 'MAQ';
 
-  // 5. Coach (e.g., S2, B1, A1, HA1, GEN)
-  const coachMatch = text.match(/(?:Coach\s*:?\s*|\b)([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|GEN)\b/i);
+  // 5. Coach (e.g., S2, B1, A1, HA1, C1, D1, E1, EC, CC, GEN)
+  const coachMatch = text.match(/(?:Coach\s*:?\s*|\b)([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|C\d{1,2}|D\d{1,2}|E\d{1,2}|EC|CC|GEN)\b/i);
   const coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
 
   // 6. Berth / Seat

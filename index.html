@@ -3,61 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07080C">
+  <meta name="theme-color" content="#090A0F">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TrainGuard">
-  <title>TrainGuard — Executive Railway Boarding Pass</title>
+  <link rel="manifest" href="./manifest.json">
+  <title>TrainGuard — Executive Railway Boarding Pass & Platform Concierge</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-canvas: #07080C;
-      --bg-pass: #0E1118;
-      --bg-elevated: #151924;
-      --bg-plaque: #090B10;
-      --text-primary: #F7F4EB;
-      --text-secondary: #A6A9B6;
-      --text-muted: #64687A;
-      --gold-primary: #E5C172;
-      --gold-soft: rgba(229, 193, 114, 0.14);
-      --gold-border: rgba(229, 193, 114, 0.28);
+      --bg-canvas: #090A0F;
+      --bg-pass: #111420;
+      --bg-elevated: #171B2B;
+      --bg-plaque: #0A0D15;
+      --text-primary: #F7F5EE;
+      --text-secondary: #9DA1B4;
+      --text-muted: #64687D;
+      --gold-primary: #ECC774;
+      --gold-soft: rgba(236, 199, 116, 0.12);
+      --gold-border: rgba(236, 199, 116, 0.28);
       --border-subtle: rgba(255, 255, 255, 0.08);
       --emerald-accent: #10B981;
       --crimson-accent: #F43F5E;
+      --blue-accent: #38BDF8;
     }
     body.light-mode {
-      --bg-canvas: #F3EFE6;
-      --bg-pass: #FDFBF7;
-      --bg-elevated: #F4EFE4;
-      --bg-plaque: #141311;
-      --text-primary: #141311;
-      --text-secondary: #5C5852;
+      --bg-canvas: #F4F1EA;
+      --bg-pass: #FFFFFF;
+      --bg-elevated: #F8F6F0;
+      --bg-plaque: #181715;
+      --text-primary: #1C1917;
+      --text-secondary: #57534E;
       --text-muted: #8C867B;
-      --gold-primary: #9E7322;
-      --gold-soft: rgba(158, 115, 34, 0.1);
-      --gold-border: rgba(158, 115, 34, 0.3);
-      --border-subtle: rgba(20, 19, 17, 0.1);
+      --gold-primary: #AF7B18;
+      --gold-soft: rgba(175, 123, 24, 0.1);
+      --gold-border: rgba(175, 123, 24, 0.32);
+      --border-subtle: rgba(28, 25, 23, 0.1);
       --emerald-accent: #059669;
       --crimson-accent: #E11D48;
+      --blue-accent: #0284C7;
     }
     body {
       font-family: 'Outfit', sans-serif;
       background-color: var(--bg-canvas);
       color: var(--text-primary);
       background-image:
-        radial-gradient(circle at 50% -15%, rgba(229, 193, 114, 0.16), transparent 55%),
-        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06), transparent 45%);
+        radial-gradient(circle at 50% -10%, rgba(236, 199, 116, 0.14), transparent 50%),
+        radial-gradient(circle at 95% 85%, rgba(16, 185, 129, 0.06), transparent 45%),
+        radial-gradient(circle at 5% 90%, rgba(56, 189, 248, 0.05), transparent 45%);
       transition: background-color 0.25s ease, color 0.25s ease;
     }
-    .font-syne {
-      font-family: 'Syne', sans-serif;
-    }
-    .font-serif-editorial {
-      font-family: 'Instrument Serif', serif;
-    }
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .font-serif-editorial { font-family: 'Instrument Serif', serif; }
     .font-telemetry {
       font-family: 'Chakra Petch', monospace;
       font-variant-numeric: tabular-nums;
@@ -66,13 +66,13 @@
       background-color: var(--bg-pass);
       border: 1px solid var(--gold-border);
       box-shadow:
-        0 32px 64px -16px rgba(0, 0, 0, 0.75),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        0 24px 50px -12px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
     }
     body.light-mode .luxury-pass {
       box-shadow:
-        0 24px 48px -12px rgba(20, 19, 17, 0.12),
-        0 2px 8px rgba(20, 19, 17, 0.05);
+        0 20px 40px -10px rgba(28, 25, 23, 0.12),
+        0 2px 6px rgba(28, 25, 23, 0.04);
     }
     .elevated-tile {
       background-color: var(--bg-elevated);
@@ -84,14 +84,14 @@
       color: var(--gold-primary);
     }
     .gold-gradient-text {
-      background: linear-gradient(135deg, #FFFFFF 0%, #F5DFB0 48%, #D4A84F 100%);
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8E3B6 45%, #D9A946 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     .plaque-surface {
       background-color: var(--bg-plaque);
       border: 1px solid var(--gold-border);
-      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.65);
+      box-shadow: inset 0 4px 22px rgba(0, 0, 0, 0.75);
     }
     .notch-cutout-l, .notch-cutout-r {
       position: absolute;
@@ -107,9 +107,9 @@
     .notch-cutout-l { left: -14px; }
     .notch-cutout-r { right: -14px; }
     .ios-sheet-backdrop {
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .ios-sheet {
       background-color: #1C1C1E;
@@ -131,16 +131,24 @@
     body.light-mode .ios-divider {
       border-color: rgba(60, 60, 67, 0.15);
     }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(0.97); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start py-6 px-3.5 sm:px-6 antialiased">
+<body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
 
-  <div class="w-full max-w-[470px] mx-auto space-y-5">
+  <!-- Main Container: Responsive Wide Dual-Pane on Desktop / Streamlined on Mobile -->
+  <div class="w-full max-w-6xl mx-auto space-y-6">
 
-    <!-- Luxury Concierge Top Bar -->
-    <header class="flex items-center justify-between px-1">
+    <!-- Luxury Concierge Navigation Bar -->
+    <header class="luxury-pass rounded-2xl px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl gold-pill flex items-center justify-center shadow-lg">
+        <div class="w-10 h-10 rounded-2xl gold-pill flex items-center justify-center shadow-lg shrink-0">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="4" y="3" width="16" height="16" rx="3"/>
             <path d="M4 11h16"/>
@@ -153,259 +161,437 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-syne text-lg font-extrabold tracking-tight">TrainGuard</h1>
+            <h1 class="font-syne text-lg sm:text-xl font-extrabold tracking-tight">TrainGuard</h1>
             <span id="offline-badge" class="font-telemetry text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full gold-pill">
               Offline Ready
             </span>
           </div>
-          <p class="font-serif-editorial italic text-sm tracking-wide" style="color: var(--text-secondary);">
-            Executive Railway Boarding Concierge
+          <p class="font-serif-editorial italic text-xs sm:text-sm tracking-wide" style="color: var(--text-secondary);">
+            Executive Railway Boarding Pass & Platform Clash Concierge
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
-        <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[38px]">
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2">
+        <button id="btn-sound-toggle" title="Toggle Boarding Audio Chime" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px] flex items-center gap-1.5">
+          <span id="sound-icon">🔔</span> <span class="hidden sm:inline">Chime</span>
+        </button>
+        <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
           🌙 Dark
         </button>
-        <button id="btn-install-pwa" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[38px]">
+        <button id="btn-install-pwa" class="text-xs font-medium px-2.5 py-1.5 rounded-xl elevated-tile hover:opacity-85 transition min-h-[36px]">
           📲 Install
         </button>
-        <button id="btn-quick-sample" class="text-xs font-semibold px-3 py-1.5 rounded-xl gold-pill hover:opacity-90 transition min-h-[38px]">
+        <button id="btn-quick-sample" class="text-xs font-semibold px-3 py-1.5 rounded-xl gold-pill hover:opacity-90 transition min-h-[36px]">
           Try Sample
         </button>
       </div>
     </header>
 
+    <!-- Global Toast Notification Banner -->
+    <div id="global-toast" class="hidden luxury-pass rounded-2xl p-3 text-xs text-center font-semibold border transition-all animate-bounce" style="border-color: var(--gold-border); color: var(--gold-primary);">
+      Notification message
+    </div>
+
     <!-- Install Guide Drawer -->
     <section id="pwa-install-drawer" class="hidden luxury-pass rounded-2xl p-4 text-xs space-y-2.5">
       <div class="flex items-center justify-between pb-2 border-b" style="border-color: var(--border-subtle);">
         <span class="font-syne font-bold text-sm" style="color: var(--gold-primary);">Install TrainGuard on Your Phone</span>
-        <button id="btn-close-install" class="px-2 py-0.5 rounded-lg elevated-tile font-bold">✕</button>
+        <button id="btn-close-install" class="px-2.5 py-1 rounded-lg elevated-tile font-bold">✕ Close</button>
       </div>
       <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">
-        Your boarding pass is stored in on-device <code class="font-telemetry">localStorage</code> for zero-signal platform reliability.
+        Your boarding pass is stored on-device in <code class="font-telemetry">localStorage</code> for zero-signal platform reliability. No internet required while on the train.
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-        <div class="elevated-tile rounded-xl p-2.5">
-          <strong class="block mb-0.5">iPhone (Safari)</strong>
-          <span style="color: var(--text-secondary);">Open your live HTTPS link in Safari, tap <strong>Share [↑]</strong>, and select <strong>Add to Home Screen</strong>.</span>
+        <div class="elevated-tile rounded-xl p-3">
+          <strong class="block mb-0.5 text-amber-400">iPhone (Safari)</strong>
+          <span style="color: var(--text-secondary);">Open this link in Safari, tap <strong>Share [↑]</strong>, and select <strong>Add to Home Screen</strong>.</span>
         </div>
-        <div class="elevated-tile rounded-xl p-2.5">
-          <strong class="block mb-0.5">Android (Chrome)</strong>
-          <span style="color: var(--text-secondary);">Tap browser menu <strong>(⋮)</strong> and choose <strong>Add to Home screen</strong>.</span>
+        <div class="elevated-tile rounded-xl p-3">
+          <strong class="block mb-0.5 text-amber-400">Android (Chrome)</strong>
+          <span style="color: var(--text-secondary);">Tap Chrome menu <strong>(⋮)</strong> and tap <strong>Install App</strong> or <strong>Add to Home screen</strong>.</span>
         </div>
       </div>
     </section>
 
     <!-- Expectation Mismatch Alert Banner -->
-    <div id="mismatch-banner" class="hidden rounded-2xl p-4 text-white border-2 border-rose-300 shadow-2xl" style="background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);">
+    <div id="mismatch-banner" class="hidden rounded-2xl p-4 text-white border-2 border-rose-300 shadow-2xl transition-all" style="background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);">
       <div class="flex items-start gap-3">
-        <span class="font-telemetry text-xs font-bold px-2 py-1 bg-black/30 rounded-lg shrink-0">ALERT</span>
-        <div class="space-y-1">
-          <h2 class="font-syne text-sm font-bold uppercase tracking-wider">Stop — Ticket Mismatch Detected</h2>
-          <p id="mismatch-detail" class="text-xs leading-relaxed">
+        <div class="w-8 h-8 rounded-xl bg-black/30 flex items-center justify-center font-telemetry text-base font-bold shrink-0">
+          ⚠️
+        </div>
+        <div class="space-y-1.5 flex-1">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="font-syne text-sm font-bold uppercase tracking-wider">Critical Boarding Mismatch Detected</h2>
+            <span class="text-[10px] uppercase font-telemetry bg-black/40 px-2 py-0.5 rounded-full">Different Train Booked</span>
+          </div>
+          <p id="mismatch-detail" class="text-xs leading-relaxed opacity-95">
             You entered <strong class="underline">16604</strong>, but your ticket is booked on <strong class="font-telemetry underline">16629 MALABAR EXPRESS</strong> departing at <strong class="font-telemetry">18:40</strong>.
           </p>
+          <div class="text-[11px] bg-black/25 rounded-lg p-2 font-medium flex items-center gap-2">
+            <span>🛑</span>
+            <span>Do NOT wait for the other train. Confirm your coach and board the train shown on your ticket below.</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- HERO: Sculpted First-Class Boarding Pass -->
-    <main id="boarding-card" class="luxury-pass rounded-[28px] overflow-hidden relative">
+    <!-- MAIN INTERACTIVE GRID: Boarding Pass Hero (Left) + Inspector & Trip Studio (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-      <!-- Top Gold Foil Header Bar -->
-      <div class="px-5 py-3.5 border-b flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--gold-soft);">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-syne font-bold tracking-wider uppercase text-[11px]" style="color: var(--gold-primary);">First-Class Boarding Pass</span>
-        </div>
-        <div class="flex items-center gap-2.5 font-telemetry text-xs">
-          <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
-          <span style="color: var(--text-muted);">•</span>
-          <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
-        </div>
-      </div>
+      <!-- LEFT COLUMN: The Sculpted First-Class Boarding Pass -->
+      <div class="lg:col-span-7 space-y-4">
 
-      <!-- Route Arc & Station Codes -->
-      <div class="p-5 sm:p-6 pb-4">
-        <div class="grid grid-cols-3 items-center gap-2">
-          <!-- Origin -->
-          <div>
-            <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Boarding from</span>
-            <div id="disp-station" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5">
-              <span>TVC</span>
+        <main id="boarding-card" class="luxury-pass rounded-[28px] overflow-hidden relative">
+
+          <!-- Top Gold Foil Header Bar with Interactive Platform Badge -->
+          <div class="px-5 py-3 border-b flex flex-wrap items-center justify-between gap-2 text-xs" style="border-color: var(--border-subtle); background-color: var(--gold-soft);">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="font-syne font-bold tracking-wider uppercase text-[11px]" style="color: var(--gold-primary);">
+                Verified Railway Pass
+              </span>
             </div>
-            <span class="font-serif-editorial italic text-sm" style="color: var(--text-secondary);">Thiruvananthapuram</span>
-          </div>
 
-          <!-- Curved Route Arc SVG -->
-          <div class="flex flex-col items-center justify-center">
-            <span id="disp-countdown" class="font-telemetry text-[11px] font-bold px-2.5 py-0.5 rounded-full gold-pill mb-1">
-              Dep 18:40
-            </span>
-            <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
-              <path d="M 8 22 Q 60 -2 112 22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" style="color: var(--gold-primary); opacity: 0.6;"/>
-              <circle cx="8" cy="22" r="3.5" fill="currentColor" style="color: var(--gold-primary);"/>
-              <circle cx="60" cy="10" r="4" fill="#10B981"/>
-              <circle cx="112" cy="22" r="3.5" fill="currentColor" style="color: var(--gold-primary);"/>
-            </svg>
-            <span class="text-[10px] font-semibold tracking-wider uppercase" style="color: var(--emerald-accent);">Confirmed Seat</span>
-          </div>
+            <!-- Tappable Platform Selector Pill -->
+            <div class="relative">
+              <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/50 text-amber-300 font-telemetry text-xs font-bold flex items-center gap-1.5 hover:bg-amber-400/30 transition shadow-sm" title="Tap to set platform number announced at station">
+                <span>🚉</span>
+                <span id="disp-platform-pill">PF 2</span>
+                <span class="text-[9px] opacity-70">▾</span>
+              </button>
 
-          <!-- Destination -->
-          <div class="text-right">
-            <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Destination</span>
-            <div class="mt-0.5">
-              <span id="disp-dest" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight">CAN</span>
+              <!-- Platform Dropdown Picker -->
+              <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
+                <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
+                  <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
+                  <button id="btn-close-platform" class="font-bold opacity-60 hover:opacity-100">✕</button>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 font-telemetry text-center">
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
+                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
+                </div>
+                <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
+                  ⏳ TBA (Announcing Soon)
+                </button>
+              </div>
             </div>
-            <span class="font-serif-editorial italic text-sm" style="color: var(--text-secondary);">Kannur Main</span>
-          </div>
-        </div>
 
-        <!-- Hero Train Number Cockpit Plaque -->
-        <div class="plaque-surface rounded-2xl p-5 mt-5 text-center relative overflow-hidden">
-          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5">
-            ✓ Verified Boarding Train Number
+            <div class="flex items-center gap-2.5 font-telemetry text-xs">
+              <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
+              <span style="color: var(--text-muted);">•</span>
+              <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
+            </div>
           </div>
 
-          <div id="disp-train-no" class="font-telemetry text-6xl sm:text-7xl font-bold tracking-tight gold-gradient-text leading-none py-1 select-all">
-            16629
+          <!-- Route Arc & Station Codes -->
+          <div class="p-5 sm:p-6 pb-4">
+            <div class="grid grid-cols-3 items-center gap-2">
+              <!-- Origin -->
+              <div>
+                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Boarding from</span>
+                <div id="disp-station" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5">
+                  <span>TVC</span>
+                </div>
+                <span id="disp-origin-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Thiruvananthapuram</span>
+              </div>
+
+              <!-- Curved Route Arc SVG & Dynamic Countdown Pill -->
+              <div class="flex flex-col items-center justify-center">
+                <span id="disp-countdown" class="font-telemetry text-[11px] font-bold px-2.5 py-0.5 rounded-full gold-pill mb-1 pulse-glow text-center">
+                  In 04h 12m 30s
+                </span>
+                <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
+                  <path d="M 8 22 Q 60 -2 112 22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" style="color: var(--gold-primary); opacity: 0.7;"/>
+                  <circle cx="8" cy="22" r="3.5" fill="currentColor" style="color: var(--gold-primary);"/>
+                  <circle cx="60" cy="10" r="4" fill="#10B981"/>
+                  <circle cx="112" cy="22" r="3.5" fill="currentColor" style="color: var(--gold-primary);"/>
+                </svg>
+                <span class="text-[10px] font-semibold tracking-wider uppercase" style="color: var(--emerald-accent);">Confirmed Seat</span>
+              </div>
+
+              <!-- Destination -->
+              <div class="text-right">
+                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Destination</span>
+                <div class="mt-0.5">
+                  <span id="disp-dest" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight">CAN</span>
+                </div>
+                <span id="disp-dest-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Kannur Main</span>
+              </div>
+            </div>
+
+            <!-- Hero Train Number Cockpit Plaque -->
+            <div class="plaque-surface rounded-2xl p-5 mt-5 text-center relative overflow-hidden">
+              <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5">
+                ✓ Check Coach Boards For This Number
+              </div>
+
+              <div id="disp-train-no" class="font-telemetry text-6xl sm:text-7xl font-bold tracking-tight gold-gradient-text leading-none py-1 select-all cursor-pointer" title="Click to copy train number">
+                16629
+              </div>
+
+              <div id="disp-train-name" class="font-syne text-sm sm:text-base font-bold tracking-[0.18em] uppercase mt-1.5" style="color: var(--gold-primary);">
+                MALABAR EXPRESS
+              </div>
+
+              <!-- Dynamic Coach Rake Position Visualizer -->
+              <div class="mt-4 pt-3 border-t border-white/10">
+                <div class="flex items-center justify-between text-[11px] mb-2 px-1">
+                  <span class="text-white/60 font-medium">Coach Platform Position:</span>
+                  <span id="rake-position-hint" class="font-telemetry text-amber-300 font-semibold">Middle-Forward of Platform</span>
+                </div>
+                <div id="rake-container" class="flex items-center justify-center gap-1 overflow-x-auto pb-1 text-[10px] font-telemetry select-none">
+                  <!-- Dynamically populated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 3-Column Executive Telemetry Row -->
+            <div class="grid grid-cols-3 gap-2.5 mt-4">
+              <div class="elevated-tile rounded-2xl p-3 text-center">
+                <span class="text-xs font-medium block" style="color: var(--text-secondary);">Coach</span>
+                <span id="disp-coach" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">S2</span>
+              </div>
+              <div class="elevated-tile rounded-2xl p-3 text-center">
+                <span class="text-xs font-medium block" style="color: var(--text-secondary);">Berth</span>
+                <span id="disp-berth" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">35 <span class="text-xs font-normal" style="color: var(--text-secondary);">(MB)</span></span>
+              </div>
+              <div class="gold-pill rounded-2xl p-3 text-center">
+                <span class="text-xs font-medium block opacity-85">Departure</span>
+                <span id="disp-time" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">18:40</span>
+              </div>
+            </div>
           </div>
 
-          <div id="disp-train-name" class="font-syne text-sm sm:text-base font-bold tracking-[0.18em] uppercase mt-1.5" style="color: var(--gold-primary);">
-            MALABAR EXPRESS
+          <!-- Perforated Ticket Tear-line & Notches -->
+          <div class="relative h-6 flex items-center justify-center overflow-hidden">
+            <div class="notch-cutout-l"></div>
+            <div class="w-full border-t-2 border-dashed mx-5" style="border-color: var(--gold-border);"></div>
+            <div class="notch-cutout-r"></div>
           </div>
 
-          <!-- Visual Coach Rake Position Indicator -->
-          <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-center gap-1 overflow-x-auto text-[10px] font-telemetry">
-            <span class="px-1.5 py-0.5 rounded bg-white/10 text-white/60">LOCO</span>
-            <span class="text-white/30">-</span>
-            <span class="px-1.5 py-0.5 rounded bg-white/5 text-white/40">GEN</span>
-            <span class="text-white/30">-</span>
-            <span class="px-1.5 py-0.5 rounded bg-white/5 text-white/50">S1</span>
-            <span class="text-white/30">-</span>
-            <span id="rake-active-coach" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold shadow-sm">S2 ★</span>
-            <span class="text-white/30">-</span>
-            <span class="px-1.5 py-0.5 rounded bg-white/5 text-white/50">S3</span>
-            <span class="text-white/30">-</span>
-            <span class="px-1.5 py-0.5 rounded bg-white/5 text-white/50">B1</span>
-            <span class="text-white/30">-</span>
-            <span class="px-1.5 py-0.5 rounded bg-white/5 text-white/40">A1</span>
-          </div>
-        </div>
+          <!-- Bottom Section: Clash Guard, Leave Time & Multi-Platform Actions -->
+          <div class="px-5 sm:px-6 pb-6 pt-2 space-y-4">
 
-        <!-- 3-Column Executive Telemetry Row -->
-        <div class="grid grid-cols-3 gap-2.5 mt-4">
-          <div class="elevated-tile rounded-2xl p-3 text-center">
-            <span class="text-xs font-medium block" style="color: var(--text-secondary);">Coach</span>
-            <span id="disp-coach" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">S2</span>
+            <!-- Same-Station Clash Guard with Multi-Language Switcher -->
+            <div id="clash-warning" class="rounded-2xl p-3.5 border-l-4 elevated-tile" style="border-left-color: var(--crimson-accent);">
+              <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                <span class="font-syne text-xs font-bold uppercase tracking-wider" style="color: var(--crimson-accent);">⚠️ Same-Station Clash Guard</span>
+                <!-- Regional Language Switcher Pills -->
+                <div class="flex items-center gap-1 font-telemetry text-[10px]">
+                  <button class="lang-pill px-1.5 py-0.5 rounded gold-pill font-bold" data-lang="en">EN</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile opacity-75 hover:opacity-100" data-lang="ml">മലയാളം</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile opacity-75 hover:opacity-100" data-lang="hi">हिंदी</button>
+                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile opacity-75 hover:opacity-100" data-lang="ta">தமிழ்</button>
+                </div>
+              </div>
+              <p id="clash-text" class="text-xs leading-relaxed">
+                <strong class="font-telemetry font-bold">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-bold" style="color: var(--gold-primary);">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16629</strong>, not 16604.
+              </p>
+            </div>
+
+            <!-- Leave For Station By Row -->
+            <div class="elevated-tile rounded-2xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold block">Leave home / office by</span>
+                <span id="disp-leave-note" class="text-[11px]" style="color: var(--text-secondary);">(30m commute + 30m station buffer)</span>
+              </div>
+              <span id="disp-leave-time" class="font-telemetry text-2xl font-bold" style="color: var(--gold-primary);">17:40</span>
+            </div>
+
+            <!-- QR Code & Calendar Action Hub -->
+            <div class="elevated-tile rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4">
+              <!-- Stylized Boarding Aztec / QR Code Graphic -->
+              <div class="flex flex-col items-center justify-center p-2 rounded-xl plaque-surface shrink-0" title="TrainGuard Offline Digital Verification Stamp">
+                <svg class="w-16 h-16 text-amber-300" viewBox="0 0 100 100" fill="currentColor">
+                  <rect x="5" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="13" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="65" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="73" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="5" y="65" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                  <rect x="13" y="73" width="14" height="14" rx="2" fill="currentColor"/>
+                  <rect x="42" y="8" width="6" height="6" fill="currentColor"/>
+                  <rect x="52" y="16" width="6" height="6" fill="currentColor"/>
+                  <rect x="42" y="24" width="6" height="6" fill="currentColor"/>
+                  <rect x="10" y="44" width="6" height="6" fill="currentColor"/>
+                  <rect x="22" y="44" width="8" height="6" fill="currentColor"/>
+                  <rect x="36" y="38" width="6" height="14" fill="currentColor"/>
+                  <rect x="48" y="44" width="10" height="10" rx="1" fill="currentColor"/>
+                  <rect x="66" y="44" width="6" height="8" fill="currentColor"/>
+                  <rect x="80" y="44" width="12" height="6" fill="currentColor"/>
+                  <rect x="42" y="65" width="6" height="6" fill="currentColor"/>
+                  <rect x="52" y="72" width="8" height="6" fill="currentColor"/>
+                  <rect x="42" y="82" width="6" height="10" fill="currentColor"/>
+                  <rect x="68" y="66" width="8" height="8" fill="currentColor"/>
+                  <rect x="82" y="66" width="10" height="6" fill="currentColor"/>
+                  <rect x="72" y="80" width="6" height="12" fill="currentColor"/>
+                  <rect x="84" y="78" width="8" height="14" fill="currentColor"/>
+                </svg>
+                <span class="text-[9px] font-telemetry uppercase tracking-wider text-white/50 mt-1">OFFLINE CNF</span>
+              </div>
+
+              <!-- Multi-Action Hub -->
+              <div class="w-full space-y-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button id="btn-export-calendar" class="py-2.5 px-3 rounded-xl font-syne font-bold text-xs text-slate-950 shadow-md transition active:scale-[0.98] flex items-center justify-center gap-1.5" style="background: linear-gradient(135deg, #F5DFB0 0%, #D4A84F 100%);">
+                    <span>🍎 Apple Calendar (.ics)</span>
+                  </button>
+                  <button id="btn-google-calendar" class="py-2.5 px-3 rounded-xl font-syne font-bold text-xs elevated-tile hover:bg-white/10 transition active:scale-[0.98] flex items-center justify-center gap-1.5 text-sky-400">
+                    <span>📅 Google Calendar</span>
+                  </button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button id="btn-whatsapp-share" class="py-2 px-2 rounded-xl text-xs font-semibold elevated-tile hover:opacity-85 transition flex items-center justify-center gap-1 text-emerald-400">
+                    <span>💬 WhatsApp</span>
+                  </button>
+                  <button id="btn-wake-alarm" class="py-2 px-2 rounded-xl text-xs font-semibold elevated-tile hover:opacity-85 transition flex items-center justify-center gap-1 text-amber-300" title="Set a 30m wake-up alarm before reaching destination">
+                    <span>⏰ Wake Alarm</span>
+                  </button>
+                  <button id="btn-share-link" class="py-2 px-2 rounded-xl text-xs font-semibold elevated-tile hover:opacity-85 transition flex items-center justify-center gap-1 text-cyan-300" title="Copy shareable link with pre-filled pass">
+                    <span>🔗 Share Link</span>
+                  </button>
+                  <button id="btn-save-image" class="py-2 px-2 rounded-xl text-xs font-semibold elevated-tile hover:opacity-85 transition flex items-center justify-center gap-1 text-purple-300" title="Save pass as HD image for phone gallery or lock screen">
+                    <span>📸 Save Image</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indian Railways Emergency Helpline Bar -->
+            <div class="pt-1 flex flex-wrap items-center justify-between text-[11px] gap-2 border-t border-white/10" style="color: var(--text-secondary);">
+              <span class="font-medium text-white/70">Emergency Helplines:</span>
+              <div class="flex items-center gap-3 font-telemetry">
+                <a href="tel:139" class="hover:text-amber-400 transition flex items-center gap-1">📞 139 (Security/Enquiry)</a>
+                <span>•</span>
+                <a href="tel:112" class="hover:text-rose-400 transition flex items-center gap-1">🚑 112 (Medical)</a>
+                <span>•</span>
+                <a href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener" class="hover:text-sky-400 transition flex items-center gap-1">🛡️ RailMadad</a>
+              </div>
+            </div>
+
           </div>
-          <div class="elevated-tile rounded-2xl p-3 text-center">
-            <span class="text-xs font-medium block" style="color: var(--text-secondary);">Berth</span>
-            <span id="disp-berth" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">35 <span class="text-xs font-normal" style="color: var(--text-secondary);">(MB)</span></span>
-          </div>
-          <div class="gold-pill rounded-2xl p-3 text-center">
-            <span class="text-xs font-medium block opacity-85">Departure</span>
-            <span id="disp-time" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block">18:40</span>
-          </div>
-        </div>
+        </main>
+
       </div>
 
-      <!-- Perforated Ticket Divider -->
-      <div class="relative h-6 flex items-center justify-center overflow-hidden">
-        <div class="notch-cutout-l"></div>
-        <div class="w-full border-t border-dashed mx-5" style="border-color: var(--gold-border);"></div>
-        <div class="notch-cutout-r"></div>
-      </div>
+      <!-- RIGHT COLUMN: Ticket Inspector, Expectation Mismatch Studio & Fast Presets -->
+      <div class="lg:col-span-5 space-y-4">
 
-      <!-- Bottom Section: Clash Guard, Leave Time & Apple Calendar Action -->
-      <div class="px-5 sm:px-6 pb-6 pt-2 space-y-4">
-
-        <!-- Same-Station Clash Guard -->
-        <div id="clash-warning" class="rounded-2xl p-3.5 border-l-4 elevated-tile" style="border-left-color: var(--crimson-accent);">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-syne text-xs font-bold uppercase tracking-wider" style="color: var(--crimson-accent);">⚠️ Same-Station Clash Guard</span>
-            <span class="font-telemetry text-[11px] font-semibold px-2 py-0.5 rounded bg-rose-500/15 text-rose-400">±50m Window</span>
+        <!-- Quick 1-Click Test Scenarios Card -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-syne text-xs font-bold uppercase tracking-wider" style="color: var(--gold-primary);">
+              ⚡ Quick Test Scenarios
+            </h3>
+            <span class="text-[10px] font-telemetry opacity-60">1-Click Presets</span>
           </div>
-          <p id="clash-text" class="text-xs leading-relaxed">
-            <strong class="font-telemetry font-bold">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-bold" style="color: var(--gold-primary);">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16629</strong>, not 16604.
-          </p>
-        </div>
-
-        <!-- Leave For Station By Row -->
-        <div class="elevated-tile rounded-2xl px-4 py-3 flex items-center justify-between">
-          <div>
-            <span class="text-xs font-semibold block">Leave for station by</span>
-            <span id="disp-leave-note" class="text-[11px]" style="color: var(--text-secondary);">(30m commute + 30m buffer)</span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button id="preset-malabar-clash" class="elevated-tile rounded-xl p-2.5 text-left hover:border-amber-400/50 transition">
+              <span class="font-bold block text-rose-400">🚨 Malabar vs Maveli</span>
+              <span class="text-[10px] block opacity-70">16629 (18:40) vs 16604</span>
+            </button>
+            <button id="preset-vande-bharat" class="elevated-tile rounded-xl p-2.5 text-left hover:border-amber-400/50 transition">
+              <span class="font-bold block text-sky-400">⚡ Vande Bharat</span>
+              <span class="text-[10px] block opacity-70">20634 TVC → KGQ (16:05)</span>
+            </button>
+            <button id="preset-kerala-exp" class="elevated-tile rounded-xl p-2.5 text-left hover:border-amber-400/50 transition">
+              <span class="font-bold block text-emerald-400">🚄 Kerala Express</span>
+              <span class="text-[10px] block opacity-70">12625 TVC → NDLS (12:30)</span>
+            </button>
+            <button id="preset-jan-shatabdi" class="elevated-tile rounded-xl p-2.5 text-left hover:border-amber-400/50 transition">
+              <span class="font-bold block text-amber-300">⏱️ Jan Shatabdi</span>
+              <span class="text-[10px] block opacity-70">12076 CLT → TVC (14:50)</span>
+            </button>
           </div>
-          <span id="disp-leave-time" class="font-telemetry text-2xl font-bold" style="color: var(--gold-primary);">17:40</span>
-        </div>
+        </section>
 
-        <!-- Primary CTA: Apple Calendar Preview -->
-        <div class="pt-1">
-          <button id="btn-export-calendar" class="w-full py-3.5 px-4 rounded-2xl font-syne font-bold text-sm text-slate-950 shadow-lg transition active:scale-[0.99] min-h-[46px] flex items-center justify-center gap-2" style="background: linear-gradient(135deg, #F5DFB0 0%, #D4A84F 100%);">
-            <span>📅 Add to Calendar with 3 Alarms</span>
-          </button>
-          <p class="text-[11px] text-center mt-2" style="color: var(--text-secondary);">
-            Pops up the Apple Calendar event preview with 3h, 1h, and 15m alerts
-          </p>
-          <div id="calendar-toast" class="hidden mt-2.5 p-2.5 rounded-xl elevated-tile text-xs text-center font-medium" style="color: var(--emerald-accent);">
-            Apple Calendar invite opened. Tap Add in the Calendar prompt to save.
+        <!-- Ticket Inspector & Expectation Mismatch Studio -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <label for="ticket-input" class="font-syne text-sm font-bold">
+              Paste Ticket / IRCTC SMS
+            </label>
+            <div class="flex items-center gap-2">
+              <button id="btn-paste-clipboard" class="text-xs font-semibold px-2 py-1 rounded-lg gold-pill hover:opacity-90 transition flex items-center gap-1 shadow-sm">
+                📋 Paste Clipboard
+              </button>
+              <button id="btn-clear-input" class="text-xs font-medium underline hover:opacity-75 transition" style="color: var(--text-secondary);">Clear</button>
+            </div>
           </div>
-        </div>
+
+          <textarea id="ticket-input" rows="3" placeholder="Paste IRCTC SMS, confirmation email, or PNR text..." class="w-full elevated-tile rounded-xl p-3 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 transition resize-none leading-relaxed"></textarea>
+
+          <div class="space-y-3">
+            <div>
+              <label for="expected-train-input" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
+                Train you think you booked (Mismatch Safeguard)
+              </label>
+              <input id="expected-train-input" type="text" placeholder="e.g. 16604 or Maveli" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]" />
+            </div>
+
+            <div>
+              <label for="travel-mins-select" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
+                Your travel time to railway station
+              </label>
+              <select id="travel-mins-select" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]">
+                <option value="15">15 mins commute (+30m station buffer = 45m before)</option>
+                <option value="30" selected>30 mins commute (+30m station buffer = 60m before)</option>
+                <option value="45">45 mins commute (+30m station buffer = 75m before)</option>
+                <option value="60">60 mins commute (+30m station buffer = 90m before)</option>
+                <option value="90">90 mins commute (+30m station buffer = 120m before)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-1 flex gap-2">
+            <button id="btn-parse-ticket" class="flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
+              <span>🛡️ Verify My Train</span>
+            </button>
+            <button id="btn-test-mismatch" class="text-xs font-semibold px-3.5 py-2.5 rounded-xl elevated-tile hover:opacity-80 transition min-h-[44px]" style="color: var(--crimson-accent);">
+              ⚡ Trigger Mismatch
+            </button>
+          </div>
+        </section>
+
+        <!-- Station Boarding Survival Rules -->
+        <section class="luxury-pass rounded-[24px] p-5 space-y-2.5 text-xs">
+          <h4 class="font-syne font-bold text-xs uppercase tracking-wider" style="color: var(--gold-primary);">
+            🚉 Station Platform Survival Rules
+          </h4>
+          <ul class="space-y-1.5 leading-relaxed" style="color: var(--text-secondary);">
+            <li class="flex items-start gap-2">
+              <span class="text-amber-400 font-bold">1.</span>
+              <span>Always verify the <strong>5-digit number</strong> painted on the coach body, NOT just the platform announcement.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-amber-400 font-bold">2.</span>
+              <span>Look for the <strong>coach position indicator board</strong> on the platform ceiling before the train arrives.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-amber-400 font-bold">3.</span>
+              <span>If your train is delayed, do <strong>not</strong> board another train leaving from the same platform in the meantime.</span>
+            </li>
+          </ul>
+        </section>
 
       </div>
-    </main>
 
-    <!-- Ticket Inspector & Expectation Mismatch Studio -->
-    <section class="luxury-pass rounded-[24px] p-5 space-y-3.5">
-      <div class="flex items-center justify-between">
-        <label for="ticket-input" class="font-syne text-sm font-bold">
-          Inspect Ticket or Test Mismatch
-        </label>
-        <div class="flex items-center gap-2.5">
-          <span id="saved-status" class="text-xs font-medium hidden" style="color: var(--emerald-accent);">✓ Saved offline</span>
-          <button id="btn-clear-input" class="text-xs font-medium underline hover:opacity-75 transition" style="color: var(--text-secondary);">Clear</button>
-        </div>
-      </div>
-
-      <textarea id="ticket-input" rows="3" placeholder="Paste IRCTC SMS, email confirmation, or PNR text..." class="w-full elevated-tile rounded-xl p-3 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 transition resize-none leading-relaxed"></textarea>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label for="expected-train-input" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
-            Train you think you booked
-          </label>
-          <input id="expected-train-input" type="text" placeholder="e.g. 16604 or Maveli" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs font-telemetry focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]" />
-        </div>
-        <div>
-          <label for="travel-mins-select" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">
-            Travel time to station
-          </label>
-          <select id="travel-mins-select" class="w-full elevated-tile rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400 min-h-[42px]">
-            <option value="15">15 mins (+30m buffer)</option>
-            <option value="30" selected>30 mins (+30m buffer)</option>
-            <option value="45">45 mins (+30m buffer)</option>
-            <option value="60">60 mins (+30m buffer)</option>
-            <option value="90">90 mins (+30m buffer)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="pt-1 flex gap-2">
-        <button id="btn-parse-ticket" class="flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5">
-          <span>🛡️ Verify My Train</span>
-        </button>
-        <button id="btn-test-mismatch" class="text-xs font-semibold px-3.5 py-2.5 rounded-xl elevated-tile hover:opacity-80 transition min-h-[44px]" style="color: var(--crimson-accent);">
-          ⚡ Test Mismatch
-        </button>
-      </div>
-    </section>
+    </div>
 
   </div>
 
-  <!-- APPLE CALENDAR NATIVE-STYLE PREVIEW SHEET MODAL -->
+  <!-- APPLE CALENDAR NATIVE-STYLE PREVIEW MODAL SHEET -->
   <div id="apple-cal-modal" class="hidden fixed inset-0 z-50 ios-sheet-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="ios-sheet w-full max-w-[440px] rounded-t-[24px] sm:rounded-[24px] overflow-hidden shadow-2xl border border-white/10 max-h-[90vh] flex flex-col">
       <div class="pt-2 pb-3 px-4 border-b ios-divider">
@@ -423,7 +609,7 @@
             16629 MALABAR · S2/35 · 18:40 TVC
           </div>
           <div id="modal-cal-location" class="text-[13px] opacity-70">
-            TVC Railway Station → CAN
+            TVC Railway Station (Platform 2) → CAN
           </div>
         </div>
 
@@ -448,15 +634,15 @@
           </div>
           <div class="flex items-center justify-between pb-2 border-b ios-divider">
             <span class="opacity-80">Alert 1</span>
-            <span class="text-[13px] opacity-75">3 hours before</span>
+            <span class="text-[13px] opacity-75">3 hours before (Prepare to leave)</span>
           </div>
           <div class="flex items-center justify-between pb-2 border-b ios-divider">
             <span class="opacity-80">Alert 2</span>
-            <span class="text-[13px] opacity-75">1 hour before (Leave home)</span>
+            <span class="text-[13px] opacity-75">1 hour before (Head to platform)</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="opacity-80">Alert 3</span>
-            <span class="text-[13px] font-semibold text-[#FF453A]">15 minutes before (Board 16629)</span>
+            <span class="text-[13px] font-semibold text-[#FF453A]">15 minutes before (Board ONLY this train)</span>
           </div>
         </div>
 
@@ -470,7 +656,7 @@
             Save to Apple Calendar
           </button>
           <button id="btn-cal-share-ios" class="w-full py-2.5 px-4 rounded-xl ios-card font-medium text-[13px] border ios-divider transition active:scale-[0.99]">
-            Share via iOS Sheet (Open in Calendar)
+            Share via iOS Sheet
           </button>
         </div>
       </div>
@@ -487,25 +673,87 @@
       '12623': { clashNo: '12625', clashName: 'Kerala Express', clashTime: '12:30' },
       '16347': { clashNo: '16349', clashName: 'Rajya Rani Express', clashTime: '20:30' },
       '16349': { clashNo: '16347', clashName: 'Mangaluru Express', clashTime: '20:50' },
-      '12076': { clashNo: '12082', clashName: 'Jan Shatabdi Exp', clashTime: '14:50' },
-      '12082': { clashNo: '12076', clashName: 'Jan Shatabdi Exp', clashTime: '14:30' },
+      '12076': { clashNo: '12082', clashName: 'Jan Shatabdi Exp', clashTime: '14:30' },
+      '12082': { clashNo: '12076', clashName: 'Jan Shatabdi Exp', clashTime: '14:50' },
       '20634': { clashNo: '20632', clashName: 'Vande Bharat Exp', clashTime: '16:05' },
       '20632': { clashNo: '20634', clashName: 'Vande Bharat Exp', clashTime: '15:15' }
     };
 
-    const STORAGE_KEY = 'trainguard_saved_ticket_v1';
+    const CLASH_TRANSLATIONS = {
+      '16629': {
+        en: '<strong class="font-telemetry font-bold">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16629</strong>, not 16604.',
+        ml: '<strong class="font-telemetry font-bold">16604 മാവേലി എക്സ്പ്രസ്സ്</strong> 19:30 ന് ഇതേ സ്റ്റേഷനിൽ നിന്ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16629 മലബാർ എക്സ്പ്രസ്സിലാണ്</strong> കയറേണ്ടത്, 16604 മാവേലിയിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16604 मावेली एक्सप्रेस</strong> 19:30 बजे रवाना होगी। ध्यान दें: केवल <strong class="font-telemetry underline text-emerald-400">16629 मलाबार एक्सप्रेस</strong> में ही बैठें, 16604 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16604 மாவோலி எக்ஸ்பிரஸ்</strong> 19:30 மணிக்கு புறப்படும். கவனம்: <strong class="font-telemetry underline text-emerald-400">16629</strong> ரயிலில் மட்டுமே ஏறவும், 16604 இல் ஏற வேண்டாம்!'
+      },
+      '16604': {
+        en: '<strong class="font-telemetry font-bold">16629 MALABAR EXP</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">18:40</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16604</strong>, not 16629.',
+        ml: '<strong class="font-telemetry font-bold">16629 മലബാർ എക്സ്പ്രസ്സ്</strong> 18:40 ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16604 മാവേലിയിലാണ്</strong> കയറേണ്ടത്, 16629 മലബാറിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16629 मलाबार एक्सप्रेस</strong> 18:40 बजे रवाना होगी। केवल <strong class="font-telemetry underline text-emerald-400">16604</strong> में ही बैठें, 16629 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16629 மலபார் எக்ஸ்பிரஸ்</strong> 18:40 மணிக்கு புறப்படும். கவனம்: <strong class="font-telemetry underline text-emerald-400">16604</strong> ரயிலில் மட்டுமே ஏறவும்!'
+      }
+    };
 
-    const sampleTicket = `PNR: 4447552121
+    const STATION_NAMES = {
+      'TVC': 'Thiruvananthapuram',
+      'CAN': 'Kannur Main',
+      'MAQ': 'Mangaluru Central',
+      'CLT': 'Kozhikode',
+      'ERS': 'Ernakulam South',
+      'ERN': 'Ernakulam Town',
+      'NDLS': 'New Delhi',
+      'KGQ': 'Kasaragod',
+      'MAS': 'Chennai Central',
+      'SBC': 'Bengaluru City',
+      'CSMT': 'Mumbai CSMT',
+      'HWH': 'Howrah Junction'
+    };
+
+    const STORAGE_KEY = 'trainguard_saved_ticket_v1';
+    const STORAGE_PF_KEY = 'trainguard_saved_platform_v1';
+
+    const PRESETS = {
+      malabar: `PNR: 4447552121
 Train: 16629 / MALABAR EXPRESS
 Date of Journey: 06-11-2026
 From: TVC (Thiruvananthapuram) at 18:40
 To: CAN (Kannur)
 Coach: S2, Berth: 35, Mid Berth (MB)
-Status: CNF`;
+Status: CNF`,
+
+      vandeBharat: `PNR: 8821903412
+Train: 20634 / VANDE BHARAT EXP
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 16:05
+To: KGQ (Kasaragod)
+Coach: C3, Berth: 42, Window (WS)
+Status: CNF`,
+
+      keralaExp: `PNR: 2190441582
+Train: 12625 / KERALA EXPRESS
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 12:30
+To: NDLS (New Delhi)
+Coach: B2, Berth: 21, Lower Berth (LB)
+Status: CNF`,
+
+      janShatabdi: `PNR: 6632194810
+Train: 12076 / JAN SHATABDI EXP
+Date of Journey: 06-11-2026
+From: CLT (Kozhikode) at 14:50
+To: TVC (Thiruvananthapuram)
+Coach: D1, Berth: 55, Window (WS)
+Status: CNF`
+    };
 
     let currentTicketData = null;
+    let currentPlatform = 'PF 2';
+    let currentClashLang = 'en';
     let deferredInstallPrompt = null;
+    let countdownIntervalId = null;
+    let isSoundEnabled = true;
 
+    // UI elements
     const elInput = document.getElementById('ticket-input');
     const elExpectedInput = document.getElementById('expected-train-input');
     const elTravelSelect = document.getElementById('travel-mins-select');
@@ -513,14 +761,26 @@ Status: CNF`;
     const elBtnClear = document.getElementById('btn-clear-input');
     const elBtnParse = document.getElementById('btn-parse-ticket');
     const elBtnTestMismatch = document.getElementById('btn-test-mismatch');
+    const elBtnPasteClipboard = document.getElementById('btn-paste-clipboard');
     const elBtnCalendar = document.getElementById('btn-export-calendar');
-    const elCalendarToast = document.getElementById('calendar-toast');
-    const elSavedStatus = document.getElementById('saved-status');
+    const elBtnGoogleCal = document.getElementById('btn-google-calendar');
+    const elBtnWhatsApp = document.getElementById('btn-whatsapp-share');
+    const elBtnWakeAlarm = document.getElementById('btn-wake-alarm');
+    const elBtnShareLink = document.getElementById('btn-share-link');
+    const elGlobalToast = document.getElementById('global-toast');
     const elBtnInstall = document.getElementById('btn-install-pwa');
     const elInstallDrawer = document.getElementById('pwa-install-drawer');
     const elBtnCloseInstall = document.getElementById('btn-close-install');
     const elBtnTheme = document.getElementById('btn-theme-toggle');
-    const elRakeCoach = document.getElementById('rake-active-coach');
+    const elBtnSound = document.getElementById('btn-sound-toggle');
+    const elSoundIcon = document.getElementById('sound-icon');
+    const elRakeContainer = document.getElementById('rake-container');
+    const elRakePositionHint = document.getElementById('rake-position-hint');
+
+    const elBtnPlatformToggle = document.getElementById('btn-toggle-platform');
+    const elPlatformPill = document.getElementById('disp-platform-pill');
+    const elPlatformPicker = document.getElementById('platform-picker');
+    const elBtnClosePlatform = document.getElementById('btn-close-platform');
 
     const elCalModal = document.getElementById('apple-cal-modal');
     const elBtnCalCancel = document.getElementById('btn-cal-cancel');
@@ -539,7 +799,9 @@ Status: CNF`;
     const dispTrainNo = document.getElementById('disp-train-no');
     const dispTrainName = document.getElementById('disp-train-name');
     const dispStation = document.getElementById('disp-station');
+    const dispOriginCity = document.getElementById('disp-origin-city');
     const dispDest = document.getElementById('disp-dest');
+    const dispDestCity = document.getElementById('disp-dest-city');
     const dispTime = document.getElementById('disp-time');
     const dispLeaveTime = document.getElementById('disp-leave-time');
     const dispLeaveNote = document.getElementById('disp-leave-note');
@@ -551,17 +813,128 @@ Status: CNF`;
     const clashBox = document.getElementById('clash-warning');
     const clashText = document.getElementById('clash-text');
 
+    function showToast(msg, duration = 3000) {
+      elGlobalToast.textContent = msg;
+      elGlobalToast.classList.remove('hidden');
+      setTimeout(() => {
+        elGlobalToast.classList.add('hidden');
+      }, duration);
+    }
+
+    function playRailwayChime() {
+      if (!isSoundEnabled) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        gain1.gain.setValueAtTime(0.12, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.35);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880, now + 0.16);
+        gain2.gain.setValueAtTime(0.15, now + 0.16);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.16);
+        osc2.stop(now + 0.65);
+      } catch (e) {}
+    }
+
+    elBtnSound.addEventListener('click', () => {
+      isSoundEnabled = !isSoundEnabled;
+      elSoundIcon.textContent = isSoundEnabled ? '🔔' : '🔕';
+      elBtnSound.title = isSoundEnabled ? 'Audio chime enabled' : 'Audio chime muted';
+      if (isSoundEnabled) playRailwayChime();
+    });
+
     elBtnTheme.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       const isLight = document.body.classList.contains('light-mode');
       elBtnTheme.textContent = isLight ? '🌙 Dark' : '☀️ Light';
     });
 
+    // Platform Selector logic
+    elBtnPlatformToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elPlatformPicker.classList.toggle('hidden');
+    });
+
+    elBtnClosePlatform.addEventListener('click', () => {
+      elPlatformPicker.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.pf-opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-pf');
+        setPlatform(val);
+        elPlatformPicker.classList.add('hidden');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!elPlatformPicker.contains(e.target) && e.target !== elBtnPlatformToggle) {
+        elPlatformPicker.classList.add('hidden');
+      }
+    });
+
+    function setPlatform(pf) {
+      currentPlatform = pf;
+      elPlatformPill.textContent = pf;
+      try {
+        localStorage.setItem(STORAGE_PF_KEY, pf);
+      } catch (e) {}
+      showToast(`✓ Station Platform set to ${pf}`);
+    }
+
+    // Multi-Language Clash Alert Toggle
+    document.querySelectorAll('.lang-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.lang-pill').forEach(p => {
+          p.classList.remove('gold-pill', 'font-bold');
+          p.classList.add('elevated-tile', 'opacity-75');
+        });
+        pill.classList.remove('elevated-tile', 'opacity-75');
+        pill.classList.add('gold-pill', 'font-bold');
+
+        currentClashLang = pill.getAttribute('data-lang');
+        updateClashMessage();
+      });
+    });
+
+    function updateClashMessage() {
+      if (!currentTicketData) return;
+      const clash = CONFUSION_PAIRS[currentTicketData.trainNo];
+      if (!clash) {
+        clashBox.classList.add('hidden');
+        return;
+      }
+      clashBox.classList.remove('hidden');
+
+      const pairTrans = CLASH_TRANSLATIONS[currentTicketData.trainNo];
+      if (pairTrans && pairTrans[currentClashLang]) {
+        clashText.innerHTML = pairTrans[currentClashLang];
+      } else {
+        clashText.innerHTML = `<strong class="font-telemetry font-bold">${clash.clashNo} ${clash.clashName.toUpperCase()}</strong> departs nearby at <span class="font-telemetry font-bold text-amber-300">${clash.clashTime}</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">${currentTicketData.trainNo}</strong>, not ${clash.clashNo}.`;
+      }
+    }
+
     function saveTicketOffline(rawText) {
       try {
         localStorage.setItem(STORAGE_KEY, rawText);
-        elSavedStatus.classList.remove('hidden');
-        setTimeout(() => elSavedStatus.classList.add('hidden'), 3000);
+        showToast('✓ Ticket saved offline');
       } catch (e) {}
     }
 
@@ -574,30 +947,9 @@ Status: CNF`;
     }
 
     function setupPWA() {
-      try {
-        const manifest = {
-          name: 'TrainGuard — Executive Boarding Pass',
-          short_name: 'TrainGuard',
-          description: 'Indian Railways boarding pass and platform clash safeguard',
-          start_url: '.',
-          display: 'standalone',
-          background_color: '#07080C',
-          theme_color: '#07080C',
-          icons: [
-            {
-              src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%230E1118"/><text y=".9em" x="12" font-size="72">🚂</text></svg>',
-              sizes: '192x192',
-              type: 'image/svg+xml'
-            }
-          ]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-        const manifestURL = URL.createObjectURL(manifestBlob);
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-      } catch (err) {}
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
     }
 
     function parseTicketText(raw) {
@@ -614,6 +966,7 @@ Status: CNF`;
       else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
       else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
       else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
+      else if (text.toUpperCase().includes('JAN SHATABDI')) trainName = 'JAN SHATABDI EXP';
       else if (nameMatch && nameMatch[1].trim().length > 2) trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
 
       const timeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
@@ -625,7 +978,7 @@ Status: CNF`;
       const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,4})\b/i);
       const toStn = toMatch ? toMatch[1].toUpperCase() : 'CAN';
 
-      const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d|A\d|S\d{1,2}|GEN)\b/i);
+      const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|C\d{1,2}|D\d{1,2}|E\d{1,2}|GEN)\b/i);
       const coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
 
       const berthMatch = text.match(/(?:Berth|Seat|Bth)?\s*:?\s*(\d{1,3})\s*(?:\(([A-Za-z]+)\))?/i);
@@ -662,6 +1015,89 @@ Status: CNF`;
       };
     }
 
+    function buildCoachRake(coach) {
+      if (!elRakeContainer) return;
+      const c = coach.toUpperCase();
+      let coaches = [];
+      let positionText = 'Middle of Platform';
+
+      if (c.startsWith('S')) {
+        coaches = ['LOCO', 'GEN', 'S1', 'S2', 'S3', 'S4', 'S5', 'B1', 'SLR'];
+        positionText = 'Middle-Forward of Platform';
+      } else if (c.startsWith('B') || c.startsWith('M')) {
+        coaches = ['LOCO', 'GEN', 'S6', 'B1', 'B2', 'B3', 'B4', 'A1', 'SLR'];
+        positionText = 'Middle-Rear of Platform (AC Rake)';
+      } else if (c.startsWith('A') || c.startsWith('H')) {
+        coaches = ['LOCO', 'B4', 'B5', 'A1', 'A2', 'H1', 'GEN', 'SLR'];
+        positionText = 'Center of Platform (First/2nd AC)';
+      } else if (c.startsWith('C') || c.startsWith('E') || c.startsWith('D')) {
+        coaches = ['CAB', 'C1', 'C2', 'C3', 'C4', 'E1', 'E2', 'CAB'];
+        positionText = 'Platform Chair Car Markings';
+      } else if (c.includes('GEN') || c.includes('GS')) {
+        coaches = ['LOCO', 'GEN', 'GEN', 'S1', 'S2', 'S3', 'B1', 'SLR'];
+        positionText = 'Extreme End of Platform (Engine / Guard End)';
+      } else {
+        coaches = ['LOCO', 'GEN', 'S1', c, 'B1', 'A1', 'SLR'];
+        positionText = 'Verify Platform Digital Coach Display';
+      }
+
+      if (!coaches.includes(c)) coaches[3] = c;
+
+      if (elRakePositionHint) elRakePositionHint.textContent = positionText;
+
+      elRakeContainer.innerHTML = '';
+      coaches.forEach((item, index) => {
+        const isCurrent = (item === c);
+        const span = document.createElement('span');
+        if (isCurrent) {
+          span.className = 'px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-bold shadow-md ring-2 ring-amber-300';
+          span.textContent = `${item} ★ YOU`;
+        } else {
+          span.className = 'px-1.5 py-0.5 rounded bg-white/5 text-white/50 border border-white/10';
+          span.textContent = item;
+        }
+        elRakeContainer.appendChild(span);
+
+        if (index < coaches.length - 1) {
+          const dash = document.createElement('span');
+          dash.className = 'text-white/20';
+          dash.textContent = '-';
+          elRakeContainer.appendChild(dash);
+        }
+      });
+    }
+
+    function startLiveCountdown(departureDate, timeStr) {
+      if (countdownIntervalId) clearInterval(countdownIntervalId);
+
+      const tick = () => {
+        const now = new Date();
+        const diffMs = departureDate.getTime() - now.getTime();
+
+        if (diffMs > 0) {
+          const totalSec = Math.floor(diffMs / 1000);
+          const h = Math.floor(totalSec / 3600);
+          const m = Math.floor((totalSec % 3600) / 60);
+          const s = totalSec % 60;
+          const pad = (n) => String(n).padStart(2, '0');
+
+          if (h > 0) {
+            dispCountdown.textContent = `In ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+          } else {
+            dispCountdown.textContent = `BOARDING: ${pad(m)}m ${pad(s)}s`;
+          }
+        } else if (diffMs > -3600000) {
+          const pastMins = Math.abs(Math.floor(diffMs / 60000));
+          dispCountdown.textContent = `Departed ${pastMins}m ago`;
+        } else {
+          dispCountdown.textContent = `Dep ${timeStr}`;
+        }
+      };
+
+      tick();
+      countdownIntervalId = setInterval(tick, 1000);
+    }
+
     function updateLeaveTimeAndMismatch(data) {
       if (!data) return;
 
@@ -672,20 +1108,7 @@ Status: CNF`;
       const leaveDate = new Date(data.departureDate.getTime() - totalLeadMins * 60 * 1000);
       const pad = (n) => String(n).padStart(2, '0');
       dispLeaveTime.textContent = `${pad(leaveDate.getHours())}:${pad(leaveDate.getMinutes())}`;
-      dispLeaveNote.textContent = `(${travelMins}m commute + 30m buffer)`;
-
-      const now = new Date();
-      const diffMs = data.departureDate.getTime() - now.getTime();
-      const diffMins = Math.round(diffMs / 60000);
-      if (diffMins > 60) {
-        const h = Math.floor(diffMins / 60);
-        const m = diffMins % 60;
-        dispCountdown.textContent = `In ${h}h ${m}m`;
-      } else if (diffMins > 0) {
-        dispCountdown.textContent = `Boarding in ${diffMins}m`;
-      } else {
-        dispCountdown.textContent = `Dep ${data.time}`;
-      }
+      dispLeaveNote.textContent = `(${travelMins}m commute + 30m station buffer = ${totalLeadMins}m before)`;
 
       const expectedRaw = elExpectedInput.value.trim().toUpperCase();
       if (expectedRaw.length >= 3) {
@@ -693,7 +1116,7 @@ Status: CNF`;
         const matchesName = data.trainName.toUpperCase().includes(expectedRaw) || expectedRaw.includes(data.trainName.split(' ')[0]);
         if (!matchesNo && !matchesName) {
           elMismatchBanner.classList.remove('hidden');
-          elMismatchDetail.innerHTML = `You entered <strong class="underline">${expectedRaw}</strong>, but this ticket is booked on <strong class="font-telemetry underline">${data.trainNo} ${data.trainName}</strong> departing at <strong class="font-telemetry">${data.time}</strong>.`;
+          elMismatchDetail.innerHTML = `You expected <strong class="underline">${expectedRaw}</strong>, but your confirmed ticket is for <strong class="font-telemetry underline">${data.trainNo} ${data.trainName}</strong> departing at <strong class="font-telemetry">${data.time}</strong>.`;
           return;
         }
       }
@@ -710,19 +1133,16 @@ Status: CNF`;
       dispDest.textContent = data.toStn;
       dispTime.textContent = data.time;
       dispCoach.textContent = data.coach;
-      if (elRakeCoach) elRakeCoach.textContent = `${data.coach} ★`;
       dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--text-secondary);">${data.berthType}</span>`;
       dispDate.textContent = `Date: ${data.date}`;
       dispPnr.textContent = `PNR: ${data.pnr}`;
 
-      const clash = CONFUSION_PAIRS[data.trainNo];
-      if (clash) {
-        clashBox.classList.remove('hidden');
-        clashText.innerHTML = `<strong class="font-telemetry font-bold">${clash.clashNo} ${clash.clashName.toUpperCase()}</strong> departs nearby at <span class="font-telemetry font-bold" style="color: var(--gold-primary);">${clash.clashTime}</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">${data.trainNo}</strong>, not ${clash.clashNo}.`;
-      } else {
-        clashBox.classList.add('hidden');
-      }
+      if (dispOriginCity) dispOriginCity.textContent = STATION_NAMES[data.fromStn] || data.fromStn;
+      if (dispDestCity) dispDestCity.textContent = STATION_NAMES[data.toStn] || data.toStn;
 
+      buildCoachRake(data.coach);
+      startLiveCountdown(data.departureDate, data.time);
+      updateClashMessage();
       updateLeaveTimeAndMismatch(data);
     }
 
@@ -739,8 +1159,8 @@ Status: CNF`;
       const startStr = formatIcsDate(dt);
       const endStr = formatIcsDate(dtEnd);
 
-      const title = `${data.trainNo} ${data.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${data.coach} / Berth ${data.berthNo} · ${data.time} ${data.fromStn}`;
-      const description = `BOARDING SAFEGUARD REMINDER:\\n\\nTrain: ${data.trainNo} - ${data.trainName}\\nCoach: ${data.coach} | Berth: ${data.berthNo} ${data.berthType}\\nDeparture: ${data.time} from ${data.fromStn}\\nDestination: ${data.toStn}\\nPNR: ${data.pnr}\\n\\n⚠️ CRITICAL: Check train number ${data.trainNo} on coaches before boarding!`;
+      const title = `${data.trainNo} ${data.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${data.coach} / Berth ${data.berthNo} · ${data.time} ${data.fromStn} (${currentPlatform})`;
+      const description = `BOARDING SAFEGUARD REMINDER:\\n\\nTrain: ${data.trainNo} - ${data.trainName}\\nPlatform: ${currentPlatform}\\nCoach: ${data.coach} | Berth: ${data.berthNo} ${data.berthType}\\nDeparture: ${data.time} from ${data.fromStn}\\nDestination: ${data.toStn}\\nPNR: ${data.pnr}\\n\\n⚠️ CRITICAL: Check train number ${data.trainNo} on coach body before boarding!`;
 
       return [
         'BEGIN:VCALENDAR',
@@ -755,7 +1175,7 @@ Status: CNF`;
         `DTEND:${endStr}`,
         `SUMMARY:${title}`,
         `DESCRIPTION:${description}`,
-        `LOCATION:${data.fromStn} Railway Station`,
+        `LOCATION:${data.fromStn} Railway Station - ${currentPlatform}`,
         'STATUS:CONFIRMED',
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
@@ -764,12 +1184,12 @@ Status: CNF`;
         'END:VALARM',
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
-        `DESCRIPTION:TrainGuard: 1 Hour! Locate coach ${data.coach}. Look for Train ${data.trainNo}.`,
+        `DESCRIPTION:TrainGuard: 1 Hour! Head to ${currentPlatform}. Look for Train ${data.trainNo}.`,
         'TRIGGER:-PT1H',
         'END:VALARM',
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
-        `DESCRIPTION:🚨 TrainGuard BOARDING NOW: Board ONLY train ${data.trainNo}!`,
+        `DESCRIPTION:🚨 TrainGuard BOARDING NOW: Board ONLY train ${data.trainNo} at ${currentPlatform}!`,
         'TRIGGER:-PT15M',
         'END:VALARM',
         'END:VEVENT',
@@ -781,15 +1201,15 @@ Status: CNF`;
       if (!currentTicketData) return;
       const d = currentTicketData;
       const shortName = d.trainName.replace(/ EXPRESS| EXP/g, '');
-      elModalTitle.textContent = `${d.trainNo} ${shortName} · ${d.coach}/${d.berthNo} · ${d.time} ${d.fromStn}`;
-      elModalLocation.textContent = `${d.fromStn} Railway Station → ${d.toStn}`;
+      elModalTitle.textContent = `${d.trainNo} ${shortName} · ${d.coach}/${d.berthNo} · ${d.time} ${d.fromStn} (${currentPlatform})`;
+      elModalLocation.textContent = `${d.fromStn} Railway Station (${currentPlatform}) → ${d.toStn}`;
       elModalStart.textContent = `${d.date}, ${d.time}`;
       const dtEnd = new Date(d.departureDate.getTime() + (8 * 60 * 60 * 1000));
       const pad = (n) => String(n).padStart(2, '0');
       elModalEnd.textContent = `${pad(dtEnd.getHours())}:${pad(dtEnd.getMinutes())} (+1 day)`;
 
       const clash = CONFUSION_PAIRS[d.trainNo];
-      let notes = `YOUR EXACT TRAIN: ${d.trainNo} (${d.trainName})\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nPNR: ${d.pnr}`;
+      let notes = `YOUR EXACT TRAIN: ${d.trainNo} (${d.trainName})\nPlatform: ${currentPlatform}\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nPNR: ${d.pnr}`;
       if (clash) {
         notes += `\n\n⚠️ CLASH GUARD: ${clash.clashNo} ${clash.clashName} departs nearby at ${clash.clashTime}. Board ONLY ${d.trainNo}!`;
       }
@@ -804,15 +1224,13 @@ Status: CNF`;
 
       const link = document.createElement('a');
       link.href = dataUri;
+      link.download = `TrainGuard-${currentTicketData.trainNo}.ics`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
       elCalModal.classList.add('hidden');
-      elCalendarToast.classList.remove('hidden');
-      setTimeout(() => {
-        elCalendarToast.classList.add('hidden');
-      }, 5000);
+      showToast('Apple Calendar invite downloaded. Tap to add alarms.');
     }
 
     async function shareToAppleCalendar() {
@@ -833,12 +1251,190 @@ Status: CNF`;
       triggerNativeAppleCalendar();
     }
 
-    elBtnSample.addEventListener('click', () => {
-      elInput.value = sampleTicket;
-      elExpectedInput.value = '';
-      const data = parseTicketText(sampleTicket);
+    function openGoogleCalendar() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const dt = d.departureDate;
+      const dtEnd = new Date(dt.getTime() + (8 * 60 * 60 * 1000));
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIso = (dateObj) => {
+        return `${dateObj.getFullYear()}${pad(dateObj.getMonth() + 1)}${pad(dateObj.getDate())}T${pad(dateObj.getHours())}${pad(dateObj.getMinutes())}00`;
+      };
+
+      const title = `${d.trainNo} ${d.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${d.coach} / Berth ${d.berthNo} · ${d.time} ${d.fromStn} (${currentPlatform})`;
+      const location = `${d.fromStn} Railway Station - ${currentPlatform}`;
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let details = `TrainGuard Boarding Pass:\nTrain: ${d.trainNo} - ${d.trainName}\nPlatform: ${currentPlatform}\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nDeparture: ${d.time} from ${d.fromStn}\nDestination: ${d.toStn}\nPNR: ${d.pnr}`;
+      if (clash) {
+        details += `\n\n⚠️ IMPORTANT: Train ${clash.clashNo} (${clash.clashName}) departs at ${clash.clashTime}. Verify you board ${d.trainNo}!`;
+      }
+
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatIso(dt)}/${formatIso(dtEnd)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+      window.open(gcalUrl, '_blank');
+    }
+
+    function generateWakeUpAlarm() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const approxDurationHrs = 8;
+      const arrivalDate = new Date(d.departureDate.getTime() + approxDurationHrs * 60 * 60 * 1000);
+      const wakeAlarmDate = new Date(arrivalDate.getTime() - 30 * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIcs = (dateObj) => {
+        return `${dateObj.getFullYear()}${pad(dateObj.getMonth() + 1)}${pad(dateObj.getDate())}T${pad(dateObj.getHours())}${pad(dateObj.getMinutes())}00`;
+      };
+
+      const startStr = formatIcs(wakeAlarmDate);
+      const endStr = formatIcs(arrivalDate);
+      const title = `⏰ WAKE UP: Arriving at ${d.toStn} in 30 mins! (${d.trainNo} Coach ${d.coach})`;
+
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//TrainGuard//Destination Wakeup//EN',
+        'BEGIN:VEVENT',
+        `UID:trainguard-wake-${Date.now()}@trainguard.local`,
+        `DTSTAMP:${formatIcs(new Date())}Z`,
+        `DTSTART:${startStr}`,
+        `DTEND:${endStr}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:TrainGuard Wake-Up Alert: Train ${d.trainNo} approaching ${d.toStn}. Gather luggage and verify Coach ${d.coach}.`,
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:Wake up! 30 mins to ${d.toStn}!`,
+        'TRIGGER:-PT0M',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      const link = document.createElement('a');
+      link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+      link.download = `WakeUp-${d.toStn}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`⏰ Wake-up alarm downloaded for 30m before arriving at ${d.toStn}`);
+    }
+
+    function shareToWhatsApp() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let text = `🚂 *TrainGuard Boarding Reminder*\n\n` +
+        `🚆 *Train:* ${d.trainNo} - ${d.trainName}\n` +
+        `🚉 *Platform:* ${currentPlatform}\n` +
+        `📍 *Route:* ${d.fromStn} ➔ ${d.toStn}\n` +
+        `⏰ *Departure:* ${d.time} (${d.date})\n` +
+        `💺 *Seat:* Coach ${d.coach}, Berth ${d.berthNo} ${d.berthType}\n` +
+        `🎫 *PNR:* ${d.pnr}\n`;
+
+      if (clash) {
+        text += `\n⚠️ *CRITICAL:* ${clash.clashNo} ${clash.clashName} departs at ${clash.clashTime}. Make sure to board *${d.trainNo}* at ${currentPlatform}!`;
+      }
+
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    function copyShareableLink() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const url = new URL(window.location.href);
+      url.searchParams.set('train', d.trainNo);
+      url.searchParams.set('name', d.trainName);
+      url.searchParams.set('from', d.fromStn);
+      url.searchParams.set('to', d.toStn);
+      url.searchParams.set('coach', d.coach);
+      url.searchParams.set('berth', d.berthNo);
+      url.searchParams.set('btype', d.berthType.replace(/[()]/g, ''));
+      url.searchParams.set('time', d.time);
+      url.searchParams.set('date', d.date);
+      url.searchParams.set('pnr', d.pnr);
+      url.searchParams.set('pf', currentPlatform);
+
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        showToast('🔗 Live pass link copied to clipboard!');
+      }).catch(() => {
+        showToast('Direct link generated in browser address bar');
+      });
+    }
+
+    // 1-Tap Paste from Clipboard
+    elBtnPasteClipboard.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          elInput.value = text;
+          const data = parseTicketText(text);
+          if (data) {
+            updateCard(data);
+            saveTicketOffline(text);
+            playRailwayChime();
+            showToast('✓ Ticket pasted & verified!');
+          } else {
+            showToast('Text pasted. Click "Verify My Train" to parse.');
+          }
+        } else {
+          showToast('Clipboard is empty. Copy your IRCTC SMS first.');
+        }
+      } catch (err) {
+        showToast('Browser blocked clipboard access. Please paste manually.');
+      }
+    });
+
+    // Preset button handlers
+    document.getElementById('preset-malabar-clash').addEventListener('click', () => {
+      elInput.value = PRESETS.malabar;
+      elExpectedInput.value = '16604 Maveli';
+      const data = parseTicketText(PRESETS.malabar);
+      setPlatform('PF 2');
       updateCard(data);
-      saveTicketOffline(sampleTicket);
+      saveTicketOffline(PRESETS.malabar);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-vande-bharat').addEventListener('click', () => {
+      elInput.value = PRESETS.vandeBharat;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.vandeBharat);
+      setPlatform('PF 1');
+      updateCard(data);
+      saveTicketOffline(PRESETS.vandeBharat);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-kerala-exp').addEventListener('click', () => {
+      elInput.value = PRESETS.keralaExp;
+      elExpectedInput.value = '12623 Trivandrum Mail';
+      const data = parseTicketText(PRESETS.keralaExp);
+      setPlatform('PF 3');
+      updateCard(data);
+      saveTicketOffline(PRESETS.keralaExp);
+      playRailwayChime();
+    });
+
+    document.getElementById('preset-jan-shatabdi').addEventListener('click', () => {
+      elInput.value = PRESETS.janShatabdi;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.janShatabdi);
+      setPlatform('PF 1');
+      updateCard(data);
+      saveTicketOffline(PRESETS.janShatabdi);
+      playRailwayChime();
+    });
+
+    elBtnSample.addEventListener('click', () => {
+      elInput.value = PRESETS.malabar;
+      elExpectedInput.value = '';
+      const data = parseTicketText(PRESETS.malabar);
+      setPlatform('PF 2');
+      updateCard(data);
+      saveTicketOffline(PRESETS.malabar);
+      playRailwayChime();
     });
 
     elBtnClear.addEventListener('click', () => {
@@ -857,13 +1453,22 @@ Status: CNF`;
       const data = parseTicketText(text);
       updateCard(data);
       saveTicketOffline(text);
+      playRailwayChime();
     });
 
     elBtnTestMismatch.addEventListener('click', () => {
-      elInput.value = sampleTicket;
+      elInput.value = PRESETS.malabar;
       elExpectedInput.value = '16604 Maveli';
-      const data = parseTicketText(sampleTicket);
+      const data = parseTicketText(PRESETS.malabar);
       updateCard(data);
+      playRailwayChime();
+    });
+
+    dispTrainNo.addEventListener('click', () => {
+      if (currentTicketData) {
+        navigator.clipboard.writeText(currentTicketData.trainNo);
+        showToast(`✓ Copied train number ${currentTicketData.trainNo}`);
+      }
     });
 
     elExpectedInput.addEventListener('input', () => {
@@ -875,6 +1480,11 @@ Status: CNF`;
     });
 
     elBtnCalendar.addEventListener('click', openAppleCalendarPreview);
+    elBtnGoogleCal.addEventListener('click', openGoogleCalendar);
+    elBtnWhatsApp.addEventListener('click', shareToWhatsApp);
+    elBtnWakeAlarm.addEventListener('click', generateWakeUpAlarm);
+    elBtnShareLink.addEventListener('click', copyShareableLink);
+
     elBtnCalCancel.addEventListener('click', () => elCalModal.classList.add('hidden'));
     elBtnCalConfirm.addEventListener('click', triggerNativeAppleCalendar);
     elBtnCalOpenIos.addEventListener('click', triggerNativeAppleCalendar);
@@ -903,10 +1513,46 @@ Status: CNF`;
       deferredInstallPrompt = e;
     });
 
+    // Check for Deep-link URL parameters
+    function parseUrlParams() {
+      const p = new URLSearchParams(window.location.search);
+      const train = p.get('train');
+      if (train) {
+        const time = p.get('time') || '18:40';
+        const date = p.get('date') || '06-NOV-2026';
+        const [h, m] = time.split(':').map(n => parseInt(n, 10));
+        return {
+          trainNo: train,
+          trainName: p.get('name') || 'EXPRESS',
+          fromStn: (p.get('from') || 'TVC').toUpperCase(),
+          toStn: (p.get('to') || 'CAN').toUpperCase(),
+          coach: (p.get('coach') || 'S2').toUpperCase(),
+          berthNo: p.get('berth') || '35',
+          berthType: `(${p.get('btype') || 'MB'})`,
+          pnr: p.get('pnr') || '4447552121',
+          date: date,
+          departureDate: new Date(2026, 10, 6, h, m, 0)
+        };
+      }
+      return null;
+    }
+
     window.addEventListener('load', () => {
       setupPWA();
+
+      const savedPf = localStorage.getItem(STORAGE_PF_KEY);
+      if (savedPf) currentPlatform = savedPf;
+      elPlatformPill.textContent = currentPlatform;
+
+      const urlData = parseUrlParams();
+      if (urlData) {
+        updateCard(urlData);
+        showToast('✓ Boarding pass loaded from shared link');
+        return;
+      }
+
       const saved = loadTicketOffline();
-      const initialText = saved || sampleTicket;
+      const initialText = saved || PRESETS.malabar;
       if (saved) elInput.value = saved;
       const initialData = parseTicketText(initialText);
       updateCard(initialData);
