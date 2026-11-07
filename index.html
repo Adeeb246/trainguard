@@ -36,12 +36,12 @@
       --bg-elevated: #F8F6F0;
       --bg-plaque: #181715;
       --text-primary: #1C1917;
-      --text-secondary: #57534E;
-      --text-muted: #8C867B;
-      --gold-primary: #AF7B18;
-      --gold-soft: rgba(175, 123, 24, 0.1);
-      --gold-border: rgba(175, 123, 24, 0.32);
-      --border-subtle: rgba(28, 25, 23, 0.1);
+      --text-secondary: #44403C;
+      --text-muted: #78716C;
+      --gold-primary: #92620A;
+      --gold-soft: rgba(146, 98, 10, 0.1);
+      --gold-border: rgba(146, 98, 10, 0.32);
+      --border-subtle: rgba(28, 25, 23, 0.12);
       --emerald-accent: #059669;
       --crimson-accent: #E11D48;
       --blue-accent: #0284C7;
@@ -63,35 +63,51 @@
       font-variant-numeric: tabular-nums;
     }
     .luxury-pass {
-      background-color: var(--bg-pass);
+      background: rgba(17, 20, 32, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--gold-border);
       box-shadow:
-        0 24px 50px -12px rgba(0, 0, 0, 0.65),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        0 30px 60px -15px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+        inset 0 0 24px 0 rgba(236, 199, 116, 0.04);
     }
     body.light-mode .luxury-pass {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       box-shadow:
-        0 20px 40px -10px rgba(28, 25, 23, 0.12),
-        0 2px 6px rgba(28, 25, 23, 0.04);
+        0 24px 48px -12px rgba(28, 25, 23, 0.12),
+        0 4px 12px rgba(28, 25, 23, 0.05),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
     }
     .elevated-tile {
       background-color: var(--bg-elevated);
       border: 1px solid var(--border-subtle);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .elevated-tile:hover {
+      border-color: var(--gold-border);
+      transform: translateY(-1px);
     }
     .gold-pill {
       background-color: var(--gold-soft);
       border: 1px solid var(--gold-border);
       color: var(--gold-primary);
+      box-shadow: 0 2px 8px rgba(236, 199, 116, 0.1);
     }
     .gold-gradient-text {
-      background: linear-gradient(135deg, #FFFFFF 0%, #F8E3B6 45%, #D9A946 100%);
+      background: linear-gradient(135deg, #FFFFFF 0%, #FFF3D6 25%, #ECC774 55%, #D49D31 85%, #AA771C 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 14px rgba(236, 199, 116, 0.25));
     }
     .plaque-surface {
-      background-color: var(--bg-plaque);
+      background: linear-gradient(180deg, #0C0F18 0%, #06080E 100%);
       border: 1px solid var(--gold-border);
-      box-shadow: inset 0 4px 22px rgba(0, 0, 0, 0.75);
+      box-shadow:
+        inset 0 4px 24px rgba(0, 0, 0, 0.95),
+        0 1px 0 0 rgba(255, 255, 255, 0.08);
     }
     .notch-cutout-l, .notch-cutout-r {
       position: absolute;
@@ -767,6 +783,7 @@ Status: CNF`
     const elBtnWhatsApp = document.getElementById('btn-whatsapp-share');
     const elBtnWakeAlarm = document.getElementById('btn-wake-alarm');
     const elBtnShareLink = document.getElementById('btn-share-link');
+    const elBtnSaveImage = document.getElementById('btn-save-image');
     const elGlobalToast = document.getElementById('global-toast');
     const elBtnInstall = document.getElementById('btn-install-pwa');
     const elInstallDrawer = document.getElementById('pwa-install-drawer');
@@ -813,9 +830,16 @@ Status: CNF`
     const clashBox = document.getElementById('clash-warning');
     const clashText = document.getElementById('clash-text');
 
+    function triggerHaptic(duration = 15) {
+      try {
+        if (navigator.vibrate) navigator.vibrate(duration);
+      } catch (e) {}
+    }
+
     function showToast(msg, duration = 3000) {
       elGlobalToast.textContent = msg;
       elGlobalToast.classList.remove('hidden');
+      triggerHaptic(15);
       setTimeout(() => {
         elGlobalToast.classList.add('hidden');
       }, duration);
@@ -1363,6 +1387,144 @@ Status: CNF`
       });
     }
 
+    function downloadPassAsImage() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const canvas = document.createElement('canvas');
+      canvas.width = 900;
+      canvas.height = 1100;
+      const ctx = canvas.getContext('2d');
+
+      const isLight = document.body.classList.contains('light-mode');
+      ctx.fillStyle = isLight ? '#F4F1EA' : '#090A0F';
+      ctx.fillRect(0, 0, 900, 1100);
+
+      ctx.fillStyle = isLight ? '#FFFFFF' : '#111420';
+      ctx.strokeStyle = '#ECC774';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(40, 40, 820, 1020, 28);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#92620A' : '#ECC774';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText('TRAINGUARD BOARDING PASS', 70, 95);
+
+      ctx.fillStyle = isLight ? '#44403C' : '#9DA1B4';
+      ctx.font = '20px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${d.date} • PNR: ${d.pnr}`, 830, 95);
+      ctx.textAlign = 'left';
+
+      ctx.strokeStyle = '#ECC77444';
+      ctx.beginPath();
+      ctx.moveTo(40, 130);
+      ctx.lineTo(860, 130);
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? '#1C1917' : '#F7F5EE';
+      ctx.font = 'bold 52px sans-serif';
+      ctx.fillText(d.fromStn, 70, 210);
+      ctx.textAlign = 'right';
+      ctx.fillText(d.toStn, 830, 210);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = isLight ? '#44403C' : '#9DA1B4';
+      ctx.font = 'italic 24px serif';
+      ctx.fillText(STATION_NAMES[d.fromStn] || d.fromStn, 70, 245);
+      ctx.textAlign = 'right';
+      ctx.fillText(STATION_NAMES[d.toStn] || d.toStn, 830, 245);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#ECC774';
+      ctx.font = 'bold 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`DEPARTURE: ${d.time}  •  ${currentPlatform}`, 450, 210);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#06080E';
+      ctx.strokeStyle = '#ECC77488';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(70, 280, 760, 220, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#10B981';
+      ctx.font = 'bold 18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('✓ VERIFIED BOARDING TRAIN NUMBER', 450, 325);
+
+      ctx.fillStyle = '#F8E3B6';
+      ctx.font = 'bold 94px monospace';
+      ctx.fillText(d.trainNo, 450, 420);
+
+      ctx.fillStyle = '#ECC774';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText(d.trainName, 450, 465);
+
+      const drawTile = (x, y, w, h, label, val) => {
+        ctx.fillStyle = isLight ? '#F8F6F0' : '#171B2B';
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 16);
+        ctx.fill();
+        ctx.fillStyle = isLight ? '#44403C' : '#9DA1B4';
+        ctx.font = '18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x + w / 2, y + 35);
+        ctx.fillStyle = isLight ? '#1C1917' : '#F7F5EE';
+        ctx.font = 'bold 36px monospace';
+        ctx.fillText(val, x + w / 2, y + 80);
+      };
+
+      drawTile(70, 530, 240, 105, 'Coach', d.coach);
+      drawTile(330, 530, 240, 105, 'Berth', `${d.berthNo} ${d.berthType}`);
+      drawTile(590, 530, 240, 105, 'Platform', currentPlatform);
+
+      ctx.strokeStyle = '#ECC774';
+      ctx.setLineDash([12, 10]);
+      ctx.beginPath();
+      ctx.moveTo(40, 675);
+      ctx.lineTo(860, 675);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      if (clash) {
+        ctx.fillStyle = isLight ? '#FFF1F2' : '#2A1215';
+        ctx.beginPath();
+        ctx.roundRect(70, 705, 760, 110, 16);
+        ctx.fill();
+        ctx.fillStyle = '#F43F5E';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('⚠️ SAME-STATION CLASH SAFEGUARD', 95, 745);
+        ctx.fillStyle = isLight ? '#1C1917' : '#FFFFFF';
+        ctx.font = '18px sans-serif';
+        ctx.fillText(`Train ${clash.clashNo} (${clash.clashName}) departs at ${clash.clashTime}.`, 95, 775);
+        ctx.fillStyle = '#10B981';
+        ctx.font = 'bold 18px monospace';
+        ctx.fillText(`DO NOT BOARD ${clash.clashNo}! BOARD ONLY ${d.trainNo}!`, 95, 800);
+      }
+
+      ctx.fillStyle = isLight ? '#44403C' : '#9DA1B4';
+      ctx.font = '16px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TrainGuard Executive Railway Boarding Pass • Offline Verified', 450, 1030);
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `TrainGuard-${d.trainNo}-${d.coach}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      triggerHaptic(20);
+      showToast(`📸 Boarding Pass saved as TrainGuard-${d.trainNo}-${d.coach}.png`);
+    }
+
     // 1-Tap Paste from Clipboard
     elBtnPasteClipboard.addEventListener('click', async () => {
       try {
@@ -1484,6 +1646,7 @@ Status: CNF`
     elBtnWhatsApp.addEventListener('click', shareToWhatsApp);
     elBtnWakeAlarm.addEventListener('click', generateWakeUpAlarm);
     elBtnShareLink.addEventListener('click', copyShareableLink);
+    elBtnSaveImage.addEventListener('click', downloadPassAsImage);
 
     elBtnCalCancel.addEventListener('click', () => elCalModal.classList.add('hidden'));
     elBtnCalConfirm.addEventListener('click', triggerNativeAppleCalendar);
