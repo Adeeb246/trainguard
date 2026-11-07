@@ -75,27 +75,6 @@
     }
 
     /* Ambient background glow shapes to exhibit authentic glass refraction & blur */
-    /* LIQUID GLASS AMBIENT LIGHT MOTION (Studio.Shephrd Video Spec) */
-    @keyframes liquid-drift-1 {
-      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-      33% { transform: translate(50px, -35px) scale(1.1) rotate(8deg); }
-      66% { transform: translate(-35px, 45px) scale(0.95) rotate(-6deg); }
-      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-    }
-
-    @keyframes liquid-drift-2 {
-      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-      33% { transform: translate(-45px, 35px) scale(0.92) rotate(-8deg); }
-      66% { transform: translate(40px, -45px) scale(1.08) rotate(6deg); }
-      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
-    }
-
-    @keyframes liquid-drift-3 {
-      0% { transform: translate(0px, 0px) scale(1); }
-      50% { transform: translate(35px, 25px) scale(1.12); }
-      100% { transform: translate(0px, 0px) scale(1); }
-    }
-
     .bg-glass-ambient {
       position: fixed;
       border-radius: 50%;
@@ -105,43 +84,28 @@
       will-change: transform;
     }
     .ambient-1 {
-      width: 480px;
-      height: 480px;
+      width: 450px;
+      height: 450px;
       background: #2563EB;
       top: -60px;
       right: 5%;
-      opacity: 0.14;
-      animation: liquid-drift-1 16s ease-in-out infinite alternate;
+      opacity: 0.12;
     }
     .ambient-2 {
-      width: 440px;
-      height: 440px;
+      width: 420px;
+      height: 420px;
       background: #0284C7;
       bottom: -60px;
       left: 3%;
-      opacity: 0.11;
-      animation: liquid-drift-2 20s ease-in-out infinite alternate;
-    }
-    .ambient-3 {
-      width: 360px;
-      height: 360px;
-      background: #6366F1;
-      top: 40%;
-      left: 35%;
-      opacity: 0.08;
-      animation: liquid-drift-3 24s ease-in-out infinite alternate;
+      opacity: 0.09;
     }
     body.light-mode .ambient-1 {
       background: #3B82F6;
-      opacity: 0.08;
+      opacity: 0.06;
     }
     body.light-mode .ambient-2 {
       background: #60A5FA;
-      opacity: 0.06;
-    }
-    body.light-mode .ambient-3 {
-      background: #93C5FD;
-      opacity: 0.05;
+      opacity: 0.04;
     }
 
     .font-syne, .font-serif-editorial {
@@ -401,214 +365,13 @@
       border-color: rgba(0, 0, 0, 0.12);
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
     }
-
-    /* iOS FLOATING LIQUID GLASS DOCK (Reference: liquidglassdesign UX Glass Morphism) */
-    .ios-floating-island {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 45;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 9999px;
-      background: rgba(20, 24, 35, 0.75);
-      backdrop-filter: blur(28px) saturate(200%);
-      -webkit-backdrop-filter: blur(28px) saturate(200%);
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.28),
-        inset 1.5px 2px 2px -1px rgba(255, 255, 255, 0.75),
-        inset -1px -1.5px 2px -0.5px rgba(255, 255, 255, 0.25),
-        0 20px 45px -10px rgba(0, 0, 0, 0.55),
-        0 4px 12px rgba(0, 0, 0, 0.25);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background 0.2s ease;
-      will-change: transform;
-      max-width: calc(100vw - 24px);
-    }
-    .ios-floating-island:hover {
-      transform: translateX(-50%) translateY(-2px);
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.4),
-        inset 1.5px 2px 2px -1px rgba(255, 255, 255, 0.95),
-        inset -1px -1.5px 2px -0.5px rgba(255, 255, 255, 0.35),
-        0 26px 55px -10px rgba(0, 0, 0, 0.65),
-        0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-    body.light-mode .ios-floating-island {
-      background: rgba(255, 255, 255, 0.85);
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.95),
-        inset 1.5px 2px 2px -1px rgba(255, 255, 255, 1),
-        inset -1px -1.5px 2px -0.5px rgba(255, 255, 255, 0.7),
-        0 20px 45px -10px rgba(15, 23, 42, 0.16),
-        0 4px 14px rgba(15, 23, 42, 0.08);
-    }
-    body.light-mode .ios-floating-island:hover {
-      box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 1),
-        inset 1.5px 2px 2px -1px rgba(255, 255, 255, 1),
-        inset -1px -1.5px 2px -0.5px rgba(255, 255, 255, 0.85),
-        0 24px 55px -10px rgba(15, 23, 42, 0.22),
-        0 6px 18px rgba(15, 23, 42, 0.1);
-    }
-
-    /* Circular Liquid Glass Button (Reference Left Control) */
-    .ios-glass-circle-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%), rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.65),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 0.9),
-        inset -1px -1px 2px -0.5px rgba(255, 255, 255, 0.3),
-        0 2px 6px rgba(0, 0, 0, 0.2);
-      color: var(--text-primary);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .ios-glass-circle-btn:hover {
-      transform: scale(1.08);
-      border-color: rgba(255, 255, 255, 0.6);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.85),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 1),
-        0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-    .ios-glass-circle-btn:active {
-      transform: scale(0.92);
-    }
-    body.light-mode .ios-glass-circle-btn {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.85) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 1),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 1),
-        inset -1px -1px 2px -0.5px rgba(255, 255, 255, 0.7),
-        0 2px 6px rgba(0, 0, 0, 0.06);
-      color: #000000;
-    }
-
-    /* Elongated Liquid Glass Capsule (Reference Right Control) */
-    .ios-glass-capsule-pill {
-      padding: 7px 16px;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 100%), rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.55),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 0.9),
-        inset -1px -1px 2px -0.5px rgba(255, 255, 255, 0.25),
-        0 2px 8px rgba(0, 0, 0, 0.18);
-      color: var(--text-primary);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      white-space: nowrap;
-    }
-    .ios-glass-capsule-pill:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.5);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.8),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 1),
-        0 5px 14px rgba(0, 0, 0, 0.25);
-    }
-    .ios-glass-capsule-pill:active {
-      transform: scale(0.97);
-    }
-    body.light-mode .ios-glass-capsule-pill {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.9) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 1),
-        inset 1.5px 1.5px 2px -0.5px rgba(255, 255, 255, 1),
-        0 2px 6px rgba(0, 0, 0, 0.06);
-      color: #000000;
-    }
-
-    /* Interactive Cursor Specular Glint (Studio.Shephrd Liquid Glass) */
-    .luxury-pass, .ios-floating-island {
-      position: relative;
-    }
-    .luxury-pass::before, .ios-floating-island::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: radial-gradient(450px circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(255, 255, 255, 0.12), transparent 70%);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      z-index: 1;
-    }
-    .luxury-pass:hover::before, .ios-floating-island:hover::before {
-      opacity: 1;
-    }
-    body.light-mode .luxury-pass::before, body.light-mode .ios-floating-island::before {
-      background: radial-gradient(450px circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(255, 255, 255, 0.45), transparent 70%);
-    }
-
-    /* Floating Island Levitation Animation */
-    @keyframes island-levitate {
-      0%, 100% {
-        transform: translateX(-50%) translateY(0);
-      }
-      50% {
-        transform: translateX(-50%) translateY(-5px);
-      }
-    }
-    .ios-floating-island {
-      animation: island-levitate 4.5s ease-in-out infinite;
-    }
-    .ios-floating-island:hover {
-      animation-play-state: paused;
-      transform: translateX(-50%) translateY(-6px) scale(1.02);
-    }
-
-    /* Liquid Glass Shimmer Sweep */
-    @keyframes sheen-sweep {
-      0% { transform: translateX(-150%) skewX(-20deg); }
-      100% { transform: translateX(250%) skewX(-20deg); }
-    }
-    .btn-sheen {
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-sheen::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      bottom: -50%;
-      left: 0;
-      width: 40%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-      transform: translateX(-150%) skewX(-20deg);
-      pointer-events: none;
-    }
-    .btn-sheen:hover::after {
-      animation: sheen-sweep 1s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
   </style>
 </head>
-<body class="min-h-screen pt-5 pb-28 px-3 sm:px-6 lg:px-8 antialiased">
+<body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
 
   <!-- Ambient background glow elements for Apple Liquid Glass refraction & depth -->
   <div class="bg-glass-ambient ambient-1" aria-hidden="true"></div>
   <div class="bg-glass-ambient ambient-2" aria-hidden="true"></div>
-  <div class="bg-glass-ambient ambient-3" aria-hidden="true"></div>
 
   <!-- Hidden SVG Filter for Optical Pixel Refraction (Apple Liquid Glass) -->
   <svg class="svg-filters" style="display:none;" aria-hidden="true">
@@ -1073,7 +836,7 @@
           </div>
 
           <div class="pt-1 flex gap-2">
-            <button id="btn-parse-ticket" class="btn-sheen flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
+            <button id="btn-parse-ticket" class="flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span>Verify My Train</span>
             </button>
@@ -1849,14 +1612,6 @@ function playRailwayChime() {
       startLiveCountdown(data.departureDate, data.time);
       updateClashMessage();
       updateLeaveTimeAndMismatch(data);
-      // Update iOS Floating Dock
-      const elDockTrain = document.getElementById('dock-train-text');
-      const elDockTime = document.getElementById('dock-time-text');
-      const elDockPf = document.getElementById('dock-pf-text');
-      if (elDockTrain && data) elDockTrain.textContent = `${data.trainNo} ${(data.trainName || 'EXP').split(' ')[0]}`;
-      if (elDockTime && data) elDockTime.textContent = data.time;
-      if (elDockPf) elDockPf.textContent = currentPlatform;
-
     }
 
     function generateIcs(data) {
@@ -2390,19 +2145,6 @@ function playRailwayChime() {
     }
 
     window.addEventListener('load', () => {
-
-      // Studio.Shephrd Dynamic Specular Cursor Reflection
-      const interactiveCards = document.querySelectorAll('.luxury-pass, .ios-floating-island');
-      interactiveCards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          card.style.setProperty('--mouse-x', `${x}px`);
-          card.style.setProperty('--mouse-y', `${y}px`);
-        });
-      });
-
       setupPWA();
 
       const savedTheme = localStorage.getItem('trainguard_theme_v2') || 'dark';
@@ -2424,61 +2166,7 @@ function playRailwayChime() {
       if (saved) elInput.value = saved;
       const initialData = parseTicketText(initialText);
       updateCard(initialData);
-      // iOS Floating Dock Event Listeners
-      const dockCapsule = document.getElementById('dock-capsule-status');
-      if (dockCapsule) {
-        dockCapsule.addEventListener('click', () => {
-          const pass = document.getElementById('boarding-card');
-          if (pass) pass.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      }
-
-      const dockBtnChime = document.getElementById('dock-btn-chime');
-      if (dockBtnChime) {
-        dockBtnChime.addEventListener('click', () => {
-          if (typeof playRailwayChime === 'function') playRailwayChime();
-          showToast('Boarding Chime Played');
-        });
-      }
-
-      const dockBtnTheme = document.getElementById('dock-btn-theme');
-      if (dockBtnTheme) {
-        dockBtnTheme.addEventListener('click', () => {
-          const current = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-          const next = current === 'dark' ? 'light' : 'dark';
-          applyTheme(next);
-        });
-      }
-
     });
   </script>
-
-  <!-- iOS 26 FLOATING LIQUID GLASS ISLAND / DOCK (UX Glass Morphism) -->
-  <aside id="ios-floating-dock" class="ios-floating-island" aria-label="Quick Access Floating Dock">
-    <!-- Circular Glass Lens Button (Boarding Chime) -->
-    <button id="dock-btn-chime" class="ios-glass-circle-btn" title="Toggle Boarding Audio Chime" aria-label="Toggle Audio Chime">
-      <svg class="w-4 h-4 text-[var(--gold-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
-      </svg>
-    </button>
-
-    <!-- Elongated Liquid Glass Capsule (Live Telemetry & Tap to Scroll to Pass) -->
-    <button id="dock-capsule-status" class="btn-sheen ios-glass-capsule-pill" title="Tap to view Boarding Pass">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-      <span id="dock-train-text" class="font-telemetry font-bold tracking-tight">16629 MALABAR</span>
-      <span class="opacity-40">•</span>
-      <span id="dock-time-text" class="font-telemetry text-xs opacity-90">18:40</span>
-      <span class="opacity-40">•</span>
-      <span id="dock-pf-text" class="text-xs font-semibold px-2 py-0.5 rounded-full gold-pill">PF 2</span>
-    </button>
-
-    <!-- Circular Glass Lens Button (Theme Toggle) -->
-    <button id="dock-btn-theme" class="ios-glass-circle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
-      <svg class="w-4 h-4 text-[var(--brand-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-      </svg>
-    </button>
-  </aside>
-
 </body>
 </html>
