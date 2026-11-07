@@ -1,0 +1,17 @@
+{
+  "name": "trainguard",
+  "version": "1.3.0",
+  "description": "Zero-confusion Indian Railways boarding guard PWA, clash detector, and calendar alarm generator.",
+  "main": "src/parser.js",
+  "scripts": {
+    "test": "node tests/parser.test.js"
+  },
+  "keywords": [
+    "irctc",
+    "indian-railways",
+    "train-guard",
+    "pwa",
+    "boarding-pass"
+  ],
+  "license": "MIT"
+}

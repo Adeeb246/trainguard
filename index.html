@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F4F1EA">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TrainGuard">
+  <title>TrainGuard — Indian Railways Boarding Instrument</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #EDEAE2;
+      --bg-ticket: #F9F7F2;
+      --bg-well: #EFECE4;
+      --ink-primary: #141413;
+      --ink-secondary: #57554F;
+      --ink-muted: #85827A;
+      --rule-color: #D5D0C5;
+      --rule-strong: #141413;
+      --signal-red: #C8321E;
+      --signal-green: #156D42;
+      --flap-bg: #181816;
+      --flap-text: #F9F7F2;
+    }
+    body.dark-theme {
+      --bg-canvas: #0D0F12;
+      --bg-ticket: #15181E;
+      --bg-well: #0F1217;
+      --ink-primary: #F3F1EC;
+      --ink-secondary: #A0A4AB;
+      --ink-muted: #686D76;
+      --rule-color: #262B35;
+      --rule-strong: #F3F1EC;
+      --signal-red: #E04F3E;
+      --signal-green: #26A665;
+      --flap-bg: #090A0D;
+      --flap-text: #F5B841;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--ink-primary);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .font-mono-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .ticket-sheet {
+      background-color: var(--bg-ticket);
+      border: 1.5px solid var(--rule-strong);
+      box-shadow: 0 20px 40px -18px rgba(20, 20, 19, 0.16);
+    }
+    .well-surface {
+      background-color: var(--bg-well);
+      border: 1px solid var(--rule-color);
+    }
+    .grid-hairline {
+      border-color: var(--rule-color);
+    }
+    .rule-heavy {
+      border-color: var(--rule-strong);
+    }
+    .split-flap-board {
+      background-color: var(--flap-bg);
+      color: var(--flap-text);
+      position: relative;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.65);
+    }
+    .split-flap-board::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 52%;
+      height: 1.5px;
+      background: rgba(0, 0, 0, 0.55);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      pointer-events: none;
+    }
+    .ticket-punch-l, .ticket-punch-r {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 9999px;
+      background-color: var(--bg-canvas);
+      border: 1.5px solid var(--rule-strong);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+    .ticket-punch-l { left: -12px; }
+    .ticket-punch-r { right: -12px; }
+    /* iOS Sheet styling */
+    .ios-sheet-backdrop {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .ios-sheet {
+      font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', sans-serif;
+      background-color: #F2F2F7;
+      color: #000000;
+    }
+    body.dark-theme .ios-sheet {
+      background-color: #1C1C1E;
+      color: #FFFFFF;
+    }
+    .ios-card {
+      background-color: #FFFFFF;
+    }
+    body.dark-theme .ios-card {
+      background-color: #2C2C2E;
+    }
+    .ios-divider {
+      border-color: rgba(60, 60, 67, 0.18);
+    }
+    body.dark-theme .ios-divider {
+      border-color: rgba(84, 84, 88, 0.65);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start py-6 px-3.5 sm:px-6 antialiased">
+
+  <div class="w-full max-w-[468px] mx-auto space-y-5">
+
+    <!-- Minimal Utility Header -->
+    <header class="flex items-center justify-between pb-1">
+      <div class="flex items-baseline gap-2.5">
+        <h1 class="font-display text-lg font-bold tracking-tight">TrainGuard</h1>
+        <span id="offline-badge" class="font-mono-num text-[11px] font-medium px-2 py-0.5 rounded well-surface">
+          Offline active
+        </span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="btn-theme-toggle" class="text-xs font-medium px-2.5 py-1.5 rounded well-surface hover:opacity-80 transition min-h-[36px]">
+          🌙 Dark
+        </button>
+        <button id="btn-install-pwa" class="text-xs font-medium px-2.5 py-1.5 rounded well-surface hover:opacity-80 transition min-h-[36px]">
+          📲 Install
+        </button>
+        <button id="btn-quick-sample" class="text-xs font-semibold px-3 py-1.5 rounded bg-[#141413] text-[#F9F7F2] hover:opacity-90 transition min-h-[36px]">
+          Try Sample
+        </button>
+      </div>
+    </header>
+
+    <!-- Install Guide Drawer -->
+    <section id="pwa-install-drawer" class="hidden ticket-sheet rounded-lg p-4 text-xs space-y-2.5">
+      <div class="flex items-center justify-between border-b grid-hairline pb-2">
+        <span class="font-semibold text-sm">Add TrainGuard to your phone</span>
+        <button id="btn-close-install" class="px-2 py-0.5 rounded well-surface font-bold">✕</button>
+      </div>
+      <p class="text-xs leading-relaxed" style="color: var(--ink-secondary);">
+        Your boarding pass is saved in browser storage (<code class="font-mono-num">localStorage</code>) so it loads cleanly on platforms without mobile data.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+        <div class="well-surface rounded p-2.5">
+          <strong class="block mb-0.5">iPhone (Safari)</strong>
+          <span style="color: var(--ink-secondary);">Open your live HTTPS link in Safari, tap <strong>Share</strong>, and select <strong>Add to Home Screen</strong>.</span>
+        </div>
+        <div class="well-surface rounded p-2.5">
+          <strong class="block mb-0.5">Android (Chrome)</strong>
+          <span style="color: var(--ink-secondary);">Tap the browser menu <strong>(⋮)</strong> and choose <strong>Add to Home screen</strong>.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expectation Mismatch Alert Banner -->
+    <div id="mismatch-banner" class="hidden rounded-lg p-4 text-white border-2 border-black shadow-lg" style="background-color: var(--signal-red);">
+      <div class="flex items-start gap-3">
+        <span class="font-mono-num text-xs font-bold px-2 py-0.5 bg-black/25 rounded shrink-0">MISMATCH</span>
+        <div class="space-y-1">
+          <h2 class="text-sm font-bold">Wrong train expectation</h2>
+          <p id="mismatch-detail" class="text-xs leading-relaxed">
+            You entered <strong class="underline">16604</strong>, but your ticket is booked on <strong class="font-mono-num underline">16629 MALABAR EXPRESS</strong> departing at <strong class="font-mono-num">18:40</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIMARY INSTRUMENT: Architectural Railway Boarding Sheet -->
+    <main id="boarding-card" class="ticket-sheet rounded-xl overflow-hidden relative">
+
+      <!-- Top Ticket Stub Metadata Bar -->
+      <div class="px-5 py-3 border-b grid-hairline flex items-center justify-between text-xs" style="background-color: var(--bg-well);">
+        <span id="disp-date" class="font-mono-num font-medium">Date: 06-NOV-2026</span>
+        <span id="disp-pnr" class="font-mono-num font-medium" style="color: var(--ink-secondary);">PNR: 4447552121</span>
+      </div>
+
+      <!-- HERO CENTERPIECE: Solari Split-Flap Train Identifier -->
+      <div class="p-5 sm:p-6 pb-4">
+        <div class="flex items-baseline justify-between mb-2">
+          <span class="text-xs font-medium" style="color: var(--ink-secondary);">Your booked train</span>
+          <span id="disp-countdown" class="font-mono-num text-xs font-semibold px-2 py-0.5 rounded well-surface">
+            Dep 18:40
+          </span>
+        </div>
+
+        <div class="split-flap-board rounded-lg px-4 py-5 text-center">
+          <div id="disp-train-no" class="font-mono-num text-6xl sm:text-7xl font-bold tracking-tight leading-none select-all">
+            16629
+          </div>
+          <div id="disp-train-name" class="font-display text-sm sm:text-base font-bold tracking-wide mt-2 opacity-90">
+            MALABAR EXPRESS
+          </div>
+        </div>
+      </div>
+
+      <!-- Architectural Timetable Grid: Route, Coach, Berth, Departure -->
+      <div class="border-t border-b grid-hairline grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x grid-hairline">
+        <div class="p-3.5 sm:p-4">
+          <span class="text-xs block mb-1" style="color: var(--ink-secondary);">Route</span>
+          <div class="flex items-baseline gap-1.5 font-display text-xl font-bold">
+            <div id="disp-station"><span>TVC</span></div>
+            <span class="text-xs font-normal" style="color: var(--ink-muted);">to</span>
+            <span id="disp-dest">CAN</span>
+          </div>
+        </div>
+
+        <div class="p-3.5 sm:p-4 border-l grid-hairline">
+          <span class="text-xs block mb-1" style="color: var(--ink-secondary);">Departure</span>
+          <div id="disp-time" class="font-mono-num text-2xl font-bold">18:40</div>
+        </div>
+
+        <div class="p-3.5 sm:p-4">
+          <span class="text-xs block mb-1" style="color: var(--ink-secondary);">Coach</span>
+          <div id="disp-coach" class="font-mono-num text-2xl font-bold">S2</div>
+        </div>
+
+        <div class="p-3.5 sm:p-4 border-l grid-hairline">
+          <span class="text-xs block mb-1" style="color: var(--ink-secondary);">Berth</span>
+          <div id="disp-berth" class="font-mono-num text-2xl font-bold">35 <span class="text-xs font-normal" style="color: var(--ink-secondary);">(MB)</span></div>
+        </div>
+      </div>
+
+      <!-- Perforated Ticket Cutout Line -->
+      <div class="relative h-6 flex items-center justify-center overflow-hidden">
+        <div class="ticket-punch-l"></div>
+        <div class="w-full border-t border-dashed rule-heavy mx-4 opacity-35"></div>
+        <div class="ticket-punch-r"></div>
+      </div>
+
+      <!-- Platform Clash Comparison & Station Leave Schedule -->
+      <div class="px-5 sm:px-6 pb-5 pt-1 space-y-4">
+
+        <!-- Same-Station Clash Guard -->
+        <div id="clash-warning" class="rounded-lg p-3.5 border-l-4 well-surface" style="border-left-color: var(--signal-red);">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold" style="color: var(--signal-red);">Platform clash warning</span>
+            <span class="font-mono-num text-[11px] font-medium" style="color: var(--ink-secondary);">Same station window</span>
+          </div>
+          <p id="clash-text" class="text-xs leading-relaxed">
+            <strong class="font-mono-num font-bold">16604 MAVELI EXP</strong> departs nearby at <span class="font-mono-num font-bold">19:30</span>. Check the coach board before stepping in: board <strong class="font-mono-num underline">16629</strong>, not 16604.
+          </p>
+        </div>
+
+        <!-- Leave Home Schedule Row -->
+        <div class="flex items-center justify-between py-2 border-b grid-hairline">
+          <div>
+            <span class="text-xs font-semibold block">Leave for station by</span>
+            <span id="disp-leave-note" class="text-xs" style="color: var(--ink-secondary);">(30m commute + 30m buffer)</span>
+          </div>
+          <span id="disp-leave-time" class="font-mono-num text-2xl font-bold">17:40</span>
+        </div>
+
+        <!-- Primary Action: Open Apple Calendar Preview -->
+        <div class="pt-1">
+          <button id="btn-export-calendar" class="w-full py-3 px-4 rounded-lg font-semibold text-sm text-white transition active:scale-[0.99] min-h-[44px] flex items-center justify-center gap-2" style="background-color: var(--signal-green);">
+            <span>📅 Add to Calendar with 3 Alarms</span>
+          </button>
+          <p class="text-[11px] text-center mt-2" style="color: var(--ink-secondary);">
+            Opens the Apple Calendar event preview with 3h, 1h, and 15m alerts
+          </p>
+          <div id="calendar-toast" class="hidden mt-2.5 p-2.5 rounded well-surface text-xs text-center font-medium">
+            Apple Calendar invite triggered. Tap Add in the Apple Calendar prompt to save.
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Quiet Secondary Panel: Ticket Input & Expectation Check -->
+    <section class="ticket-sheet rounded-xl p-5 space-y-3.5">
+      <div class="flex items-center justify-between">
+        <label for="ticket-input" class="text-sm font-bold">
+          Check another ticket
+        </label>
+        <div class="flex items-center gap-2.5">
+          <span id="saved-status" class="text-xs font-medium hidden" style="color: var(--signal-green);">Saved offline</span>
+          <button id="btn-clear-input" class="text-xs font-medium underline hover:opacity-75 transition">Clear</button>
+        </div>
+      </div>
+
+      <textarea id="ticket-input" rows="3" placeholder="Paste IRCTC SMS, email confirmation, or PNR text..." class="w-full well-surface rounded-lg p-3 text-xs font-mono-num focus:outline-none focus:ring-2 focus:ring-current transition resize-none leading-relaxed"></textarea>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="expected-train-input" class="block text-xs font-medium mb-1" style="color: var(--ink-secondary);">
+            Train you think you booked
+          </label>
+          <input id="expected-train-input" type="text" placeholder="e.g. 16604 or Maveli" class="w-full well-surface rounded-lg px-3 py-2 text-xs font-mono-num focus:outline-none focus:ring-2 focus:ring-current min-h-[40px]" />
+        </div>
+        <div>
+          <label for="travel-mins-select" class="block text-xs font-medium mb-1" style="color: var(--ink-secondary);">
+            Travel time to station
+          </label>
+          <select id="travel-mins-select" class="w-full well-surface rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-current min-h-[40px]">
+            <option value="15">15 mins (+30m buffer)</option>
+            <option value="30" selected>30 mins (+30m buffer)</option>
+            <option value="45">45 mins (+30m buffer)</option>
+            <option value="60">60 mins (+30m buffer)</option>
+            <option value="90">90 mins (+30m buffer)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pt-1 flex gap-2">
+        <button id="btn-parse-ticket" class="flex-1 bg-[#141413] text-[#F9F7F2] font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-lg hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5">
+          <span>🛡️ Verify My Train</span>
+        </button>
+        <button id="btn-test-mismatch" class="text-xs font-semibold px-3.5 py-2.5 rounded-lg well-surface hover:opacity-80 transition min-h-[44px]" style="color: var(--signal-red);">
+          ⚡ Test Mismatch
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- APPLE CALENDAR NATIVE-STYLE PREVIEW SHEET MODAL -->
+  <div id="apple-cal-modal" class="hidden fixed inset-0 z-50 ios-sheet-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="ios-sheet w-full max-w-[440px] rounded-t-[22px] sm:rounded-[22px] overflow-hidden shadow-2xl border border-black/10 max-h-[90vh] flex flex-col">
+      <!-- iOS Sheet Grabber & Top Bar -->
+      <div class="pt-2 pb-3 px-4 border-b ios-divider">
+        <div class="w-9 h-1.5 rounded-full bg-gray-400/50 mx-auto mb-2.5"></div>
+        <div class="flex items-center justify-between">
+          <button id="btn-cal-cancel" class="text-[#FF3B30] text-[15px] font-medium px-1 py-1">Cancel</button>
+          <span class="text-[15px] font-semibold">New Event</span>
+          <button id="btn-cal-confirm-add" class="text-[#FF3B30] font-bold text-[15px] px-1 py-1">Add</button>
+        </div>
+      </div>
+
+      <!-- iOS Event Details Body -->
+      <div class="p-4 space-y-3.5 overflow-y-auto text-[14px]">
+        <!-- Title & Location Group -->
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2 shadow-sm">
+          <div id="modal-cal-title" class="font-semibold text-[15px] leading-snug pb-2 border-b ios-divider">
+            16629 MALABAR · Coach S2 / Berth 35 · 18:40 TVC
+          </div>
+          <div id="modal-cal-location" class="text-[13px] opacity-70">
+            TVC Railway Station
+          </div>
+        </div>
+
+        <!-- Starts / Ends Group -->
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2.5 shadow-sm">
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Starts</span>
+            <span id="modal-cal-start" class="font-medium px-2.5 py-1 rounded-md bg-gray-500/10 text-[13px]">6 Nov 2026, 18:40</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="opacity-80">Ends</span>
+            <span id="modal-cal-end" class="font-medium px-2.5 py-1 rounded-md bg-gray-500/10 text-[13px]">7 Nov 2026, 06:37</span>
+          </div>
+        </div>
+
+        <!-- Calendar & 3 Alerts Group -->
+        <div class="ios-card rounded-xl px-3.5 py-2.5 space-y-2.5 shadow-sm">
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Calendar</span>
+            <span class="flex items-center gap-1.5 font-medium text-[13px]">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#FF3B30]"></span>
+              Apple Calendar (Default)
+            </span>
+          </div>
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Alert 1</span>
+            <span class="text-[13px] opacity-75">3 hours before</span>
+          </div>
+          <div class="flex items-center justify-between pb-2 border-b ios-divider">
+            <span class="opacity-80">Alert 2</span>
+            <span class="text-[13px] opacity-75">1 hour before (Leave home)</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="opacity-80">Alert 3</span>
+            <span class="text-[13px] font-semibold text-[#FF3B30]">15 minutes before (Board 16629)</span>
+          </div>
+        </div>
+
+        <!-- Notes Preview -->
+        <div class="ios-card rounded-xl px-3.5 py-2.5 shadow-sm space-y-1">
+          <span class="text-[12px] uppercase tracking-wider opacity-50 font-semibold block">Notes</span>
+          <p id="modal-cal-notes" class="text-[12px] leading-relaxed opacity-85 font-mono-num whitespace-pre-line"></p>
+        </div>
+
+        <!-- Primary Bottom Handoff Button -->
+        <div class="pt-1 pb-2 space-y-2">
+          <button id="btn-cal-open-ios" class="w-full py-3 px-4 rounded-xl bg-[#FF3B30] hover:opacity-95 text-white font-semibold text-[15px] shadow-md transition active:scale-[0.99]">
+            Save to Apple Calendar
+          </button>
+          <button id="btn-cal-share-ios" class="w-full py-2.5 px-4 rounded-xl ios-card font-medium text-[13px] border ios-divider transition active:scale-[0.99]">
+            Share via iOS Sheet (Open in Calendar)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFUSION_PAIRS = {
+      '16629': { clashNo: '16604', clashName: 'Maveli Express', clashTime: '19:30' },
+      '16604': { clashNo: '16629', clashName: 'Malabar Express', clashTime: '18:40' },
+      '16630': { clashNo: '16603', clashName: 'Maveli Express', clashTime: '17:30' },
+      '16603': { clashNo: '16630', clashName: 'Malabar Express', clashTime: '18:15' },
+      '12625': { clashNo: '12623', clashName: 'Trivandrum Mail', clashTime: '14:50' },
+      '12623': { clashNo: '12625', clashName: 'Kerala Express', clashTime: '12:30' },
+      '16347': { clashNo: '16349', clashName: 'Rajya Rani Express', clashTime: '20:30' },
+      '16349': { clashNo: '16347', clashName: 'Mangaluru Express', clashTime: '20:50' },
+      '12076': { clashNo: '12082', clashName: 'Jan Shatabdi Exp', clashTime: '14:50' },
+      '12082': { clashNo: '12076', clashName: 'Jan Shatabdi Exp', clashTime: '14:30' },
+      '20634': { clashNo: '20632', clashName: 'Vande Bharat Exp', clashTime: '16:05' },
+      '20632': { clashNo: '20634', clashName: 'Vande Bharat Exp', clashTime: '15:15' }
+    };
+
+    const STORAGE_KEY = 'trainguard_saved_ticket_v1';
+
+    const sampleTicket = `PNR: 4447552121
+Train: 16629 / MALABAR EXPRESS
+Date of Journey: 06-11-2026
+From: TVC (Thiruvananthapuram) at 18:40
+To: CAN (Kannur)
+Coach: S2, Berth: 35, Mid Berth (MB)
+Status: CNF`;
+
+    let currentTicketData = null;
+    let deferredInstallPrompt = null;
+
+    const elInput = document.getElementById('ticket-input');
+    const elExpectedInput = document.getElementById('expected-train-input');
+    const elTravelSelect = document.getElementById('travel-mins-select');
+    const elBtnSample = document.getElementById('btn-quick-sample');
+    const elBtnClear = document.getElementById('btn-clear-input');
+    const elBtnParse = document.getElementById('btn-parse-ticket');
+    const elBtnTestMismatch = document.getElementById('btn-test-mismatch');
+    const elBtnCalendar = document.getElementById('btn-export-calendar');
+    const elCalendarToast = document.getElementById('calendar-toast');
+    const elSavedStatus = document.getElementById('saved-status');
+    const elBtnInstall = document.getElementById('btn-install-pwa');
+    const elInstallDrawer = document.getElementById('pwa-install-drawer');
+    const elBtnCloseInstall = document.getElementById('btn-close-install');
+    const elBtnTheme = document.getElementById('btn-theme-toggle');
+
+    const elCalModal = document.getElementById('apple-cal-modal');
+    const elBtnCalCancel = document.getElementById('btn-cal-cancel');
+    const elBtnCalConfirm = document.getElementById('btn-cal-confirm-add');
+    const elBtnCalOpenIos = document.getElementById('btn-cal-open-ios');
+    const elBtnCalShareIos = document.getElementById('btn-cal-share-ios');
+    const elModalTitle = document.getElementById('modal-cal-title');
+    const elModalLocation = document.getElementById('modal-cal-location');
+    const elModalStart = document.getElementById('modal-cal-start');
+    const elModalEnd = document.getElementById('modal-cal-end');
+    const elModalNotes = document.getElementById('modal-cal-notes');
+
+    const elMismatchBanner = document.getElementById('mismatch-banner');
+    const elMismatchDetail = document.getElementById('mismatch-detail');
+
+    const dispTrainNo = document.getElementById('disp-train-no');
+    const dispTrainName = document.getElementById('disp-train-name');
+    const dispStation = document.getElementById('disp-station');
+    const dispDest = document.getElementById('disp-dest');
+    const dispTime = document.getElementById('disp-time');
+    const dispLeaveTime = document.getElementById('disp-leave-time');
+    const dispLeaveNote = document.getElementById('disp-leave-note');
+    const dispCountdown = document.getElementById('disp-countdown');
+    const dispCoach = document.getElementById('disp-coach');
+    const dispBerth = document.getElementById('disp-berth');
+    const dispDate = document.getElementById('disp-date');
+    const dispPnr = document.getElementById('disp-pnr');
+    const clashBox = document.getElementById('clash-warning');
+    const clashText = document.getElementById('clash-text');
+
+    elBtnTheme.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDark = document.body.classList.contains('dark-theme');
+      elBtnTheme.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+    });
+
+    function saveTicketOffline(rawText) {
+      try {
+        localStorage.setItem(STORAGE_KEY, rawText);
+        elSavedStatus.classList.remove('hidden');
+        setTimeout(() => elSavedStatus.classList.add('hidden'), 3000);
+      } catch (e) {}
+    }
+
+    function loadTicketOffline() {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setupPWA() {
+      try {
+        const manifest = {
+          name: 'TrainGuard — Boarding Instrument',
+          short_name: 'TrainGuard',
+          description: 'Indian Railways boarding pass and platform clash safeguard',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#EDEAE2',
+          theme_color: '#141413',
+          icons: [
+            {
+              src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="%23141413"/><text y=".9em" x="12" font-size="72">🚂</text></svg>',
+              sizes: '192x192',
+              type: 'image/svg+xml'
+            }
+          ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+      } catch (err) {}
+    }
+
+    function parseTicketText(raw) {
+      if (!raw || !raw.trim()) return null;
+
+      const text = raw.replace(/[\r\n]+/g, ' ');
+
+      const trainMatch = text.match(/\b([012]\d{4})\b/);
+      const trainNo = trainMatch ? trainMatch[1] : '16629';
+
+      let trainName = 'EXPRESS';
+      const nameMatch = text.match(/(?:Train\s*:?\s*(?:[012]\d{4})?\s*[\/-]?\s*)([A-Za-z\s]+?)(?:Express|Exp)?(?:\b|,|\d|\()/i);
+      if (text.toUpperCase().includes('MALABAR')) trainName = 'MALABAR EXPRESS';
+      else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
+      else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
+      else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
+      else if (nameMatch && nameMatch[1].trim().length > 2) trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
+
+      const timeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+      const time = timeMatch ? timeMatch[0] : '18:40';
+
+      const fromMatch = text.match(/(?:From\s*:?\s*|Dep\s*:?\s*)([A-Z]{2,4})\b/i);
+      const fromStn = fromMatch ? fromMatch[1].toUpperCase() : 'TVC';
+
+      const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,4})\b/i);
+      const toStn = toMatch ? toMatch[1].toUpperCase() : 'CAN';
+
+      const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d|A\d|S\d{1,2}|GEN)\b/i);
+      const coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
+
+      const berthMatch = text.match(/(?:Berth|Seat|Bth)?\s*:?\s*(\d{1,3})\s*(?:\(([A-Za-z]+)\))?/i);
+      const berthNo = berthMatch ? berthMatch[1] : '35';
+      const berthType = berthMatch && berthMatch[2] ? `(${berthMatch[2].toUpperCase()})` : '(MB)';
+
+      const pnrMatch = text.match(/\b(\d{10})\b/);
+      const pnr = pnrMatch ? pnrMatch[1] : '4447552121';
+
+      const dateMatch = text.match(/\b(\d{1,2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](\d{2,4})\b/);
+      let date = '06-NOV-2026';
+      let year = 2026, month = 10, day = 6;
+
+      if (dateMatch) {
+        day = parseInt(dateMatch[1], 10);
+        const mStr = dateMatch[2];
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const mIdx = months.indexOf(mStr.toUpperCase());
+        if (mIdx !== -1) {
+          month = mIdx;
+        } else {
+          month = parseInt(mStr, 10) - 1;
+        }
+        let y = parseInt(dateMatch[3], 10);
+        year = y < 100 ? 2000 + y : y;
+        date = `${day < 10 ? '0' + day : day}-${months[month]}-${year}`;
+      }
+
+      const [hours, mins] = time.split(':').map(n => parseInt(n, 10));
+
+      return {
+        trainNo, trainName, time, fromStn, toStn, coach, berthNo, berthType, pnr, date,
+        departureDate: new Date(year, month, day, hours, mins, 0)
+      };
+    }
+
+    function updateLeaveTimeAndMismatch(data) {
+      if (!data) return;
+
+      const travelMins = parseInt(elTravelSelect.value, 10) || 30;
+      const stationBufferMins = 30;
+      const totalLeadMins = travelMins + stationBufferMins;
+
+      const leaveDate = new Date(data.departureDate.getTime() - totalLeadMins * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, '0');
+      dispLeaveTime.textContent = `${pad(leaveDate.getHours())}:${pad(leaveDate.getMinutes())}`;
+      dispLeaveNote.textContent = `(${travelMins}m commute + 30m buffer)`;
+
+      const now = new Date();
+      const diffMs = data.departureDate.getTime() - now.getTime();
+      const diffMins = Math.round(diffMs / 60000);
+      if (diffMins > 60) {
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+        dispCountdown.textContent = `In ${h}h ${m}m`;
+      } else if (diffMins > 0) {
+        dispCountdown.textContent = `Boarding in ${diffMins}m`;
+      } else {
+        dispCountdown.textContent = `Dep ${data.time}`;
+      }
+
+      const expectedRaw = elExpectedInput.value.trim().toUpperCase();
+      if (expectedRaw.length >= 3) {
+        const matchesNo = data.trainNo.includes(expectedRaw) || expectedRaw.includes(data.trainNo);
+        const matchesName = data.trainName.toUpperCase().includes(expectedRaw) || expectedRaw.includes(data.trainName.split(' ')[0]);
+        if (!matchesNo && !matchesName) {
+          elMismatchBanner.classList.remove('hidden');
+          elMismatchDetail.innerHTML = `You entered <strong class="underline">${expectedRaw}</strong>, but this ticket is booked on <strong class="font-mono-num underline">${data.trainNo} ${data.trainName}</strong> departing at <strong class="font-mono-num">${data.time}</strong>.`;
+          return;
+        }
+      }
+      elMismatchBanner.classList.add('hidden');
+    }
+
+    function updateCard(data) {
+      if (!data) return;
+      currentTicketData = data;
+
+      dispTrainNo.textContent = data.trainNo;
+      dispTrainName.textContent = data.trainName;
+      dispStation.firstElementChild.textContent = data.fromStn;
+      dispDest.textContent = data.toStn;
+      dispTime.textContent = data.time;
+      dispCoach.textContent = data.coach;
+      dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--ink-secondary);">${data.berthType}</span>`;
+      dispDate.textContent = `Date: ${data.date}`;
+      dispPnr.textContent = `PNR: ${data.pnr}`;
+
+      const clash = CONFUSION_PAIRS[data.trainNo];
+      if (clash) {
+        clashBox.classList.remove('hidden');
+        clashText.innerHTML = `<strong class="font-mono-num font-bold">${clash.clashNo} ${clash.clashName.toUpperCase()}</strong> departs nearby at <span class="font-mono-num font-bold">${clash.clashTime}</span>. Check the coach board before stepping in: board <strong class="font-mono-num underline">${data.trainNo}</strong>, not ${clash.clashNo}.`;
+      } else {
+        clashBox.classList.add('hidden');
+      }
+
+      updateLeaveTimeAndMismatch(data);
+    }
+
+    function generateIcs(data) {
+      const dt = data.departureDate;
+      const pad = (n) => String(n).padStart(2, '0');
+
+      const formatIcsDate = (d) => {
+        return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+      };
+
+      const dtEnd = new Date(dt.getTime() + (8 * 60 * 60 * 1000));
+      const dtStamp = formatIcsDate(new Date()) + 'Z';
+      const startStr = formatIcsDate(dt);
+      const endStr = formatIcsDate(dtEnd);
+
+      const title = `${data.trainNo} ${data.trainName.replace(/ EXPRESS| EXP/g, '')} · Coach ${data.coach} / Berth ${data.berthNo} · ${data.time} ${data.fromStn}`;
+      const description = `BOARDING SAFEGUARD REMINDER:\\n\\nTrain: ${data.trainNo} - ${data.trainName}\\nCoach: ${data.coach} | Berth: ${data.berthNo} ${data.berthType}\\nDeparture: ${data.time} from ${data.fromStn}\\nDestination: ${data.toStn}\\nPNR: ${data.pnr}\\n\\n⚠️ CRITICAL: Check train number ${data.trainNo} on coaches before boarding!`;
+
+      return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//TrainGuard//Train Boarding Reminder//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:trainguard-${data.trainNo}-${Date.now()}@trainguard.local`,
+        `DTSTAMP:${dtStamp}`,
+        `DTSTART:${startStr}`,
+        `DTEND:${endStr}`,
+        `SUMMARY:${title}`,
+        `DESCRIPTION:${description}`,
+        `LOCATION:${data.fromStn} Railway Station`,
+        'STATUS:CONFIRMED',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:TrainGuard: 3 Hours to Departure. Head towards station.',
+        'TRIGGER:-PT3H',
+        'END:VALARM',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:TrainGuard: 1 Hour! Locate coach ${data.coach}. Look for Train ${data.trainNo}.`,
+        'TRIGGER:-PT1H',
+        'END:VALARM',
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION:🚨 TrainGuard BOARDING NOW: Board ONLY train ${data.trainNo}!`,
+        'TRIGGER:-PT15M',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+    }
+
+    // Open the Apple Calendar New Event preview sheet
+    function openAppleCalendarPreview() {
+      if (!currentTicketData) return;
+      const d = currentTicketData;
+      const shortName = d.trainName.replace(/ EXPRESS| EXP/g, '');
+      elModalTitle.textContent = `${d.trainNo} ${shortName} · ${d.coach}/${d.berthNo} · ${d.time} ${d.fromStn}`;
+      elModalLocation.textContent = `${d.fromStn} Railway Station → ${d.toStn}`;
+      elModalStart.textContent = `${d.date}, ${d.time}`;
+      const dtEnd = new Date(d.departureDate.getTime() + (8 * 60 * 60 * 1000));
+      const pad = (n) => String(n).padStart(2, '0');
+      elModalEnd.textContent = `${pad(dtEnd.getHours())}:${pad(dtEnd.getMinutes())} (+1 day)`;
+
+      const clash = CONFUSION_PAIRS[d.trainNo];
+      let notes = `YOUR EXACT TRAIN: ${d.trainNo} (${d.trainName})\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nPNR: ${d.pnr}`;
+      if (clash) {
+        notes += `\n\n⚠️ CLASH GUARD: ${clash.clashNo} ${clash.clashName} departs nearby at ${clash.clashTime}. Board ONLY ${d.trainNo}!`;
+      }
+      elModalNotes.textContent = notes;
+      elCalModal.classList.remove('hidden');
+    }
+
+    // Native iOS Apple Calendar handoff using data:text/calendar URI (without download attribute so iOS Safari opens Calendar directly)
+    function triggerNativeAppleCalendar() {
+      if (!currentTicketData) return;
+      const icsData = generateIcs(currentTicketData);
+      const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsData);
+
+      // Navigate without download attribute so iOS Safari intercepts text/calendar and opens the native Apple Calendar preview
+      const link = document.createElement('a');
+      link.href = dataUri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      elCalModal.classList.add('hidden');
+      elCalendarToast.classList.remove('hidden');
+      setTimeout(() => {
+        elCalendarToast.classList.add('hidden');
+      }, 5000);
+    }
+
+    // iOS Web Share API fallback (lets user pick "Calendar" directly from iOS Share Sheet)
+    async function shareToAppleCalendar() {
+      if (!currentTicketData) return;
+      const icsData = generateIcs(currentTicketData);
+      const fileName = `TrainGuard-${currentTicketData.trainNo}.ics`;
+      try {
+        const file = new File([icsData], fileName, { type: 'text/calendar' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `${currentTicketData.trainNo} Boarding Pass`,
+            files: [file]
+          });
+          elCalModal.classList.add('hidden');
+          return;
+        }
+      } catch (e) {}
+      triggerNativeAppleCalendar();
+    }
+
+    elBtnSample.addEventListener('click', () => {
+      elInput.value = sampleTicket;
+      elExpectedInput.value = '';
+      const data = parseTicketText(sampleTicket);
+      updateCard(data);
+      saveTicketOffline(sampleTicket);
+    });
+
+    elBtnClear.addEventListener('click', () => {
+      elInput.value = '';
+      elExpectedInput.value = '';
+      elMismatchBanner.classList.add('hidden');
+      elInput.focus();
+    });
+
+    elBtnParse.addEventListener('click', () => {
+      const text = elInput.value.trim();
+      if (!text) {
+        elInput.placeholder = 'Please paste your ticket text here first.';
+        return;
+      }
+      const data = parseTicketText(text);
+      updateCard(data);
+      saveTicketOffline(text);
+    });
+
+    elBtnTestMismatch.addEventListener('click', () => {
+      elInput.value = sampleTicket;
+      elExpectedInput.value = '16604 Maveli';
+      const data = parseTicketText(sampleTicket);
+      updateCard(data);
+    });
+
+    elExpectedInput.addEventListener('input', () => {
+      if (currentTicketData) updateLeaveTimeAndMismatch(currentTicketData);
+    });
+
+    elTravelSelect.addEventListener('change', () => {
+      if (currentTicketData) updateLeaveTimeAndMismatch(currentTicketData);
+    });
+
+    elBtnCalendar.addEventListener('click', openAppleCalendarPreview);
+    elBtnCalCancel.addEventListener('click', () => elCalModal.classList.add('hidden'));
+    elBtnCalConfirm.addEventListener('click', triggerNativeAppleCalendar);
+    elBtnCalOpenIos.addEventListener('click', triggerNativeAppleCalendar);
+    elBtnCalShareIos.addEventListener('click', shareToAppleCalendar);
+
+    elCalModal.addEventListener('click', (e) => {
+      if (e.target === elCalModal) elCalModal.classList.add('hidden');
+    });
+
+    elBtnInstall.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        elInstallDrawer.classList.toggle('hidden');
+      }
+    });
+
+    elBtnCloseInstall.addEventListener('click', () => {
+      elInstallDrawer.classList.add('hidden');
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    window.addEventListener('load', () => {
+      setupPWA();
+      const saved = loadTicketOffline();
+      const initialText = saved || sampleTicket;
+      if (saved) elInput.value = saved;
+      const initialData = parseTicketText(initialText);
+      updateCard(initialData);
+    });
+  </script>
+</body>
+</html>
