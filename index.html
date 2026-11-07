@@ -15,16 +15,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* STANDARDIZED DARK MODE (Refined Neutral Midnight Slate) */
-      --bg-canvas: #090D16;
-      --bg-pass: #101726;
-      --bg-elevated: #162032;
-      --bg-plaque: #0C121E;
+      /* APPLE LIQUID GLASS - DARK MODE TOKENS */
+      --bg-canvas: #0A0E17;
+      --bg-pass: rgba(16, 23, 38, 0.72);
+      --bg-elevated: rgba(255, 255, 255, 0.045);
+      --bg-plaque: rgba(12, 18, 30, 0.65);
       --text-primary: #F8FAFC;
       --text-secondary: #94A3B8;
       --text-muted: #64748B;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.16);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --border-strong: rgba(255, 255, 255, 0.2);
       --brand-primary: #3B82F6;
       --brand-soft: rgba(59, 130, 246, 0.12);
       --brand-border: rgba(59, 130, 246, 0.28);
@@ -40,16 +40,16 @@
     }
 
     body.light-mode {
-      /* STANDARDIZED LIGHT MODE (Clean Daylight Slate & Pure White) */
+      /* APPLE LIQUID GLASS - LIGHT MODE TOKENS */
       --bg-canvas: #F8FAFC;
-      --bg-pass: #FFFFFF;
-      --bg-elevated: #F1F5F9;
-      --bg-plaque: #F8FAFC; /* Clean off-white surface, NEVER black! */
+      --bg-pass: rgba(255, 255, 255, 0.82);
+      --bg-elevated: rgba(241, 245, 249, 0.75);
+      --bg-plaque: rgba(248, 250, 252, 0.75);
       --text-primary: #0F172A;
       --text-secondary: #475569;
       --text-muted: #64748B;
-      --border-subtle: #E2E8F0;
-      --border-strong: #CBD5E1;
+      --border-subtle: rgba(15, 23, 42, 0.08);
+      --border-strong: rgba(15, 23, 42, 0.15);
       --brand-primary: #2563EB;
       --brand-soft: rgba(37, 99, 235, 0.08);
       --brand-border: rgba(37, 99, 235, 0.22);
@@ -68,8 +68,46 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-canvas);
       color: var(--text-primary);
-      transition: background-color 0.2s ease, color 0.2s ease;
+      min-height: 100vh;
+      position: relative;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
     }
+
+    /* Ambient background glow shapes to exhibit authentic glass refraction & blur */
+    .bg-glass-ambient {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(110px);
+      pointer-events: none;
+      z-index: -1;
+      will-change: transform;
+    }
+    .ambient-1 {
+      width: 450px;
+      height: 450px;
+      background: #2563EB;
+      top: -60px;
+      right: 5%;
+      opacity: 0.12;
+    }
+    .ambient-2 {
+      width: 420px;
+      height: 420px;
+      background: #0284C7;
+      bottom: -60px;
+      left: 3%;
+      opacity: 0.09;
+    }
+    body.light-mode .ambient-1 {
+      background: #3B82F6;
+      opacity: 0.06;
+    }
+    body.light-mode .ambient-2 {
+      background: #60A5FA;
+      opacity: 0.04;
+    }
+
     .font-syne, .font-serif-editorial {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-style: normal;
@@ -78,37 +116,77 @@
       font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       font-variant-numeric: tabular-nums;
     }
+
+    /* APPLE LIQUID GLASS SLAB (Core Cards) */
     .luxury-pass {
-      background-color: var(--bg-pass);
+      position: relative;
+      background: var(--bg-pass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      box-shadow:
+        0 24px 48px -12px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.22), /* Top specular light reflection */
+        inset 0 -1px 0 0 rgba(255, 255, 255, 0.05); /* Bottom subtle reflection */
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s ease, background 0.2s ease;
     }
     body.light-mode .luxury-pass {
-      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+      box-shadow:
+        0 20px 40px -12px rgba(15, 23, 42, 0.07),
+        0 2px 6px rgba(15, 23, 42, 0.02),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.95), /* Daylight top specular edge */
+        inset 0 -1px 0 0 rgba(0, 0, 0, 0.03);
     }
+
+    /* NESTED LIQUID GLASS CONTROLS & TILES */
     .elevated-tile {
-      background-color: var(--bg-elevated);
+      background: var(--bg-elevated);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
       border: 1px solid var(--border-subtle);
-      transition: all 0.15s ease;
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .elevated-tile:hover {
+      background: rgba(255, 255, 255, 0.08);
       border-color: var(--border-strong);
+      transform: translateY(-1px);
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
     }
-    .gold-pill {
-      background-color: var(--gold-soft);
-      border: 1px solid var(--gold-border);
-      color: var(--gold-primary);
+    body.light-mode .elevated-tile {
+      box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.03),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
     }
+    body.light-mode .elevated-tile:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border-strong);
+      box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.05),
+        inset 0 1px 0 0 rgba(255, 255, 255, 1);
+    }
+
+    /* CENTER HERO PLAQUE */
     .plaque-surface {
-      background-color: var(--bg-plaque);
+      background: var(--bg-plaque);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
       border: 1px solid var(--border-subtle);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+        inset 0 2px 8px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
     }
-    body:not(.light-mode) .plaque-surface {
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+    body.light-mode .plaque-surface {
+      box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.02),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
     }
+
     #disp-train-no {
       color: var(--text-primary);
     }
@@ -121,6 +199,8 @@
     body.light-mode #disp-train-name {
       color: #475569;
     }
+
+    /* Perforated Ticket Notches */
     .notch-cutout-l, .notch-cutout-r {
       position: absolute;
       width: 26px;
@@ -134,31 +214,46 @@
     }
     .notch-cutout-l { left: -14px; }
     .notch-cutout-r { right: -14px; }
+
+    /* iOS Native Modal Sheet Backdrop */
     .ios-sheet-backdrop {
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
     }
     .ios-sheet {
-      background-color: #1C1C1E;
+      background: rgba(28, 28, 30, 0.88);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
       color: #FFFFFF;
     }
     body.light-mode .ios-sheet {
-      background-color: #F8FAFC;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 30px 60px rgba(15, 23, 42, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 1);
       color: #0F172A;
     }
     .ios-card {
-      background-color: #2C2C2E;
+      background: rgba(44, 44, 46, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
     }
     body.light-mode .ios-card {
-      background-color: #FFFFFF;
-      border: 1px solid #E2E8F0;
+      background: rgba(241, 245, 249, 0.8);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
     }
     .ios-divider {
       border-color: rgba(255, 255, 255, 0.1);
     }
     body.light-mode .ios-divider {
-      border-color: #E2E8F0;
+      border-color: rgba(15, 23, 42, 0.08);
     }
     button, a, select, input, .cursor-pointer {
       cursor: pointer;
@@ -166,6 +261,18 @@
   </style>
 </head>
 <body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
+
+  <!-- Ambient background glow elements for Apple Liquid Glass refraction & depth -->
+  <div class="bg-glass-ambient ambient-1" aria-hidden="true"></div>
+  <div class="bg-glass-ambient ambient-2" aria-hidden="true"></div>
+
+  <!-- Hidden SVG Filter for Optical Pixel Refraction (Apple Liquid Glass) -->
+  <svg class="svg-filters" style="display:none;" aria-hidden="true">
+    <filter id="liquid-refraction">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
 
   <!-- Main Container: Standard Premium Responsive Layout -->
   <div class="w-full max-w-6xl mx-auto space-y-6">
