@@ -15,53 +15,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* APPLE LIQUID GLASS - DARK MODE TOKENS */
+      /* APPLE LIQUID GLASS - DARK MODE TOKENS (iOS 26 & MockFlow Spec) */
       --bg-canvas: #0A0E17;
-      --bg-pass: rgba(16, 23, 38, 0.72);
-      --bg-elevated: rgba(255, 255, 255, 0.045);
-      --bg-plaque: rgba(12, 18, 30, 0.65);
-      --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
-      --border-subtle: rgba(255, 255, 255, 0.1);
-      --border-strong: rgba(255, 255, 255, 0.2);
-      --brand-primary: #3B82F6;
-      --brand-soft: rgba(59, 130, 246, 0.12);
-      --brand-border: rgba(59, 130, 246, 0.28);
-      --status-live: #10B981;
-      --status-danger: #EF4444;
-      --status-danger-soft: rgba(239, 68, 68, 0.1);
-      --status-danger-border: rgba(239, 68, 68, 0.25);
-      --gold-primary: #F59E0B;
-      --gold-soft: rgba(245, 158, 11, 0.12);
-      --gold-border: rgba(245, 158, 11, 0.24);
-      --crimson-accent: #EF4444;
-      --emerald-accent: #10B981;
+      --bg-pass: rgba(28, 28, 30, 0.78);
+      --bg-elevated: rgba(44, 44, 46, 0.65);
+      --bg-plaque: rgba(18, 18, 20, 0.85);
+      --text-primary: #FFFFFF;
+      --text-secondary: rgba(235, 235, 245, 0.72);
+      --text-muted: #8E8E93;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --border-strong: rgba(255, 255, 255, 0.24);
+      --brand-primary: #0A84FF;
+      --brand-soft: rgba(10, 132, 255, 0.15);
+      --brand-border: rgba(10, 132, 255, 0.32);
+      --status-live: #30D158;
+      --status-danger: #FF453A;
+      --status-danger-soft: rgba(255, 69, 58, 0.12);
+      --status-danger-border: rgba(255, 69, 58, 0.28);
+      --gold-primary: #FF9F0A;
+      --gold-soft: rgba(255, 159, 10, 0.15);
+      --gold-border: rgba(255, 159, 10, 0.3);
+      --crimson-accent: #FF453A;
+      --emerald-accent: #30D158;
     }
 
     body.light-mode {
-      /* APPLE LIQUID GLASS - LIGHT MODE TOKENS */
-      --bg-canvas: #F8FAFC;
-      --bg-pass: rgba(255, 255, 255, 0.82);
-      --bg-elevated: rgba(241, 245, 249, 0.75);
-      --bg-plaque: rgba(248, 250, 252, 0.75);
-      --text-primary: #0F172A;
-      --text-secondary: #475569;
-      --text-muted: #64748B;
-      --border-subtle: rgba(15, 23, 42, 0.08);
-      --border-strong: rgba(15, 23, 42, 0.15);
-      --brand-primary: #2563EB;
-      --brand-soft: rgba(37, 99, 235, 0.08);
-      --brand-border: rgba(37, 99, 235, 0.22);
-      --status-live: #059669;
-      --status-danger: #DC2626;
-      --status-danger-soft: #FEF2F2;
-      --status-danger-border: #FECACA;
-      --gold-primary: #D97706;
-      --gold-soft: rgba(217, 119, 6, 0.08);
-      --gold-border: rgba(217, 119, 6, 0.22);
-      --crimson-accent: #DC2626;
-      --emerald-accent: #059669;
+      /* APPLE LIQUID GLASS - LIGHT MODE TOKENS (Canonical Apple #F2F2F7 & #007AFF) */
+      --bg-canvas: #F2F2F7; /* Apple canonical soft silver-white */
+      --bg-pass: rgba(255, 255, 255, 0.85); /* Pure white glass surface */
+      --bg-elevated: rgba(255, 255, 255, 0.75);
+      --bg-plaque: rgba(255, 255, 255, 0.96);
+      --text-primary: #000000; /* Apple bold black */
+      --text-secondary: #3C3C43; /* Apple deep gray */
+      --text-muted: #8E8E93;
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.18);
+      --brand-primary: #007AFF; /* Apple vibrant system blue */
+      --brand-soft: rgba(0, 122, 255, 0.1);
+      --brand-border: rgba(0, 122, 255, 0.25);
+      --status-live: #34C759;
+      --status-danger: #FF3B30;
+      --status-danger-soft: #FFF2F2;
+      --status-danger-border: #FFD1D0;
+      --gold-primary: #FF9500;
+      --gold-soft: rgba(255, 149, 0, 0.1);
+      --gold-border: rgba(255, 149, 0, 0.24);
+      --crimson-accent: #FF3B30;
+      --emerald-accent: #34C759;
     }
 
     body {
@@ -308,6 +308,63 @@
         display: none !important;
       }
     }
+
+    /* Apple Glossy Pill Button Specification (MockFlow & iOS 26) */
+    .gold-pill {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%), var(--gold-soft);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-primary);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    body.light-mode .gold-pill {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 237, 0.9) 100%);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-primary);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 1), 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    #btn-parse-ticket {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.02) 100%), var(--brand-primary) !important;
+      color: #FFFFFF !important;
+      border-radius: 9999px !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.25),
+        0 4px 14px rgba(0, 122, 255, 0.4) !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    #btn-parse-ticket:hover {
+      transform: translateY(-1px) !important;
+      box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.85),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.25),
+        0 6px 20px rgba(0, 122, 255, 0.5) !important;
+    }
+    #btn-parse-ticket:active {
+      transform: scale(0.98) !important;
+    }
+
+    /* Apple Input Fields: Rounded Rectangles with Subtle Inset Feel */
+    #ticket-input, #expected-train-input, #travel-mins-select {
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.12);
+      transition: all 0.2s ease;
+    }
+    #ticket-input:focus, #expected-train-input:focus, #travel-mins-select:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.08), 0 0 0 3px var(--brand-soft);
+    }
+    body.light-mode #ticket-input,
+    body.light-mode #expected-train-input,
+    body.light-mode #travel-mins-select {
+      background: #FFFFFF;
+      color: #000000;
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
   </style>
 </head>
 <body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
@@ -328,7 +385,7 @@
   <div class="w-full max-w-6xl mx-auto space-y-6">
 
     <!-- Executive Navigation Bar -->
-    <header class="luxury-pass rounded-2xl px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+    <header class="luxury-pass rounded-3xl sm:rounded-full px-5 sm:px-7 py-3.5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl gold-pill flex items-center justify-center shadow-md shrink-0">
           <svg class="w-5 h-5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
