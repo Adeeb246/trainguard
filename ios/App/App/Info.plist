@@ -70,5 +70,9 @@
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>TrainGuard needs access to your calendar to schedule train departure alerts and boarding reminders.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>TrainGuard adds your train journey and boarding alarms to Apple Calendar.</string>
 </dict>
 </plist>

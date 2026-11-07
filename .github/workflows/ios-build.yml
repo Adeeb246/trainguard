@@ -31,13 +31,29 @@ jobs:
         run: |
           npm run build
           npx cap sync ios
+          node -e 'const fs = require("fs"); const p = "./ios/App/App/capacitor.config.json"; const c = JSON.parse(fs.readFileSync(p, "utf8")); if (!c.packageClassList.includes("LiveActivityPlugin")) c.packageClassList.push("LiveActivityPlugin"); fs.writeFileSync(p, JSON.stringify(c, null, 2));'
 
       - name: Show Xcode Version
         run: xcodebuild -version
 
-      - name: Build iOS App for Physical iPhone
+      - name: Configure TrainGuardWidgets Target with Xcodeproj
+        run: |
+          gem install xcodeproj --no-document
+          ruby scripts/setup_widget_extension.rb
+
+      - name: Build iOS App and Widgets for Physical iPhone
         working-directory: ios/App
         run: |
+          xcodebuild -project App.xcodeproj \
+            -target TrainGuardWidgets \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            SYMROOT="$(pwd)/build" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build || true
+
           xcodebuild -project App.xcodeproj \
             -scheme App \
             -destination 'generic/platform=iOS' \
@@ -53,6 +69,10 @@ jobs:
         run: |
           mkdir -p build/Payload
           cp -r build/Release-iphoneos/App.app build/Payload/
+          if [ -d "build/Release-iphoneos/TrainGuardWidgets.appex" ]; then
+            mkdir -p build/Payload/App.app/PlugIns
+            cp -r build/Release-iphoneos/TrainGuardWidgets.appex build/Payload/App.app/PlugIns/
+          fi
           cd build
           zip -r TrainGuard.ipa Payload
           cd ..

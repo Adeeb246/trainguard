@@ -2268,10 +2268,26 @@ Status: CNF`
       syncHardwareDynamicIsland(data);
     }
 
-    function syncHardwareDynamicIsland(data) {
-      if (window.Capacitor && window.Capacitor.isPluginAvailable && window.Capacitor.isPluginAvailable('LiveActivity')) {
+    function getLiveActivityPlugin() {
+      if (!window.Capacitor) return null;
+      if (window.Capacitor.Plugins && window.Capacitor.Plugins.LiveActivity) {
+        return window.Capacitor.Plugins.LiveActivity;
+      }
+      if (typeof window.Capacitor.registerPlugin === 'function') {
         try {
-          window.Capacitor.Plugins.LiveActivity.startActivity({
+          return window.Capacitor.registerPlugin('LiveActivity');
+        } catch (e) {
+          return window.Capacitor.Plugins?.LiveActivity || null;
+        }
+      }
+      return null;
+    }
+
+    function syncHardwareDynamicIsland(data) {
+      const plugin = getLiveActivityPlugin();
+      if (plugin && typeof plugin.startActivity === 'function') {
+        try {
+          plugin.startActivity({
             trainNumber: String(data.trainNo || '16629'),
             trainName: String(data.trainName || 'Malabar Express'),
             coach: String(data.coach || 'B4'),
@@ -2281,7 +2297,12 @@ Status: CNF`
             etaMinutes: 105,
             hasClash: !!data.clash,
             clashDetails: data.clash ? `⚠️ Clash with ${data.clash.clashName} (${data.clash.clashTime})` : 'No timing clash'
-          }).catch(function(err) { console.debug('Live Activity sync error:', err); });
+          }).then(function(res) {
+            console.log('Dynamic Island Live Activity started:', res);
+            showToast('Dynamic Island synced with ticket 🚆');
+          }).catch(function(err) {
+            console.debug('Live Activity sync error:', err);
+          });
         } catch (e) {
           console.debug('ActivityKit bridge not available in web session');
         }
@@ -2412,8 +2433,37 @@ Status: CNF`
       elCalModal.classList.remove('hidden');
     }
 
-    function triggerNativeAppleCalendar() {
+    async function triggerNativeAppleCalendar() {
       if (!currentTicketData) return;
+      const d = currentTicketData;
+      const plugin = getLiveActivityPlugin();
+
+      if (plugin && typeof plugin.addToCalendar === 'function') {
+        try {
+          const clash = CONFUSION_PAIRS[d.trainNo];
+          let notes = `TrainGuard Boarding Alert:\nTrain: ${d.trainNo} (${d.trainName})\nPlatform: ${currentPlatform}\nCoach: ${d.coach} | Berth: ${d.berthNo} ${d.berthType}\nPNR: ${d.pnr}`;
+          if (clash) {
+            notes += `\n\n⚠️ SAME-STATION CLASH: ${clash.clashNo} (${clash.clashName}) departs at ${clash.clashTime}. Verify you board ${d.trainNo}!`;
+          }
+          const dtStart = d.departureDate.getTime();
+          const dtEnd = dtStart + (8 * 60 * 60 * 1000);
+
+          await plugin.addToCalendar({
+            title: `🚆 ${d.trainNo} ${d.trainName} (Coach ${d.coach} / Seat ${d.berthNo})`,
+            location: `${d.fromStn} Railway Station (${currentPlatform})`,
+            notes: notes,
+            startDate: dtStart,
+            endDate: dtEnd
+          });
+
+          elCalModal.classList.add('hidden');
+          showToast('Added directly to Apple Calendar 📅');
+          return;
+        } catch (err) {
+          console.warn('Native calendar save error, falling back to .ics:', err);
+        }
+      }
+
       const icsData = generateIcs(currentTicketData);
       const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsData);
 
