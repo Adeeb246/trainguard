@@ -1478,35 +1478,98 @@ Status: CNF`
         showToast(`Switched to ${next === 'light' ? 'Light' : 'Dark'} mode`);
       });
     }
-function playRailwayChime() {
+    // ==========================================================================
+    // ACOUSTIC RAILWAY CHIME & AUDIO ENGINE (Multi-harmonic brass bell synthesis)
+    // ==========================================================================
+    let sharedAudioCtx = null;
+    function getSharedAudioContext() {
+      if (!sharedAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) sharedAudioCtx = new AudioCtx();
+      }
+      if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume();
+      }
+      return sharedAudioCtx;
+    }
+
+    // Realistic physical bell synthesizer with fundamental body, brass chime partial, and strike transient
+    function playBellHarmonic(ctx, freq, startTime, duration = 0.85, volume = 0.16) {
+      // 1. Fundamental warm resonance (smooth mallet attack, zero click)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, startTime);
+      gain1.gain.setValueAtTime(0.0001, startTime);
+      gain1.gain.linearRampToValueAtTime(volume, startTime + 0.008);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(startTime);
+      osc1.stop(startTime + duration);
+
+      // 2. Resonant brass bell partial (2.76x physical chime overtone)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(freq * 2.76, startTime);
+      gain2.gain.setValueAtTime(0.0001, startTime);
+      gain2.gain.linearRampToValueAtTime(volume * 0.38, startTime + 0.005);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.45));
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(startTime);
+      osc2.stop(startTime + (duration * 0.45));
+
+      // 3. Acoustic strike transient shimmer (5.4x chime strike overtone)
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(freq * 5.4, startTime);
+      gain3.gain.setValueAtTime(0.0001, startTime);
+      gain3.gain.linearRampToValueAtTime(volume * 0.12, startTime + 0.003);
+      gain3.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.22));
+      osc3.connect(gain3);
+      gain3.connect(ctx.destination);
+      osc3.start(startTime);
+      osc3.stop(startTime + (duration * 0.22));
+    }
+
+    // Authentic Indian Railways Station Announcement Chime (Warm F4 -> A4 -> C5 triad)
+    function playRailwayChime() {
       if (!isSoundEnabled) return;
       try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
+        const ctx = getSharedAudioContext();
+        if (!ctx) return;
         const now = ctx.currentTime;
+        // Warm 3-note broadcast sequence with resonant final sustain
+        playBellHarmonic(ctx, 349.23, now + 0.00, 0.70, 0.16); // F4
+        playBellHarmonic(ctx, 440.00, now + 0.22, 0.75, 0.17); // A4
+        playBellHarmonic(ctx, 523.25, now + 0.44, 1.20, 0.20); // C5 (warm sustain)
+      } catch (e) {}
+    }
 
-        const osc1 = ctx.createOscillator();
-        const gain1 = ctx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(587.33, now);
-        gain1.gain.setValueAtTime(0.12, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc1.connect(gain1);
-        gain1.connect(ctx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.35);
-
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(880, now + 0.16);
-        gain2.gain.setValueAtTime(0.15, now + 0.16);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start(now + 0.16);
-        osc2.stop(now + 0.65);
+    // Caution Mismatch Tone (Distinct low dual pulse for wrong-train warnings)
+    function playMismatchAlertSound() {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getSharedAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        [0.0, 0.18].forEach(t => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(280, now + t);
+          osc.frequency.exponentialRampToValueAtTime(140, now + t + 0.14);
+          gain.gain.setValueAtTime(0.0001, now + t);
+          gain.gain.linearRampToValueAtTime(0.18, now + t + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + t);
+          osc.stop(now + t + 0.14);
+        });
       } catch (e) {}
     }
 
@@ -2759,7 +2822,7 @@ function playRailwayChime() {
       elExpectedInput.value = '16604 Maveli';
       const data = parseTicketText(PRESETS.malabar);
       updateCard(data);
-      playRailwayChime();
+      playMismatchAlertSound();
       triggerHaptic('warning');
     });
 
