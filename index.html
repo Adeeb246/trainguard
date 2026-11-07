@@ -124,29 +124,33 @@
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid var(--border-subtle);
+      /* iOS 26 Liquid Glass Specular Edge & Refraction Shadows */
       box-shadow:
-        0 24px 48px -12px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.22), /* Top specular light reflection */
-        inset 0 -1px 0 0 rgba(255, 255, 255, 0.05); /* Bottom subtle reflection */
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.35),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.16),
+        0 24px 48px -12px rgba(0, 0, 0, 0.45);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s ease, background 0.2s ease;
     }
     body.light-mode .luxury-pass {
       box-shadow:
-        0 20px 40px -12px rgba(15, 23, 42, 0.07),
-        0 2px 6px rgba(15, 23, 42, 0.02),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.95), /* Daylight top specular edge */
-        inset 0 -1px 0 0 rgba(0, 0, 0, 0.03);
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.65),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.55),
+        0 20px 40px -12px rgba(15, 23, 42, 0.07);
     }
 
-    /* NESTED LIQUID GLASS CONTROLS & TILES */
+    /* NESTED LIQUID GLASS CONTROLS & TILES (iOS 26 Spec) */
     .elevated-tile {
       background: var(--bg-elevated);
       backdrop-filter: blur(12px) saturate(160%);
       -webkit-backdrop-filter: blur(12px) saturate(160%);
       border: 1px solid var(--border-subtle);
       box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.1),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.2),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.2);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .elevated-tile:hover {
@@ -154,20 +158,26 @@
       border-color: var(--border-strong);
       transform: translateY(-1px);
       box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.32),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.16),
+        0 6px 16px rgba(0, 0, 0, 0.3);
     }
     body.light-mode .elevated-tile {
       box-shadow:
-        0 1px 3px rgba(15, 23, 42, 0.03),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.6),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.9),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.5),
+        0 1px 4px rgba(15, 23, 42, 0.04);
     }
     body.light-mode .elevated-tile:hover {
       background: rgba(255, 255, 255, 0.95);
       border-color: var(--border-strong);
       box-shadow:
-        0 4px 14px rgba(15, 23, 42, 0.05),
-        inset 0 1px 0 0 rgba(255, 255, 255, 1);
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.9),
+        inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 1),
+        inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.7),
+        0 4px 14px rgba(15, 23, 42, 0.07);
     }
 
     /* CENTER HERO PLAQUE */
