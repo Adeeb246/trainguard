@@ -2,6 +2,7 @@ import WidgetKit
 import SwiftUI
 import ActivityKit
 
+@available(iOS 16.1, *)
 struct TrainGuardIslandWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TrainGuardAttributes.self) { context in

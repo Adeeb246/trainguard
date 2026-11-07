@@ -2,7 +2,7 @@ import Foundation
 import Capacitor
 import ActivityKit
 
-@available(iOS 16.1, *)
+@available(iOS 16.2, *)
 @objc(LiveActivityPlugin)
 public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "LiveActivityPlugin"
@@ -16,6 +16,10 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     private var currentActivity: Activity<TrainGuardAttributes>? = nil
 
     @objc func startActivity(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else {
+            call.reject("Live Activities require iOS 16.2 or newer")
+            return
+        }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             call.reject("Live Activities are not enabled by the user")
             return
@@ -62,6 +66,10 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func updateActivity(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else {
+            call.reject("Live Activities require iOS 16.2 or newer")
+            return
+        }
         guard let activity = currentActivity else {
             call.reject("No active Live Activity to update")
             return
@@ -93,6 +101,10 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func stopActivity(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else {
+            call.resolve(["status": "unsupported"])
+            return
+        }
         guard let activity = currentActivity else {
             call.resolve(["status": "already_stopped"])
             return
@@ -105,4 +117,3 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 }
-
