@@ -75,6 +75,27 @@
     }
 
     /* Ambient background glow shapes to exhibit authentic glass refraction & blur */
+    /* LIQUID GLASS AMBIENT LIGHT MOTION (Studio.Shephrd Video Spec) */
+    @keyframes liquid-drift-1 {
+      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      33% { transform: translate(50px, -35px) scale(1.1) rotate(8deg); }
+      66% { transform: translate(-35px, 45px) scale(0.95) rotate(-6deg); }
+      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+    }
+
+    @keyframes liquid-drift-2 {
+      0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+      33% { transform: translate(-45px, 35px) scale(0.92) rotate(-8deg); }
+      66% { transform: translate(40px, -45px) scale(1.08) rotate(6deg); }
+      100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+    }
+
+    @keyframes liquid-drift-3 {
+      0% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(35px, 25px) scale(1.12); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+
     .bg-glass-ambient {
       position: fixed;
       border-radius: 50%;
@@ -84,28 +105,43 @@
       will-change: transform;
     }
     .ambient-1 {
-      width: 450px;
-      height: 450px;
+      width: 480px;
+      height: 480px;
       background: #2563EB;
       top: -60px;
       right: 5%;
-      opacity: 0.12;
+      opacity: 0.14;
+      animation: liquid-drift-1 16s ease-in-out infinite alternate;
     }
     .ambient-2 {
-      width: 420px;
-      height: 420px;
+      width: 440px;
+      height: 440px;
       background: #0284C7;
       bottom: -60px;
       left: 3%;
-      opacity: 0.09;
+      opacity: 0.11;
+      animation: liquid-drift-2 20s ease-in-out infinite alternate;
+    }
+    .ambient-3 {
+      width: 360px;
+      height: 360px;
+      background: #6366F1;
+      top: 40%;
+      left: 35%;
+      opacity: 0.08;
+      animation: liquid-drift-3 24s ease-in-out infinite alternate;
     }
     body.light-mode .ambient-1 {
       background: #3B82F6;
-      opacity: 0.06;
+      opacity: 0.08;
     }
     body.light-mode .ambient-2 {
       background: #60A5FA;
-      opacity: 0.04;
+      opacity: 0.06;
+    }
+    body.light-mode .ambient-3 {
+      background: #93C5FD;
+      opacity: 0.05;
     }
 
     .font-syne, .font-serif-editorial {
@@ -501,6 +537,70 @@
         0 2px 6px rgba(0, 0, 0, 0.06);
       color: #000000;
     }
+
+    /* Interactive Cursor Specular Glint (Studio.Shephrd Liquid Glass) */
+    .luxury-pass, .ios-floating-island {
+      position: relative;
+    }
+    .luxury-pass::before, .ios-floating-island::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(450px circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(255, 255, 255, 0.12), transparent 70%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 1;
+    }
+    .luxury-pass:hover::before, .ios-floating-island:hover::before {
+      opacity: 1;
+    }
+    body.light-mode .luxury-pass::before, body.light-mode .ios-floating-island::before {
+      background: radial-gradient(450px circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(255, 255, 255, 0.45), transparent 70%);
+    }
+
+    /* Floating Island Levitation Animation */
+    @keyframes island-levitate {
+      0%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      50% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+    .ios-floating-island {
+      animation: island-levitate 4.5s ease-in-out infinite;
+    }
+    .ios-floating-island:hover {
+      animation-play-state: paused;
+      transform: translateX(-50%) translateY(-6px) scale(1.02);
+    }
+
+    /* Liquid Glass Shimmer Sweep */
+    @keyframes sheen-sweep {
+      0% { transform: translateX(-150%) skewX(-20deg); }
+      100% { transform: translateX(250%) skewX(-20deg); }
+    }
+    .btn-sheen {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-sheen::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      bottom: -50%;
+      left: 0;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: translateX(-150%) skewX(-20deg);
+      pointer-events: none;
+    }
+    .btn-sheen:hover::after {
+      animation: sheen-sweep 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
   </style>
 </head>
 <body class="min-h-screen pt-5 pb-28 px-3 sm:px-6 lg:px-8 antialiased">
@@ -508,6 +608,7 @@
   <!-- Ambient background glow elements for Apple Liquid Glass refraction & depth -->
   <div class="bg-glass-ambient ambient-1" aria-hidden="true"></div>
   <div class="bg-glass-ambient ambient-2" aria-hidden="true"></div>
+  <div class="bg-glass-ambient ambient-3" aria-hidden="true"></div>
 
   <!-- Hidden SVG Filter for Optical Pixel Refraction (Apple Liquid Glass) -->
   <svg class="svg-filters" style="display:none;" aria-hidden="true">
@@ -972,7 +1073,7 @@
           </div>
 
           <div class="pt-1 flex gap-2">
-            <button id="btn-parse-ticket" class="flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
+            <button id="btn-parse-ticket" class="btn-sheen flex-1 gold-pill font-syne font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl hover:opacity-90 transition min-h-[44px] flex items-center justify-center gap-1.5 shadow-md">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span>Verify My Train</span>
             </button>
@@ -2289,6 +2390,19 @@ function playRailwayChime() {
     }
 
     window.addEventListener('load', () => {
+
+      // Studio.Shephrd Dynamic Specular Cursor Reflection
+      const interactiveCards = document.querySelectorAll('.luxury-pass, .ios-floating-island');
+      interactiveCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
+
       setupPWA();
 
       const savedTheme = localStorage.getItem('trainguard_theme_v2') || 'dark';
@@ -2349,7 +2463,7 @@ function playRailwayChime() {
     </button>
 
     <!-- Elongated Liquid Glass Capsule (Live Telemetry & Tap to Scroll to Pass) -->
-    <button id="dock-capsule-status" class="ios-glass-capsule-pill" title="Tap to view Boarding Pass">
+    <button id="dock-capsule-status" class="btn-sheen ios-glass-capsule-pill" title="Tap to view Boarding Pass">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
       <span id="dock-train-text" class="font-telemetry font-bold tracking-tight">16629 MALABAR</span>
       <span class="opacity-40">•</span>
