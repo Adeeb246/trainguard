@@ -1103,18 +1103,66 @@
         ml: '<strong class="font-telemetry font-bold">16629 മലബാർ എക്സ്പ്രസ്സ്</strong> 18:40 ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16604 മാവേലിയിലാണ്</strong> കയറേണ്ടത്, 16629 മലബാറിലല്ല!',
         hi: '<strong class="font-telemetry font-bold">16629 मलाबार एक्सप्रेस</strong> 18:40 बजे रवाना होगी। केवल <strong class="font-telemetry underline text-emerald-400">16604</strong> में ही बैठें, 16629 में नहीं!',
         ta: '<strong class="font-telemetry font-bold">16629 மலபார் எக்ஸ்பிரஸ்</strong> 18:40 மணிக்கு புறப்படும். கவனம்: <strong class="font-telemetry underline text-emerald-400">16604</strong> ரயிலில் மட்டுமே ஏறவும்!'
+      },
+      '16630': {
+        en: '<strong class="font-telemetry font-bold">16603 MAVELI EXP</strong> runs on this route at <span class="font-telemetry font-bold text-amber-300">17:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16630</strong>, not 16603.',
+        ml: '<strong class="font-telemetry font-bold">16603 മാവേലി എക്സ്പ്രസ്സ്</strong> 17:30 ന് സർവീസ് നടത്തുന്നു. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16630 മലബാർ എക്സ്പ്രസ്സിലാണ്</strong> കയറേണ്ടത്, 16603 മാവേലിയിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16603 मावेली एक्सप्रेस</strong> 17:30 बजे रवाना होती है। केवल <strong class="font-telemetry underline text-emerald-400">16630 मलाबार एक्सप्रेस</strong> में ही बैठें, 16603 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16603 மாவோலி எக்ஸ்பிரஸ்</strong> 17:30 மணிக்கு செல்கிறது. கவனம்: <strong class="font-telemetry underline text-emerald-400">16630</strong> ரயிலில் மட்டுமே ஏறவும், 16603 இல் ஏற வேண்டாம்!'
+      },
+      '16603': {
+        en: '<strong class="font-telemetry font-bold">16630 MALABAR EXP</strong> runs on this route at <span class="font-telemetry font-bold text-amber-300">18:15</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-400">16603</strong>, not 16630.',
+        ml: '<strong class="font-telemetry font-bold">16630 മലബാർ എക്സ്പ്രസ്സ്</strong> 18:15 ന് പുറപ്പെടും. ശ്രദ്ധിക്കുക: <strong class="font-telemetry underline text-emerald-400">16603 മാവേലിയിലാണ്</strong> കയറേണ്ടത്, 16630 മലബാറിലല്ല!',
+        hi: '<strong class="font-telemetry font-bold">16630 मलाबार एक्सप्रेस</strong> 18:15 बजे रवाना होती है। केवल <strong class="font-telemetry underline text-emerald-400">16603</strong> में ही बैठें, 16630 में नहीं!',
+        ta: '<strong class="font-telemetry font-bold">16603 மலபார் எக்ஸ்பிரஸ்</strong> 18:15 மணிக்கு செல்கிறது. கவனம்: <strong class="font-telemetry underline text-emerald-400">16603</strong> ரயிலில் மட்டுமே ஏறவும்!'
       }
     };
 
+    const TRAIN_NAMES = {
+      '16629': 'MALABAR EXPRESS',
+      '16630': 'MALABAR EXPRESS',
+      '16603': 'MAVELI EXPRESS',
+      '16604': 'MAVELI EXPRESS',
+      '20633': 'VANDE BHARAT EXP',
+      '20634': 'VANDE BHARAT EXP',
+      '20631': 'VANDE BHARAT EXP',
+      '20632': 'VANDE BHARAT EXP',
+      '12623': 'TRIVANDRUM MAIL',
+      '12624': 'CHENNAI MAIL',
+      '12625': 'KERALA EXPRESS',
+      '12626': 'KERALA EXPRESS',
+      '12075': 'JAN SHATABDI EXP',
+      '12076': 'JAN SHATABDI EXP',
+      '12081': 'JAN SHATABDI EXP',
+      '12082': 'JAN SHATABDI EXP',
+      '16347': 'MANGALURU EXPRESS',
+      '16348': 'TRIVANDRUM EXPRESS',
+      '16349': 'RAJYA RANI EXP',
+      '16350': 'RAJYA RANI EXP'
+    };
+
     const STATION_NAMES = {
-      'TVC': 'Thiruvananthapuram',
+      'TVC': 'Thiruvananthapuram Central',
       'CAN': 'Kannur Main',
+      'KZK': 'Kazhakuttam',
       'MAQ': 'Mangaluru Central',
+      'MAJN': 'Mangaluru Junction',
       'CLT': 'Kozhikode',
       'ERS': 'Ernakulam South',
       'ERN': 'Ernakulam Town',
-      'NDLS': 'New Delhi',
+      'AWY': 'Aluva',
+      'TCR': 'Thrissur',
+      'SRR': 'Shoranur Junction',
+      'TIR': 'Tirur',
+      'BDJ': 'Vadakara',
+      'TLY': 'Thalassery',
+      'PAY': 'Payyanur',
       'KGQ': 'Kasaragod',
+      'QLN': 'Kollam Junction',
+      'KYJ': 'Kayamkulam Junction',
+      'ALLP': 'Alappuzha',
+      'KTYM': 'Kottayam',
+      'NDLS': 'New Delhi',
       'MAS': 'Chennai Central',
       'SBC': 'Bengaluru City',
       'CSMT': 'Mumbai CSMT',
@@ -1743,45 +1791,132 @@ Status: CNF`
       }
     }
 
+    function getBerthTypeFromNumber(berthNo, coach) {
+      const num = parseInt(berthNo, 10);
+      if (isNaN(num) || num <= 0) return '(BERTH)';
+      const c = (coach || '').toUpperCase();
+      if (c.startsWith('C') || c.startsWith('D') || c.startsWith('E') || c === 'CC' || c === 'EC' || c === '2S') {
+        return '(SEAT)';
+      }
+      const mod8 = num % 8;
+      if (mod8 === 1 || mod8 === 4) return '(LB)';
+      if (mod8 === 2 || mod8 === 5) return '(MB)';
+      if (mod8 === 3 || mod8 === 6) return '(UB)';
+      if (mod8 === 7) return '(SL)';
+      if (mod8 === 0) return '(SU)';
+      return '(BERTH)';
+    }
+
     function parseTicketText(raw) {
       if (!raw || !raw.trim()) return null;
 
       const text = raw.replace(/[\r\n]+/g, ' ');
 
-      const trainMatch = text.match(/\b([012]\d{4})\b/);
-      const trainNo = trainMatch ? trainMatch[1] : '16629';
+      // 1. Train Number (TRN:16630, TRAIN: 16629, or 5-digit number)
+      const trnMatch = text.match(/(?:TRN|TRAIN|TRAIN NO|TRAIN NUMBER)\s*[:=\s]*([0-9]{5})\b/i);
+      const generalTrainMatch = text.match(/\b([012]\d{4})\b/);
+      const trainNo = trnMatch ? trnMatch[1] : (generalTrainMatch ? generalTrainMatch[1] : '16629');
 
-      let trainName = 'EXPRESS';
-      const nameMatch = text.match(/(?:Train\s*:?\s*(?:[012]\d{4})?\s*[\/-]?\s*)([A-Za-z\s]+?)(?:Express|Exp)?(?:\b|,|\d|\()/i);
-      if (text.toUpperCase().includes('MALABAR')) trainName = 'MALABAR EXPRESS';
-      else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
-      else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
-      else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
-      else if (text.toUpperCase().includes('JAN SHATABDI')) trainName = 'JAN SHATABDI EXP';
-      else if (nameMatch && nameMatch[1].trim().length > 2) trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
+      // 2. Train Name (dictionary lookup first, then keyword recognition, then regex)
+      let trainName = TRAIN_NAMES[trainNo] || null;
+      if (!trainName) {
+        if (text.toUpperCase().includes('MALABAR')) trainName = 'MALABAR EXPRESS';
+        else if (text.toUpperCase().includes('MAVELI')) trainName = 'MAVELI EXPRESS';
+        else if (text.toUpperCase().includes('KERALA')) trainName = 'KERALA EXPRESS';
+        else if (text.toUpperCase().includes('VANDE BHARAT')) trainName = 'VANDE BHARAT EXP';
+        else if (text.toUpperCase().includes('JAN SHATABDI')) trainName = 'JAN SHATABDI EXP';
+        else {
+          const nameMatch = text.match(/(?:Train\s*:?\s*(?:[012]\d{4})?\s*[\/-]?\s*)([A-Za-z\s]+?)(?:Express|Exp)?(?:\b|,|\d|\()/i);
+          if (nameMatch && nameMatch[1].trim().length > 2) trainName = nameMatch[1].trim().toUpperCase() + ' EXP';
+          else trainName = 'EXPRESS';
+        }
+      }
 
-      const timeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
-      const time = timeMatch ? timeMatch[0] : '18:40';
+      // 3. Departure Time (DP:20:55, DEP: 18:40, at 18:40, 20:55)
+      const dpMatch = text.match(/(?:DP|DEP|DEPARTURE|TIME|AT)\s*[:=\s]*([01]?\d|2[0-3]):([0-5]\d)\b/i);
+      const generalTimeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+      const time = dpMatch ? (dpMatch[1].padStart(2, '0') + ':' + dpMatch[2]) : (generalTimeMatch ? generalTimeMatch[0] : '18:40');
 
-      const fromMatch = text.match(/(?:From\s*:?\s*|Dep\s*:?\s*)([A-Z]{2,4})\b/i);
-      const fromStn = fromMatch ? fromMatch[1].toUpperCase() : 'TVC';
+      // 4. Stations / Route (CAN-KZK, CAN to KZK, From/To, Boarding at CAN)
+      let fromStn = null;
+      let toStn = null;
 
-      const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,4})\b/i);
-      const toStn = toMatch ? toMatch[1].toUpperCase() : 'CAN';
+      const bkgAtMatch = text.match(/Boarding\s+at\s+([A-Z]{2,5})\b/i);
+      const hyphenRouteMatch = text.match(/\b([A-Z]{2,5})\s*[-–➔\/]\s*([A-Z]{2,5})\b/);
+      if (hyphenRouteMatch && !['DOJ', 'TRN', 'PNR', 'DEP', 'ARR'].includes(hyphenRouteMatch[1]) && !['DOJ', 'TRN', 'PNR', 'DEP', 'ARR'].includes(hyphenRouteMatch[2])) {
+        fromStn = hyphenRouteMatch[1].toUpperCase();
+        toStn = hyphenRouteMatch[2].toUpperCase();
+      }
 
-      const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|C\d{1,2}|D\d{1,2}|E\d{1,2}|GEN)\b/i);
-      const coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
+      if (!fromStn || !toStn) {
+        const toRouteMatch = text.match(/\b([A-Z]{2,5})\s+to\s+([A-Z]{2,5})\b/i);
+        if (toRouteMatch) {
+          if (!fromStn) fromStn = toRouteMatch[1].toUpperCase();
+          if (!toStn) toStn = toRouteMatch[2].toUpperCase();
+        }
+      }
 
-      const berthMatch = text.match(/(?:Berth|Seat|Bth)?\s*:?\s*(\d{1,3})\s*(?:\(([A-Za-z]+)\))?/i);
-      const berthNo = berthMatch ? berthMatch[1] : '35';
-      const berthType = berthMatch && berthMatch[2] ? `(${berthMatch[2].toUpperCase()})` : '(MB)';
+      if (!fromStn) {
+        const fromMatch = text.match(/(?:From\s*:?\s*)([A-Z]{2,5})\b/i);
+        if (fromMatch) fromStn = fromMatch[1].toUpperCase();
+      }
+      if (!toStn) {
+        const toMatch = text.match(/(?:To\s*:?\s*)([A-Z]{2,5})\b/i);
+        if (toMatch) toStn = toMatch[1].toUpperCase();
+      }
 
-      const pnrMatch = text.match(/\b(\d{10})\b/);
+      if (bkgAtMatch) {
+        fromStn = bkgAtMatch[1].toUpperCase();
+      }
+
+      if (!fromStn) fromStn = 'TVC';
+      if (!toStn) toStn = 'CAN';
+
+      // 5. Coach & Berth
+      let coach = null;
+      let berthNo = null;
+      let berthType = null;
+      const BERTH_CODES = '(?:LB|MB|UB|SL|SU|SM|WS|AS)';
+
+      // Explicit labels: Coach: S2, Berth: 35
+      const explicitCoach = text.match(/(?:Coach|Cch)\s*[:=\s]*([A-Z0-9]{1,4})\b/i);
+      const explicitBerth = text.match(/(?:Berth|Seat|Bth)\s*[:=\s]*(\d{1,3})(?:\s*,?\s*(?:Mid Berth|Lower|Upper|Side Lower|Side Upper)?\s*(?:\(([A-Za-z]+)\)|([A-Za-z]{2})))?/i);
+
+      if (explicitCoach) coach = explicitCoach[1].toUpperCase();
+      if (explicitBerth) {
+        berthNo = explicitBerth[1];
+        const bType = explicitBerth[2] || explicitBerth[3];
+        if (bType) berthType = '(' + bType.toUpperCase() + ')';
+      }
+
+      // IRCTC SMS Passenger line: ADEEB RASHDHAN,S2 3, or S2 3 (UB) or S2 3 MB or S2, 3
+      if (!coach || !berthNo) {
+        const passengerRegex = new RegExp('(?:^|[,;\\n\\r])\\s*(?:[A-Za-z\\s]+,\\s*)?([A-Z]\\d{1,2}|HA\\d|B\\d{1,2}|A\\d{1,2}|S\\d{1,2}|C\\d{1,2}|D\\d{1,2}|E\\d{1,2}|EC|CC)\\s*[, ]\\s*(\\d{1,3})(?:\\s*(?:,\\s*)?(?:\\((' + BERTH_CODES + ')\\)|\\b(' + BERTH_CODES + ')\\b|(?:Mid Berth|Lower|Upper|Side Lower|Side Upper)))?', 'i');
+        const pMatch = text.match(passengerRegex);
+        if (pMatch) {
+          if (!coach) coach = pMatch[1].toUpperCase();
+          if (!berthNo) berthNo = pMatch[2];
+          const bType = pMatch[3] || pMatch[4];
+          if (!berthType && bType) berthType = '(' + bType.toUpperCase() + ')';
+        }
+      }
+
+      if (!coach) {
+        const coachMatch = text.match(/\b([A-Z]\d{1,2}|HA\d|B\d{1,2}|A\d{1,2}|S\d{1,2}|C\d{1,2}|D\d{1,2}|E\d{1,2}|EC|CC|GEN)\b/i);
+        coach = coachMatch ? coachMatch[1].toUpperCase() : 'S2';
+      }
+
+      if (!berthNo) berthNo = '3';
+      if (!berthType) berthType = getBerthTypeFromNumber(berthNo, coach);
+
+      // 6. PNR (10 digits)
+      const pnrMatch = text.match(/(?:PNR\s*[:=\s]*|\b)([0-9]{10})\b/i);
       const pnr = pnrMatch ? pnrMatch[1] : '4447552121';
 
-      const dateMatch = text.match(/\b(\d{1,2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](\d{2,4})\b/);
-      let date = '06-NOV-2026';
-      let year = 2026, month = 10, day = 6;
+      // 7. Date of Journey (DOJ:09-11-26, 09-11-2026, 06-NOV-2026)
+      const dateMatch = text.match(/\b(?:DOJ\s*[:=\s]*|Date\s*[:=\s]*|Date of Journey\s*[:=\s]*)?(\d{1,2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](\d{2,4})\b/i);
+      let date = '09-NOV-2026';
+      let year = 2026, month = 10, day = 9;
 
       if (dateMatch) {
         day = parseInt(dateMatch[1], 10);
@@ -1799,10 +1934,12 @@ Status: CNF`
       }
 
       const [hours, mins] = time.split(':').map(n => parseInt(n, 10));
+      const clash = CONFUSION_PAIRS[trainNo] || null;
 
       return {
         trainNo, trainName, time, fromStn, toStn, coach, berthNo, berthType, pnr, date,
-        departureDate: new Date(year, month, day, hours, mins, 0)
+        departureDate: new Date(year, month, day, hours, mins, 0),
+        clash
       };
     }
 
