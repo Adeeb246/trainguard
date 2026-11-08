@@ -526,6 +526,39 @@
       border: 1px solid var(--border-subtle);
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 #FFFFFF;
     }
+
+    /* Individual Tabbed Cards Architecture */
+    .tab-card-pane {
+      display: none;
+      animation: tabFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .tab-card-pane.active {
+      display: block;
+    }
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .tab-btn {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tab-btn.active {
+      color: #4ADE80 !important;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+    }
+    body.light-mode .tab-btn.active {
+      color: #1A8A42 !important;
+      background: rgba(26, 138, 66, 0.1);
+      border: 1px solid rgba(26, 138, 66, 0.2);
+    }
   </style>
 </head>
 <body class="min-h-screen pt-5 pb-28 px-3 sm:px-6 lg:px-8 antialiased">
@@ -727,355 +760,455 @@
 
           <!-- ACTIVE TICKET PASS (Visible once a valid ticket is loaded) -->
           <div id="pass-active-content" class="hidden">
-            <div class="pass-3d-wrapper" id="cardContainer">
-              <div class="pass-card-3d" id="passCard">
 
-                <!-- FRONT FACE: Apple Wallet Liquid Glass Boarding Pass -->
-                <div class="pass-face pass-front">
+            <!-- Top Card Header Indicator -->
+            <div class="flex items-center justify-between px-2 pb-2 text-xs font-semibold" style="color: var(--text-secondary);">
+              <span class="uppercase tracking-wider text-[10px]" id="current-section-title">CARD 1 OF 3: BOARDING PASS</span>
+              <span class="text-[10px] font-mono" id="current-section-badge">TAB: PASS</span>
+            </div>
 
-                  <!-- Traveling Liquid Specular Sheen Layer -->
-                  <div class="liquid-sheen-layer"></div>
-                  <!-- Interactive Mouse Specular Flare -->
-                  <div class="mouse-flare" id="mouseFlare"></div>
+            <!-- ========================================================================= -->
+            <!-- CARD 1: PASS TAB (3D Flippable Apple Wallet Boarding Pass) -->
+            <!-- ========================================================================= -->
+            <div id="pane-pass" class="tab-card-pane active">
+              <div class="pass-3d-wrapper" id="cardContainer">
+                <div class="pass-card-3d" id="passCard">
 
-                  <!-- Perforated Ticket Notches -->
-                  <div class="notch-cutout-l"></div>
-                  <div class="notch-cutout-r"></div>
+                  <!-- FRONT FACE: Apple Wallet Liquid Glass Boarding Pass -->
+                  <div class="pass-face pass-front">
 
-                  <!-- Card Header Bar with Interactive Platform Selector & Flip Button -->
-                  <div class="px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <div class="flex items-center gap-2">
-                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                      <span class="font-semibold tracking-wider uppercase text-[11px] text-[var(--text-secondary)]">
-                        Verified Railway Pass
-                      </span>
-                    </div>
+                    <!-- Traveling Liquid Specular Sheen Layer -->
+                    <div class="liquid-sheen-layer"></div>
+                    <!-- Interactive Mouse Specular Flare -->
+                    <div class="mouse-flare" id="mouseFlare"></div>
 
-                    <!-- Flip Button & Platform Selector -->
-                    <div class="flex items-center gap-2">
-                      <button id="btn-flip-barcode" onclick="flipPassCard()" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to flip pass and view digital barcode">
-                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        <span>Flip (Barcode)</span>
-                      </button>
+                    <!-- Perforated Ticket Notches -->
+                    <div class="notch-cutout-l"></div>
+                    <div class="notch-cutout-r"></div>
 
-                      <div class="relative">
-                        <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to set platform number announced at station">
-                          <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 4v16M15 4v16M4 12h16"/></svg>
-                          <span id="disp-platform-pill">PF 2</span>
-                          <svg class="w-3 h-3 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                    <!-- Card Header Bar with Interactive Platform Selector & Flip Button -->
+                    <div class="px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="font-semibold tracking-wider uppercase text-[11px] text-[var(--text-secondary)]">
+                          Verified Railway Pass
+                        </span>
+                      </div>
+
+                      <!-- Flip Button & Platform Selector -->
+                      <div class="flex items-center gap-2">
+                        <button id="btn-flip-barcode" onclick="flipPassCard()" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to flip pass and view digital barcode">
+                          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          <span>Flip (Barcode)</span>
                         </button>
 
-                        <!-- Platform Dropdown Picker -->
-                        <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
-                          <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
-                            <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
-                            <button id="btn-close-platform" class="p-1 rounded-lg opacity-60 hover:opacity-100 transition" title="Close platform picker">
-                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        <div class="relative">
+                          <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to set platform number announced at station">
+                            <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 4v16M15 4v16M4 12h16"/></svg>
+                            <span id="disp-platform-pill">PF 2</span>
+                            <svg class="w-3 h-3 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                          </button>
+
+                          <!-- Platform Dropdown Picker -->
+                          <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
+                            <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
+                              <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
+                              <button id="btn-close-platform" class="p-1 rounded-lg opacity-60 hover:opacity-100 transition" title="Close platform picker">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                              </button>
+                            </div>
+                            <div class="grid grid-cols-4 gap-1.5 text-center font-telemetry">
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
+                              <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
+                            </div>
+                            <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 flex items-center justify-center gap-1.5 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
+                              <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                              <span>TBA (Announcing Soon)</span>
                             </button>
                           </div>
-                          <div class="grid grid-cols-4 gap-1.5 font-telemetry text-center">
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
-                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
-                          </div>
-                          <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 flex items-center justify-center gap-1.5 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
-                            <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span>TBA (Announcing Soon)</span>
-                          </button>
                         </div>
                       </div>
                     </div>
 
-                    <div class="flex items-center gap-2.5 font-telemetry text-xs">
-                      <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
-                      <span style="color: var(--text-muted);">•</span>
-                      <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
+                    <div class="px-5 pt-3 pb-1 flex items-center justify-between font-telemetry text-xs">
+                      <span id="disp-date" class="font-semibold">Date: 09-NOV-2026</span>
+                      <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4147679046</span>
+                    </div>
+
+                    <!-- Route Arc & Station Codes -->
+                    <div class="p-5 sm:p-6 pb-4">
+                      <div class="grid grid-cols-3 items-center gap-2">
+                        <!-- Origin -->
+                        <div>
+                          <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Boarding from</span>
+                          <div id="disp-station" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5">
+                            <span>CAN</span>
+                          </div>
+                          <span id="disp-origin-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Kannur Main</span>
+                        </div>
+
+                        <!-- Curved Route Arc SVG & Dynamic Countdown Pill -->
+                        <div class="flex flex-col items-center justify-center">
+                          <span id="disp-countdown" role="status" aria-atomic="true" class="font-telemetry text-[11px] font-semibold px-2.5 py-0.5 rounded-full elevated-tile mb-1 text-center whitespace-nowrap text-[var(--text-primary)]">
+                            In 23h 03m 20s
+                          </span>
+                          <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
+                            <path d="M 8 22 Q 60 -2 112 22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" style="color: var(--border-strong); opacity: 0.8;"/>
+                            <circle cx="8" cy="22" r="3" style="fill: var(--text-muted);"/>
+                            <circle cx="60" cy="10" r="3.5" style="fill: var(--brand-primary);"/>
+                            <circle cx="112" cy="22" r="3" style="fill: var(--text-muted);"/>
+                          </svg>
+                          <span class="text-[10px] font-medium tracking-wider uppercase text-emerald-600 dark:text-emerald-400">Confirmed Seat</span>
+                        </div>
+
+                        <!-- Destination -->
+                        <div class="text-right">
+                          <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Destination</span>
+                          <div class="mt-0.5">
+                            <span id="disp-dest" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight">KZK</span>
+                          </div>
+                          <span id="disp-dest-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Kazhakuttam</span>
+                        </div>
+                      </div>
+
+                      <!-- Hero Train Number Cockpit Plaque -->
+                      <div class="plaque-surface rounded-2xl p-5 mt-5 text-center relative overflow-hidden">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
+                          <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span>Check Coach Boards For This Number</span>
+                        </div>
+
+                        <div id="disp-train-no" class="font-telemetry text-6xl sm:text-7xl font-bold tracking-tight leading-none py-1 select-all cursor-pointer" title="Click to copy train number">
+                          16630
+                        </div>
+
+                        <div class="mt-2.5 flex items-center justify-center">
+                          <div id="disp-train-name" class="font-syne text-xs sm:text-sm font-extrabold tracking-[0.18em] uppercase px-4 py-1.5 rounded-full bg-[var(--brand-soft)] border border-[var(--brand-border)] text-[var(--text-primary)] shadow-sm inline-flex items-center gap-2 select-none transition-all">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                            <span id="disp-train-name-val">MALABAR EXPRESS</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 3-Column Executive Telemetry Row -->
+                      <div class="grid grid-cols-3 gap-2.5 mt-4">
+                        <div class="elevated-tile rounded-2xl p-3 text-center">
+                          <span class="text-xs font-medium block text-[var(--text-secondary)]">Coach</span>
+                          <span id="disp-coach" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">S2</span>
+                        </div>
+                        <div id="btn-open-berth-map" class="elevated-tile rounded-2xl p-3 text-center cursor-pointer group hover:border-[var(--brand-primary)] transition" title="Tap to locate berth inside coach">
+                          <div class="flex items-center justify-center gap-1.5">
+                            <span class="text-xs font-medium block text-[var(--text-secondary)]">Berth</span>
+                            <svg class="w-3.5 h-3.5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                          </div>
+                          <span id="disp-berth" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">3 <span class="text-xs font-normal text-[var(--text-secondary)]">(UB)</span></span>
+                        </div>
+                        <div class="elevated-tile rounded-2xl p-3 text-center">
+                          <span class="text-xs font-medium block text-[var(--text-secondary)]">Departure</span>
+                          <span id="disp-time" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">8:55 PM</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Perforated Ticket Tear-line & Notches -->
+                    <div class="relative h-6 flex items-center justify-center overflow-hidden">
+                      <div class="notch-cutout-l"></div>
+                      <div class="w-full border-t-2 border-dashed mx-5" style="border-color: var(--gold-border);"></div>
+                      <div class="notch-cutout-r"></div>
+                    </div>
+
+                    <!-- Quick Navigation Actions on Pass Front -->
+                    <div class="p-5 pt-2 flex items-center justify-between text-xs">
+                      <button onclick="flipPassCard()" class="elevated-tile px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition">
+                        <span>↻ Digital Barcode</span>
+                      </button>
+                      <button onclick="switchTab('timeline')" class="gold-pill px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition shadow-sm">
+                        <span>View Timeline & Rake →</span>
+                      </button>
+                    </div>
+
+                  </div>
+                  <!-- END FRONT FACE -->
+
+                  <!-- BACK FACE: Digital IRCTC Barcode & Security Key (Apple Wallet Back View) -->
+                  <div class="pass-face pass-back">
+                    <div>
+                      <div class="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                        <div class="flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span class="text-xs font-bold tracking-wider uppercase text-emerald-500 dark:text-emerald-400">
+                            IRCTC Digital Boarding Pass
+                          </span>
+                        </div>
+                        <span id="disp-back-pnr" class="text-xs font-mono font-bold text-[var(--text-primary)]">PNR: 4147679046</span>
+                      </div>
+
+                      <!-- Pure CSS Apple Barcode -->
+                      <div class="my-6 p-4 rounded-2xl bg-white text-center shadow-lg">
+                        <div class="apple-barcode mb-2"></div>
+                        <p id="disp-back-barcode-text" class="text-xs font-mono tracking-widest text-black font-bold">
+                          *4147679046-16630-S2-3*
+                        </p>
+                      </div>
+
+                      <div class="space-y-2.5 text-xs">
+                        <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                          <span class="text-[var(--text-secondary)]">Passenger Name</span>
+                          <span id="disp-back-passenger" class="font-bold text-[var(--text-primary)]">ADEEB RASHDHAN</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                          <span class="text-[var(--text-secondary)]">Train & Service</span>
+                          <span id="disp-back-train" class="font-bold text-[var(--text-primary)]">16630 MALABAR EXPRESS</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                          <span class="text-[var(--text-secondary)]">Class & Fare</span>
+                          <span id="disp-back-fare" class="font-bold text-[var(--text-primary)]">Sleeper (SL) • ₹985</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                          <span class="text-[var(--text-secondary)]">Date of Journey</span>
+                          <span id="disp-back-doj" class="font-bold text-[var(--text-primary)]">09-NOV-2026</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                          <span class="text-[var(--text-secondary)]">Boarding Verification</span>
+                          <span id="disp-back-notice" class="font-bold text-amber-500 dark:text-amber-400">Confirmed Booking</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-[var(--border-subtle)] text-center">
+                      <button onclick="flipPassCard()" class="px-5 py-2.5 rounded-xl gold-pill text-xs font-semibold inline-flex items-center gap-2 hover:opacity-90 transition shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span>Return to Boarding Pass Front</span>
+                      </button>
                     </div>
                   </div>
+                  <!-- END BACK FACE -->
 
-          <!-- Route Arc & Station Codes -->
-          <div class="p-5 sm:p-6 pb-4">
-            <div class="grid grid-cols-3 items-center gap-2">
-              <!-- Origin -->
-              <div>
-                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Boarding from</span>
-                <div id="disp-station" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight mt-0.5">
-                  <span>TVC</span>
                 </div>
-                <span id="disp-origin-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Thiruvananthapuram</span>
+                <!-- END .pass-card-3d -->
               </div>
-
-              <!-- Curved Route Arc SVG & Dynamic Countdown Pill -->
-              <div class="flex flex-col items-center justify-center">
-                <span id="disp-countdown" role="status" aria-atomic="true" class="font-telemetry text-[11px] font-semibold px-2.5 py-0.5 rounded-full elevated-tile mb-1 text-center whitespace-nowrap text-[var(--text-primary)]">
-                  In 04h 12m 30s
-                </span>
-                <svg class="w-full h-7 overflow-visible" viewBox="0 0 120 28" fill="none">
-                  <path d="M 8 22 Q 60 -2 112 22" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" style="color: var(--border-strong); opacity: 0.8;"/>
-                  <circle cx="8" cy="22" r="3" style="fill: var(--text-muted);"/>
-                  <circle cx="60" cy="10" r="3.5" style="fill: var(--brand-primary);"/>
-                  <circle cx="112" cy="22" r="3" style="fill: var(--text-muted);"/>
-                </svg>
-                <span class="text-[10px] font-medium tracking-wider uppercase text-emerald-600 dark:text-emerald-400">Confirmed Seat</span>
-              </div>
-
-              <!-- Destination -->
-              <div class="text-right">
-                <span class="text-[11px] font-medium block" style="color: var(--text-secondary);">Destination</span>
-                <div class="mt-0.5">
-                  <span id="disp-dest" class="font-syne text-3xl sm:text-4xl font-extrabold tracking-tight">CAN</span>
-                </div>
-                <span id="disp-dest-city" class="font-serif-editorial italic text-sm block truncate" style="color: var(--text-secondary);">Kannur Main</span>
-              </div>
+              <!-- END .pass-3d-wrapper -->
             </div>
+            <!-- END #pane-pass -->
 
-            <!-- Hero Train Number Cockpit Plaque -->
-            <div class="plaque-surface rounded-2xl p-5 mt-5 text-center relative overflow-hidden">
-              <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
-                <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>Check Coach Boards For This Number</span>
-              </div>
-
-              <div id="disp-train-no" class="font-telemetry text-6xl sm:text-7xl font-bold tracking-tight leading-none py-1 select-all cursor-pointer" title="Click to copy train number">
-                16629
-              </div>
-
-              <div class="mt-2.5 flex items-center justify-center">
-                <div id="disp-train-name" class="font-syne text-xs sm:text-sm font-extrabold tracking-[0.18em] uppercase px-4 py-1.5 rounded-full bg-[var(--brand-soft)] border border-[var(--brand-border)] text-[var(--text-primary)] shadow-sm inline-flex items-center gap-2 select-none transition-all">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-                  <span id="disp-train-name-val">MALABAR EXPRESS</span>
-                </div>
-              </div>
-
-              <!-- Dynamic Coach Rake Position Visualizer -->
-              <div class="mt-4 pt-3 border-t border-[var(--border-subtle)]">
-                <div class="flex items-center justify-between text-xs mb-2 px-1">
-                  <span class="text-[var(--text-secondary)] font-medium">Coach Platform Position:</span>
-                  <span id="rake-position-hint" class="font-telemetry text-[var(--text-primary)] font-semibold">Middle-Forward of Platform</span>
-                </div>
-                <div id="rake-container" class="flex items-center justify-start sm:justify-center gap-1 overflow-x-auto pb-1 text-xs select-none">
-                  <!-- Dynamically populated by JS -->
-                </div>
-              </div>
-            </div>
-
-            <!-- 3-Column Executive Telemetry Row -->
-            <div class="grid grid-cols-3 gap-2.5 mt-4">
-              <div class="elevated-tile rounded-2xl p-3 text-center">
-                <span class="text-xs font-medium block text-[var(--text-secondary)]">Coach</span>
-                <span id="disp-coach" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">S2</span>
-              </div>
-              <div id="btn-open-berth-map" class="elevated-tile rounded-2xl p-3 text-center cursor-pointer group hover:border-[var(--brand-primary)] transition" title="Tap to locate berth inside coach">
-                <div class="flex items-center justify-center gap-1.5">
-                  <span class="text-xs font-medium block text-[var(--text-secondary)]">Berth</span>
-                  <svg class="w-3.5 h-3.5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                </div>
-                <span id="disp-berth" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">35 <span class="text-xs font-normal text-[var(--text-secondary)]">(MB)</span></span>
-              </div>
-              <div class="elevated-tile rounded-2xl p-3 text-center">
-                <span class="text-xs font-medium block text-[var(--text-secondary)]">Departure</span>
-                <span id="disp-time" class="font-telemetry text-2xl sm:text-3xl font-bold mt-0.5 block text-[var(--text-primary)]">18:40</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Perforated Ticket Tear-line & Notches -->
-          <div class="relative h-6 flex items-center justify-center overflow-hidden">
-            <div class="notch-cutout-l"></div>
-            <div class="w-full border-t-2 border-dashed mx-5" style="border-color: var(--gold-border);"></div>
-            <div class="notch-cutout-r"></div>
-          </div>
-
-          <!-- Bottom Section: Clash Guard, Leave Time & Multi-Platform Actions -->
-          <div class="px-5 sm:px-6 pb-6 pt-2 space-y-4">
-
-            <!-- Same-Station Clash Guard with Multi-Language Switcher -->
-            <div id="clash-warning" class="rounded-2xl p-3.5 border-l-4 elevated-tile" style="border-left-color: var(--crimson-accent);">
-              <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
-                <div class="flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  <span class="font-semibold text-xs uppercase tracking-wider text-rose-600 dark:text-rose-400">Same-Station Clash Guard</span>
-                </div>
-                <!-- Regional Language Switcher Pills -->
-                <div class="flex items-center gap-1 font-telemetry text-[10px]">
-                  <button class="lang-pill px-1.5 py-0.5 rounded bg-[var(--brand-primary)] text-white font-semibold" data-lang="en">EN</button>
-                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ml">മലയാളം</button>
-                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="hi">हिंदी</button>
-                  <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ta">தமிழ்</button>
-                </div>
-              </div>
-              <p id="clash-text" class="text-xs leading-relaxed text-[var(--text-secondary)]">
-                <strong class="font-telemetry font-bold text-[var(--text-primary)]">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-semibold text-[var(--text-primary)]">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-600 dark:text-emerald-400">16629</strong>, not 16604.
-              </p>
-            </div>
-
-            <!-- Leave For Station By Row -->
-            <div class="elevated-tile rounded-2xl px-4 py-3 flex items-center justify-between">
-              <div>
-                <span class="text-xs font-semibold block text-[var(--text-primary)]">Leave home / office by</span>
-                <span id="disp-leave-note" class="text-[11px] text-[var(--text-secondary)]">(30m commute + 30m station buffer)</span>
-              </div>
-              <span id="disp-leave-time" class="font-telemetry text-2xl font-bold text-[var(--text-primary)]">17:40</span>
-            </div>
-
-            <!-- QR Code & Calendar Action Hub -->
-            <div class="elevated-tile rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4">
-              <!-- Stylized Boarding Aztec / QR Code Graphic -->
-              <div class="flex flex-col items-center justify-center p-2 rounded-xl plaque-surface shrink-0" title="TrainGuard Offline Digital Verification Stamp">
-                <svg class="w-16 h-16 text-[var(--brand-primary)]" viewBox="0 0 100 100" fill="currentColor">
-                  <rect x="5" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
-                  <rect x="13" y="13" width="14" height="14" rx="2" fill="currentColor"/>
-                  <rect x="65" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
-                  <rect x="73" y="13" width="14" height="14" rx="2" fill="currentColor"/>
-                  <rect x="5" y="65" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
-                  <rect x="13" y="73" width="14" height="14" rx="2" fill="currentColor"/>
-                  <rect x="42" y="8" width="6" height="6" fill="currentColor"/>
-                  <rect x="52" y="16" width="6" height="6" fill="currentColor"/>
-                  <rect x="42" y="24" width="6" height="6" fill="currentColor"/>
-                  <rect x="10" y="44" width="6" height="6" fill="currentColor"/>
-                  <rect x="22" y="44" width="8" height="6" fill="currentColor"/>
-                  <rect x="36" y="38" width="6" height="14" fill="currentColor"/>
-                  <rect x="48" y="44" width="10" height="10" rx="1" fill="currentColor"/>
-                  <rect x="66" y="44" width="6" height="8" fill="currentColor"/>
-                  <rect x="80" y="44" width="12" height="6" fill="currentColor"/>
-                  <rect x="42" y="65" width="6" height="6" fill="currentColor"/>
-                  <rect x="52" y="72" width="8" height="6" fill="currentColor"/>
-                  <rect x="42" y="82" width="6" height="10" fill="currentColor"/>
-                  <rect x="68" y="66" width="8" height="8" fill="currentColor"/>
-                  <rect x="82" y="66" width="10" height="6" fill="currentColor"/>
-                  <rect x="72" y="80" width="6" height="12" fill="currentColor"/>
-                  <rect x="84" y="78" width="8" height="14" fill="currentColor"/>
-                </svg>
-                <span class="text-[9px] font-telemetry uppercase tracking-wider text-white/50 mt-1">OFFLINE CNF</span>
-              </div>
-
-              <!-- Multi-Action Hub with Crisp SVG Icons -->
-              <div class="w-full space-y-2">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <button id="btn-export-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs bg-slate-900 text-white dark:bg-white dark:text-slate-950 hover:opacity-90 shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    <span>Apple Calendar (.ics)</span>
-                  </button>
-                  <button id="btn-google-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition active:scale-[0.98] flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="14" r="2"/></svg>
-                    <span>Google Calendar</span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button id="btn-whatsapp-share" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                    <span>WhatsApp</span>
-                  </button>
-                  <button id="btn-wake-alarm" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Set a 30m wake-up alarm before reaching destination">
-                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>
-                    <span>Wake Alarm</span>
-                  </button>
-                  <button id="btn-share-link" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Copy shareable link with pre-filled pass">
-                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    <span>Share Link</span>
-                  </button>
-                  <button id="btn-save-image" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Save pass as HD image for phone gallery or lock screen">
-                    <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                    <span>Save Pass</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Indian Railways Emergency Helpline Bar -->
-            <div class="pt-1 flex flex-wrap items-center justify-between text-[11px] gap-2 border-t border-white/10" style="color: var(--text-secondary);">
-              <span class="font-medium text-white/70">Emergency Helplines:</span>
-              <div class="flex items-center gap-3 font-telemetry">
-                <a href="tel:139" class="hover:text-amber-400 transition flex items-center gap-1">
-                  <svg class="w-3 h-3 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                  139 (Security)
-                </a>
-                <span>•</span>
-                <a href="tel:112" class="hover:text-rose-400 transition flex items-center gap-1">
-                  <svg class="w-3 h-3 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 12-7-7-7 7m14 6-7-7-7 7"/></svg>
-                  112 (Medical)
-                </a>
-                <span>•</span>
-                <a href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener" class="hover:text-sky-400 transition flex items-center gap-1">
-                  <svg class="w-3 h-3 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  RailMadad
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <!-- END FRONT FACE -->
-
-          <!-- BACK FACE: Digital IRCTC Barcode & Security Key (Apple Wallet Back View) -->
-          <div class="pass-face pass-back">
-            <div>
-              <div class="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span class="text-xs font-bold tracking-wider uppercase text-emerald-500 dark:text-emerald-400">
-                    IRCTC Digital Boarding Pass
+            <!-- ========================================================================= -->
+            <!-- CARD 2: TIMELINE TAB (Dedicated Station Timeline, Rake & Buffer Card) -->
+            <!-- ========================================================================= -->
+            <div id="pane-timeline" class="tab-card-pane">
+              <div class="luxury-pass p-5 sm:p-6 space-y-4">
+                <!-- Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">⏱️</span>
+                    <div>
+                      <h2 class="text-sm sm:text-base font-bold font-syne">Journey Timeline & Platform Rake</h2>
+                      <p class="text-[11px]" style="color: var(--text-secondary);">Live departure sync & platform guide</p>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full gold-pill font-bold">
+                    LIVE SYNC
                   </span>
                 </div>
-                <span id="disp-back-pnr" class="text-xs font-mono font-bold text-[var(--text-primary)]">PNR: 4447552121</span>
-              </div>
 
-              <!-- Pure CSS Apple Barcode -->
-              <div class="my-6 p-4 rounded-2xl bg-white text-center shadow-lg">
-                <div class="apple-barcode mb-2"></div>
-                <p id="disp-back-barcode-text" class="text-xs font-mono tracking-widest text-black font-bold">
-                  *4447552121-16629-S2-35MB*
-                </p>
-              </div>
+                <!-- Hero Departure Countdown Tile -->
+                <div class="plaque-surface rounded-2xl p-4 sm:p-5 text-center">
+                  <span class="text-[11px] font-medium uppercase tracking-wider block mb-1" style="color: var(--text-secondary);">
+                    Boarding Countdown
+                  </span>
+                  <div id="disp-countdown-timeline" class="font-telemetry text-3xl sm:text-4xl font-extrabold" style="color: var(--text-primary);">
+                    In 23h 03m 20s
+                  </div>
+                  <div class="flex items-center justify-center gap-4 text-xs mt-3 pt-3 border-t border-[var(--border-subtle)]">
+                    <div>
+                      <span class="block text-[10px]" style="color: var(--text-secondary);">DEPARTURE TIME</span>
+                      <span id="timeline-dep-time" class="font-bold font-telemetry">8:55 PM</span>
+                    </div>
+                    <div class="w-px h-6 bg-[var(--border-subtle)]"></div>
+                    <div>
+                      <span class="block text-[10px]" style="color: var(--text-secondary);">BOARDING PLATFORM</span>
+                      <span id="timeline-platform" class="font-bold font-telemetry text-emerald-500 dark:text-emerald-400">PF 2</span>
+                    </div>
+                  </div>
+                </div>
 
-              <div class="space-y-2.5 text-xs">
-                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
-                  <span class="text-[var(--text-secondary)]">Passenger Name</span>
-                  <span id="disp-back-passenger" class="font-bold text-[var(--text-primary)]">ADEEB RASHDHAN</span>
+                <!-- Coach Platform Position Locator -->
+                <div class="elevated-tile rounded-2xl p-4 space-y-3">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium" style="color: var(--text-secondary);">Coach Platform Position:</span>
+                    <span id="rake-position-hint" class="font-telemetry text-xs font-bold" style="color: var(--text-primary);">Middle-Forward of Platform</span>
+                  </div>
+
+                  <!-- Dynamic Coach Rake Visualizer -->
+                  <div id="rake-container" class="flex items-center justify-start sm:justify-center gap-1.5 overflow-x-auto py-2 text-xs select-none">
+                    <!-- Populated by JS -->
+                  </div>
+                  <p class="text-[10px] text-center" style="color: var(--text-secondary);">Walk towards the middle-forward section of the platform before train arrival.</p>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
-                  <span class="text-[var(--text-secondary)]">Train & Service</span>
-                  <span id="disp-back-train" class="font-bold text-[var(--text-primary)]">16629 MALABAR EXPRESS</span>
+
+                <!-- Leave Home Buffer Card -->
+                <div class="elevated-tile rounded-2xl p-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">🚗</span>
+                    <div>
+                      <span class="text-xs font-bold block" style="color: var(--text-primary);">Leave home / office by <span id="disp-leave-time">7:55 PM</span></span>
+                      <span id="disp-leave-note" class="text-[11px]" style="color: var(--text-secondary);">(30m commute + 30m station buffer = 60m total)</span>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-bold px-2 py-1 rounded-lg gold-pill">
+                    ALARM ON
+                  </span>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
-                  <span class="text-[var(--text-secondary)]">Class & Fare</span>
-                  <span id="disp-back-fare" class="font-bold text-[var(--text-primary)]">Sleeper (SL) • ₹985</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
-                  <span class="text-[var(--text-secondary)]">Date of Journey</span>
-                  <span id="disp-back-doj" class="font-bold text-[var(--text-primary)]">06-NOV-2026</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
-                  <span class="text-[var(--text-secondary)]">Boarding Verification</span>
-                  <span id="disp-back-notice" class="font-bold text-amber-500 dark:text-amber-400">Confirmed Booking</span>
+
+                <!-- Calendar & Multi-Platform Action Hub -->
+                <div class="elevated-tile rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4">
+                  <!-- Stylized Boarding Aztec / QR Code Graphic -->
+                  <div class="flex flex-col items-center justify-center p-2 rounded-xl plaque-surface shrink-0" title="TrainGuard Offline Digital Verification Stamp">
+                    <svg class="w-14 h-14 text-[var(--brand-primary)]" viewBox="0 0 100 100" fill="currentColor">
+                      <rect x="5" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                      <rect x="13" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                      <rect x="65" y="5" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                      <rect x="73" y="13" width="14" height="14" rx="2" fill="currentColor"/>
+                      <rect x="5" y="65" width="30" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="6"/>
+                      <rect x="13" y="73" width="14" height="14" rx="2" fill="currentColor"/>
+                      <rect x="42" y="8" width="6" height="6" fill="currentColor"/>
+                      <rect x="52" y="16" width="6" height="6" fill="currentColor"/>
+                      <rect x="42" y="24" width="6" height="6" fill="currentColor"/>
+                      <rect x="10" y="44" width="6" height="6" fill="currentColor"/>
+                      <rect x="22" y="44" width="8" height="6" fill="currentColor"/>
+                      <rect x="36" y="38" width="6" height="14" fill="currentColor"/>
+                      <rect x="48" y="44" width="10" height="10" rx="1" fill="currentColor"/>
+                      <rect x="66" y="44" width="6" height="8" fill="currentColor"/>
+                      <rect x="80" y="44" width="12" height="6" fill="currentColor"/>
+                      <rect x="42" y="65" width="6" height="6" fill="currentColor"/>
+                    </svg>
+                    <span class="text-[9px] font-telemetry uppercase tracking-wider opacity-60 mt-0.5">OFFLINE CNF</span>
+                  </div>
+
+                  <div class="w-full space-y-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button id="btn-export-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs gold-pill hover:opacity-90 shadow-sm transition active:scale-[0.98] flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span>Apple Calendar (.ics)</span>
+                      </button>
+                      <button id="btn-google-calendar" class="py-2.5 px-3 rounded-xl font-semibold text-xs elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition active:scale-[0.98] flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="14" r="2"/></svg>
+                        <span>Google Calendar</span>
+                      </button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <button id="btn-whatsapp-share" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        <span>WhatsApp</span>
+                      </button>
+                      <button id="btn-wake-alarm" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Set a 30m wake-up alarm before reaching destination">
+                        <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg>
+                        <span>Wake Alarm</span>
+                      </button>
+                      <button id="btn-share-link" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Copy shareable link with pre-filled pass">
+                        <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <span>Share Link</span>
+                      </button>
+                      <button id="btn-save-image" class="py-2 px-2 rounded-xl text-xs font-medium elevated-tile text-[var(--text-primary)] hover:border-[var(--border-strong)] transition flex items-center justify-center gap-1.5" title="Save pass as HD image for phone gallery or lock screen">
+                        <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                        <span>Save Pass</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            <!-- END #pane-timeline -->
 
-            <div class="pt-4 border-t border-[var(--border-subtle)] text-center">
-              <button onclick="flipPassCard()" class="px-5 py-2.5 rounded-xl gold-pill text-xs font-semibold inline-flex items-center gap-2 hover:opacity-90 transition shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                <span>Return to Boarding Pass Front</span>
-              </button>
+            <!-- ========================================================================= -->
+            <!-- CARD 3: SAFEGUARD TAB (Dedicated Clash Guard & Protection Card) -->
+            <!-- ========================================================================= -->
+            <div id="pane-safeguard" class="tab-card-pane">
+              <div class="luxury-pass p-5 sm:p-6 space-y-4">
+                <!-- Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🛡️</span>
+                    <div>
+                      <h2 class="text-sm sm:text-base font-bold font-syne">Same-Station Timing Safeguard</h2>
+                      <p class="text-[11px]" style="color: var(--text-secondary);">Boarding clash prevention & emergency hub</p>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full elevated-tile text-rose-500 font-bold">
+                    ACTIVE GUARD
+                  </span>
+                </div>
+
+                <!-- Same-Station Clash Guard with Multi-Language Switcher -->
+                <div id="clash-warning" class="rounded-2xl p-3.5 border-l-4 elevated-tile" style="border-left-color: var(--crimson-accent);">
+                  <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      <span class="font-semibold text-xs uppercase tracking-wider text-rose-600 dark:text-rose-400">Same-Station Clash Guard</span>
+                    </div>
+                    <!-- Regional Language Switcher Pills -->
+                    <div class="flex items-center gap-1 font-telemetry text-[10px]">
+                      <button class="lang-pill px-1.5 py-0.5 rounded bg-[var(--brand-primary)] text-white font-semibold" data-lang="en">EN</button>
+                      <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ml">മലയാളം</button>
+                      <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="hi">हिंदी</button>
+                      <button class="lang-pill px-1.5 py-0.5 rounded elevated-tile text-[var(--text-secondary)] hover:text-[var(--text-primary)]" data-lang="ta">தமிழ்</button>
+                    </div>
+                  </div>
+                  <p id="clash-text" class="text-xs leading-relaxed text-[var(--text-secondary)]">
+                    <strong class="font-telemetry font-bold text-[var(--text-primary)]">16604 MAVELI EXP</strong> departs nearby at <span class="font-telemetry font-semibold text-[var(--text-primary)]">19:30</span>. Verify coach boards before boarding: board <strong class="font-telemetry underline text-emerald-600 dark:text-emerald-400">16629</strong>, not 16604.
+                  </p>
+                </div>
+
+                <!-- Fast Preset Switcher inside Safeguard Tab -->
+                <div class="elevated-tile rounded-2xl p-4 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[var(--text-primary)]">Fast Switcher & Trip Presets</span>
+                    <span class="text-[10px] text-[var(--text-secondary)]">1-Tap Verification</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button onclick="document.getElementById('btn-preset-clash')?.click()" class="elevated-tile p-2.5 rounded-xl text-left hover:border-[var(--brand-primary)] transition">
+                      <span class="font-bold block text-[11px] text-rose-500">Malabar vs Maveli</span>
+                      <span class="text-[10px] text-[var(--text-secondary)]">Clash safeguard</span>
+                    </button>
+                    <button onclick="document.getElementById('btn-preset-vande')?.click()" class="elevated-tile p-2.5 rounded-xl text-left hover:border-[var(--brand-primary)] transition">
+                      <span class="font-bold block text-[11px] text-emerald-500">Vande Bharat</span>
+                      <span class="text-[10px] text-[var(--text-secondary)]">Chair Car (C3)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Emergency Helplines -->
+                <div class="elevated-tile rounded-2xl p-4 space-y-2.5">
+                  <span class="text-xs font-bold text-[var(--text-primary)] block">Emergency Helplines</span>
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <a href="tel:139" class="p-2.5 rounded-xl elevated-tile hover:border-amber-400 transition block">
+                      <span class="font-bold font-telemetry block text-amber-500 dark:text-amber-400">139</span>
+                      <span class="text-[10px] text-[var(--text-secondary)]">Security</span>
+                    </a>
+                    <a href="tel:112" class="p-2.5 rounded-xl elevated-tile hover:border-rose-400 transition block">
+                      <span class="font-bold font-telemetry block text-rose-500 dark:text-rose-400">112</span>
+                      <span class="text-[10px] text-[var(--text-secondary)]">Medical</span>
+                    </a>
+                    <a href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener" class="p-2.5 rounded-xl elevated-tile hover:border-sky-400 transition block">
+                      <span class="font-bold block text-sky-500 dark:text-sky-400">RailMadad</span>
+                      <span class="text-[10px] text-[var(--text-secondary)]">Portal</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <!-- END BACK FACE -->
+            <!-- END #pane-safeguard -->
 
-        </div>
-        <!-- END .pass-card-3d -->
-      </div>
-      <!-- END .pass-3d-wrapper -->
-    </div>
-  </main>
+          </div></main>
 
       </div>
 
@@ -1336,17 +1469,17 @@
   </div>
 
   <!-- SLIM APPLE NATIVE FLOATING NAVIGATION TAB BAR -->
-  <nav id="apple-nav-bar" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 apple-bottom-tabbar flex items-center justify-center gap-6 shadow-2xl">
-    <button onclick="scrollToSection('boarding-card')" class="flex items-center gap-1.5 text-xs font-semibold text-emerald-500 dark:text-emerald-400 hover:opacity-85 transition">
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+  <nav id="apple-nav-bar" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 apple-bottom-tabbar flex items-center justify-center gap-2 shadow-2xl">
+    <button id="tab-btn-pass" onclick="switchTab('pass')" class="tab-btn active px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 text-gray-400">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="3"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
       <span>Pass</span>
     </button>
-    <button onclick="scrollToSection('clash-warning')" class="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <button id="tab-btn-timeline" onclick="switchTab('timeline')" class="tab-btn px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 text-gray-400">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>Timeline</span>
     </button>
-    <button onclick="scrollToSection('ticket-input')" class="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+    <button id="tab-btn-safeguard" onclick="switchTab('safeguard')" class="tab-btn px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 text-gray-400">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span>Safeguard</span>
     </button>
   </nav>
@@ -2307,11 +2440,15 @@ Status: CNF`
           const s = totalSec % 60;
           const pad = (n) => String(n).padStart(2, '0');
 
+
           if (h > 0) {
             dispCountdown.textContent = `In ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
           } else {
             dispCountdown.textContent = `BOARDING: ${pad(m)}m ${pad(s)}s`;
           }
+          const timelineCountdown = document.getElementById('disp-countdown-timeline');
+          if (timelineCountdown) timelineCountdown.textContent = dispCountdown.textContent;
+
         } else if (diffMs > -3600000) {
           const pastMins = Math.abs(Math.floor(diffMs / 60000));
           dispCountdown.textContent = `Departed ${pastMins}m ago`;
@@ -2560,7 +2697,13 @@ Status: CNF`
       }
       dispStation.firstElementChild.textContent = data.fromStn;
       dispDest.textContent = data.toStn;
+
       dispTime.innerHTML = formatTo12Hour(data.time, true, true);
+      const timelineDep = document.getElementById('timeline-dep-time');
+      if (timelineDep) timelineDep.innerHTML = formatTo12Hour(data.time, true, true);
+      const timelinePf = document.getElementById('timeline-platform');
+      if (timelinePf) timelinePf.textContent = currentPlatform;
+
       dispCoach.textContent = data.coach;
       dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--text-secondary);">${data.berthType}</span>`;
       dispDate.textContent = `Date: ${data.date}`;
@@ -3285,6 +3428,41 @@ Status: CNF`
       if (passCard) {
         passCard.classList.toggle('flipped');
         triggerHaptic('selection');
+      }
+    }
+
+    
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-card-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      const targetPane = document.getElementById('pane-' + tabId);
+      if (targetPane) targetPane.classList.add('active');
+
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const titleEl = document.getElementById('current-section-title');
+      const badgeEl = document.getElementById('current-section-badge');
+      if (titleEl && badgeEl) {
+        if (tabId === 'pass') {
+          titleEl.textContent = 'CARD 1 OF 3: BOARDING PASS';
+          badgeEl.textContent = 'TAB: PASS';
+        } else if (tabId === 'timeline') {
+          titleEl.textContent = 'CARD 2 OF 3: JOURNEY TIMELINE & RAKE';
+          badgeEl.textContent = 'TAB: TIMELINE';
+        } else if (tabId === 'safeguard') {
+          titleEl.textContent = 'CARD 3 OF 3: TIMING SAFEGUARD';
+          badgeEl.textContent = 'TAB: SAFEGUARD';
+        }
+      }
+
+      triggerHaptic('selection');
+      const boardingCard = document.getElementById('boarding-card');
+      if (boardingCard) {
+        boardingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
 

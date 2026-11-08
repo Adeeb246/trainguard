@@ -34,6 +34,19 @@ def run_iphone_simulator():
         
         page = context.new_page()
         page.goto("http://localhost:3300", wait_until="networkidle")
+        
+        # Ensure the 3D Apple Wallet pass is populated immediately on launch
+        try:
+            page.evaluate("""() => {
+                const hasTicket = localStorage.getItem('trainguard_saved_ticket_v1');
+                if (!hasTicket) {
+                    const sampleBtn = document.getElementById('btn-quick-sample') || document.getElementById('btn-empty-demo');
+                    if (sampleBtn) sampleBtn.click();
+                }
+            }""")
+        except Exception:
+            pass
+            
         print("[iPhone Simulator] TrainGuard loaded successfully on Apple WebKit!")
         print("[iPhone Simulator] Testing window active. Close the window to exit.")
 
