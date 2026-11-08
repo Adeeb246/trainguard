@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { parseTicketText, checkExpectationMismatch, STATION_NAMES } = require('../src/parser');
+const { parseTicketText, checkExpectationMismatch, STATION_NAMES, formatTo12Hour } = require('../src/parser');
 
 console.log('Running TrainGuard Parser Unit Tests...');
 
@@ -16,6 +16,7 @@ const res1 = parseTicketText(smsMalabar);
 assert.strictEqual(res1.trainNo, '16629', 'Should extract train number 16629');
 assert.strictEqual(res1.trainName, 'MALABAR EXPRESS', 'Should extract Malabar Express name');
 assert.strictEqual(res1.time, '18:40', 'Should extract 18:40 departure time');
+assert.strictEqual(res1.time12, '6:40 PM', 'Should convert 18:40 to 6:40 PM in 12h format');
 assert.strictEqual(res1.fromStn, 'TVC', 'Should extract TVC boarding station');
 assert.strictEqual(res1.toStn, 'MAQ', 'Should extract MAQ destination');
 assert.strictEqual(res1.coach, 'S2', 'Should extract Coach S2');
@@ -52,6 +53,7 @@ Status: CNF`;
 const res5 = parseTicketText(smsVB);
 assert.strictEqual(res5.trainNo, '20634', 'Should extract 20634');
 assert.strictEqual(res5.trainName, 'VANDE BHARAT EXP', 'Should extract Vande Bharat');
+assert.strictEqual(res5.time12, '4:05 PM', 'Should convert 16:05 to 4:05 PM');
 assert.strictEqual(res5.coach, 'C3', 'Should extract Chair Car C3');
 assert.strictEqual(res5.berthNo, '42', 'Should extract Seat 42');
 assert.strictEqual(res5.berthType, '(WS)', 'Should extract Window Seat');
@@ -69,6 +71,7 @@ const resUser = parseTicketText(userSms);
 assert.strictEqual(resUser.trainNo, '16630', 'Should extract train number 16630');
 assert.strictEqual(resUser.trainName, 'MALABAR EXPRESS', 'Should map 16630 to MALABAR EXPRESS');
 assert.strictEqual(resUser.time, '20:55', 'Should extract 20:55 departure time');
+assert.strictEqual(resUser.time12, '8:55 PM', 'Should convert 20:55 to 8:55 PM with AM/PM indicator');
 assert.strictEqual(resUser.fromStn, 'CAN', 'Should extract CAN boarding station');
 assert.strictEqual(resUser.toStn, 'KZK', 'Should extract KZK destination station');
 assert.strictEqual(resUser.coach, 'S2', 'Should extract Coach S2');
@@ -86,4 +89,12 @@ assert.strictEqual(STATION_NAMES['KZK'], 'Kazhakuttam', 'KZK should resolve to K
 assert.strictEqual(STATION_NAMES['TVC'], 'Thiruvananthapuram Central', 'TVC should resolve to Thiruvananthapuram Central');
 console.log('✓ Test 7 Passed: Station name resolution verified');
 
-console.log('\nAll 7 test suites passed! 🎉');
+// Test 8: 12-Hour Format Conversion with AM/PM
+assert.strictEqual(formatTo12Hour('00:15'), '12:15 AM');
+assert.strictEqual(formatTo12Hour('09:05'), '9:05 AM');
+assert.strictEqual(formatTo12Hour('12:00'), '12:00 PM');
+assert.strictEqual(formatTo12Hour('18:40'), '6:40 PM');
+assert.strictEqual(formatTo12Hour('20:55'), '8:55 PM');
+console.log('✓ Test 8 Passed: 12-hour time conversion verified for morning, noon, evening, and night');
+
+console.log('\nAll 8 test suites passed! 🎉');

@@ -69,6 +69,22 @@ const STATION_NAMES = {
   'HWH': 'Howrah Junction'
 };
 
+function formatTo12Hour(timeStr, includeAmPm = true, isHtml = false) {
+  if (!timeStr) return '';
+  const parts = String(timeStr).trim().match(/^([01]?\d|2[0-3]):([0-5]\d)/);
+  if (!parts) return timeStr;
+  let hours = parseInt(parts[1], 10);
+  const minutes = parts[2];
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const timeFormatted = `${hours}:${minutes}`;
+  if (!includeAmPm) return timeFormatted;
+  if (isHtml) {
+    return `${timeFormatted} <span class="text-xs sm:text-sm font-semibold tracking-normal" style="color: var(--text-secondary);">${ampm}</span>`;
+  }
+  return `${timeFormatted} ${ampm}`;
+}
+
 function getBerthTypeFromNumber(berthNo, coach) {
   const num = parseInt(berthNo, 10);
   if (isNaN(num) || num <= 0) return '(BERTH)';
@@ -115,6 +131,7 @@ function parseTicketText(raw) {
   const dpMatch = text.match(/(?:DP|DEP|DEPARTURE|TIME|AT)\s*[:=\s]*([01]?\d|2[0-3]):([0-5]\d)\b/i);
   const generalTimeMatch = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
   const time = dpMatch ? (dpMatch[1].padStart(2, '0') + ':' + dpMatch[2]) : (generalTimeMatch ? generalTimeMatch[0] : '18:40');
+  const time12 = formatTo12Hour(time);
 
   // 4. Stations / Route (CAN-KZK, CAN to KZK, From/To, Boarding at CAN)
   let fromStn = null;
@@ -220,6 +237,7 @@ function parseTicketText(raw) {
     trainNo,
     trainName,
     time,
+    time12,
     fromStn,
     toStn,
     coach,
@@ -257,6 +275,7 @@ if (typeof module !== 'undefined' && module.exports) {
     CONFUSION_PAIRS,
     TRAIN_NAMES,
     STATION_NAMES,
-    getBerthTypeFromNumber
+    getBerthTypeFromNumber,
+    formatTo12Hour
   };
 }
