@@ -21,21 +21,18 @@ function processIrctcEmails() {
 }
 
 function createTrainCalendarEvent(ticket) {
-  var title = ticket.trainNo + ' ' + ticket.trainName + ' · ' + ticket.coach + '/' + ticket.berthNo + ' · ' + ticket.time + ' ' + ticket.fromStn;
+  var title = ticket.trainNo + ' ' + (ticket.trainName || '') + ' · ' + (ticket.coach || '-') + '/' + (ticket.berthNo || '-') + ' · ' + (ticket.time || '') + ' ' + (ticket.fromStn || '');
   var cal = CalendarApp.getDefaultCalendar();
   
   var desc = '🚂 TrainGuard Boarding Card\n' +
-             'YOUR TRAIN: ' + ticket.trainNo + ' (' + ticket.trainName + ')\n' +
-             'Coach: ' + ticket.coach + ' | Berth: ' + ticket.berthNo + '\n' +
-             'PNR: ' + ticket.pnr + '\n';
+             'YOUR TRAIN: ' + ticket.trainNo + (ticket.trainName ? ' (' + ticket.trainName + ')' : '') + '\n' +
+             'Coach: ' + (ticket.coach || '-') + ' | Berth: ' + (ticket.berthNo || '-') + '\n' +
+             'PNR: ' + (ticket.pnr || '-') + '\n';
 
-  if (ticket.clash) {
-    desc += '\n⚠️ CLASH WARNING: ' + ticket.clash.clashNo + ' ' + ticket.clash.clashName +
-            ' departs nearby at ' + ticket.clash.clashTime + '. Make sure you board ' + ticket.trainNo + '!';
-  }
+  if (!ticket.departureDate) return; // can't place an event without a date and time, and the parser no longer guesses them
 
-  var now = new Date();
-  var event = cal.createEvent(title, now, new Date(now.getTime() + 4 * 3600 * 1000), {
+  var start = ticket.departureDate;
+  var event = cal.createEvent(title, start, new Date(start.getTime() + 4 * 3600 * 1000), {
     description: desc,
     location: ticket.fromStn + ' Railway Station'
   });
