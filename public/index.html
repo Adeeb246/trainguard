@@ -349,11 +349,186 @@
     .ios-safe-top {
       padding-top: max(18px, env(safe-area-inset-top, 18px)) !important;
     }
-      }
+
+    /* ==========================================================================
+       APPLE WALLET LIQUID GLASS & 3D INTERACTIVE TILT SPEC
+       ========================================================================== */
+    .pass-3d-wrapper {
+      perspective: 1200px;
+      position: relative;
+    }
+
+    .pass-card-3d {
+      width: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      border-radius: 28px;
+    }
+
+    .pass-card-3d.flipped {
+      transform: rotateY(180deg) !important;
+    }
+
+    .pass-face {
+      width: 100%;
+      backface-visibility: hidden;
+      border-radius: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .pass-front {
+      background: var(--bg-pass);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 
+        0 24px 48px -12px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+        inset 0 -1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+    body.light-mode .pass-front {
+      background: var(--bg-pass);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 
+        0 20px 40px -12px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+        inset 0 -1px 0 0 rgba(0, 0, 0, 0.04);
+    }
+
+    .pass-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      background: var(--bg-pass);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    /* Traveling Liquid Specular Sheen */
+    .liquid-sheen-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      pointer-events: none;
+      z-index: 2;
+      background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.03) 40%,
+        rgba(255, 255, 255, 0.18) 50%,
+        rgba(255, 255, 255, 0.03) 60%,
+        transparent 80%
+      );
+      background-size: 250% 250%;
+      animation: liquidSheen 7s ease-in-out infinite;
+      mix-blend-mode: overlay;
+    }
+
+    @keyframes liquidSheen {
+      0% { background-position: -120% -120%; }
+      50% { background-position: 120% 120%; }
+      100% { background-position: -120% -120%; }
+    }
+
+    /* Dynamic cursor flare */
+    .mouse-flare {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 65%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 3;
+      mix-blend-mode: soft-light;
+    }
+
+    /* Authentic Apple Wallet Perforated Ticket Notches */
+    .notch-cutout-l, .notch-cutout-r {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      transition: background-color 0.3s ease;
+    }
+    .notch-cutout-l {
+      left: -13px;
+      box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.4);
+    }
+    .notch-cutout-r {
+      right: -13px;
+      box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.4);
+    }
+    body.light-mode .notch-cutout-l, body.light-mode .notch-cutout-r {
+      border: 1px solid var(--border-subtle);
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Dashed Ticket Tear Line */
+    .ticket-tear-line {
+      border-top: 1.5px dashed var(--border-strong);
+      position: relative;
+    }
+
+    /* Apple Digital Barcode Graphic */
+    .apple-barcode {
+      width: 100%;
+      height: 64px;
+      background-color: #FFFFFF;
+      background-image: repeating-linear-gradient(
+        90deg,
+        #000000,
+        #000000 2px,
+        #FFFFFF 2px,
+        #FFFFFF 5px,
+        #000000 5px,
+        #000000 8px,
+        #FFFFFF 8px,
+        #FFFFFF 10px,
+        #000000 10px,
+        #000000 13px,
+        #FFFFFF 13px,
+        #FFFFFF 16px
+      );
+      border-radius: 6px;
+    }
+
+    /* Slim Apple Native Floating Navigation Tab Bar */
+    .apple-bottom-tabbar {
+      background: rgba(24, 26, 32, 0.88);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
+    }
+    body.light-mode .apple-bottom-tabbar {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 #FFFFFF;
     }
   </style>
 </head>
-<body class="min-h-screen py-5 px-3 sm:px-6 lg:px-8 antialiased">
+<body class="min-h-screen pt-5 pb-28 px-3 sm:px-6 lg:px-8 antialiased">
 
   <!-- Ambient background glow elements for Apple Liquid Glass refraction & depth -->
   <div class="bg-glass-ambient ambient-1" aria-hidden="true"></div>
@@ -496,10 +671,10 @@
       <!-- LEFT COLUMN: The Sculpted First-Class Boarding Pass -->
       <div class="lg:col-span-7 space-y-4">
 
-        <main id="boarding-card" class="luxury-pass rounded-[28px] overflow-hidden relative">
+        <main id="boarding-card" class="rounded-[28px] relative">
 
           <!-- EMPTY STATE (Shown when no ticket is loaded) -->
-          <div id="pass-empty-state" class="p-8 sm:p-12 text-center flex flex-col items-center justify-center min-h-[460px]">
+          <div id="pass-empty-state" class="luxury-pass rounded-[28px] overflow-hidden p-8 sm:p-12 text-center flex flex-col items-center justify-center min-h-[460px]">
             <div class="w-16 h-16 rounded-2xl elevated-tile flex items-center justify-center mb-4 text-[var(--text-primary)] shadow-sm">
               <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="16" height="16" x="4" y="3" rx="2"/>
@@ -552,59 +727,80 @@
 
           <!-- ACTIVE TICKET PASS (Visible once a valid ticket is loaded) -->
           <div id="pass-active-content" class="hidden">
+            <div class="pass-3d-wrapper" id="cardContainer">
+              <div class="pass-card-3d" id="passCard">
 
-          <!-- Card Header Bar with Interactive Platform Selector -->
-          <div class="px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="font-semibold tracking-wider uppercase text-[11px] text-[var(--text-secondary)]">
-                Verified Railway Pass
-              </span>
-            </div>
+                <!-- FRONT FACE: Apple Wallet Liquid Glass Boarding Pass -->
+                <div class="pass-face pass-front">
 
-            <!-- Tappable Platform Selector Pill -->
-            <div class="relative">
-              <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to set platform number announced at station">
-                <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 4v16M15 4v16M4 12h16"/></svg>
-                <span id="disp-platform-pill">PF 2</span>
-                <svg class="w-3 h-3 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
+                  <!-- Traveling Liquid Specular Sheen Layer -->
+                  <div class="liquid-sheen-layer"></div>
+                  <!-- Interactive Mouse Specular Flare -->
+                  <div class="mouse-flare" id="mouseFlare"></div>
 
-              <!-- Platform Dropdown Picker -->
-              <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
-                <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
-                  <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
-                  <button id="btn-close-platform" class="p-1 rounded-lg opacity-60 hover:opacity-100 transition" title="Close platform picker">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                  </button>
-                </div>
-                <div class="grid grid-cols-4 gap-1.5 font-telemetry text-center">
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
-                  <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
-                </div>
-                <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 flex items-center justify-center gap-1.5 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
-                  <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  <span>TBA (Announcing Soon)</span>
-                </button>
-              </div>
-            </div>
+                  <!-- Perforated Ticket Notches -->
+                  <div class="notch-cutout-l"></div>
+                  <div class="notch-cutout-r"></div>
 
-            <div class="flex items-center gap-2.5 font-telemetry text-xs">
-              <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
-              <span style="color: var(--text-muted);">•</span>
-              <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
-            </div>
-          </div>
+                  <!-- Card Header Bar with Interactive Platform Selector & Flip Button -->
+                  <div class="px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-elevated)] flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span class="font-semibold tracking-wider uppercase text-[11px] text-[var(--text-secondary)]">
+                        Verified Railway Pass
+                      </span>
+                    </div>
+
+                    <!-- Flip Button & Platform Selector -->
+                    <div class="flex items-center gap-2">
+                      <button id="btn-flip-barcode" onclick="flipPassCard()" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to flip pass and view digital barcode">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span>Flip (Barcode)</span>
+                      </button>
+
+                      <div class="relative">
+                        <button id="btn-toggle-platform" class="px-2.5 py-1 rounded-xl elevated-tile text-[var(--text-primary)] font-telemetry text-xs font-bold flex items-center gap-1.5 hover:border-[var(--brand-primary)] transition shadow-sm" title="Tap to set platform number announced at station">
+                          <svg class="w-3.5 h-3.5 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 4v16M15 4v16M4 12h16"/></svg>
+                          <span id="disp-platform-pill">PF 2</span>
+                          <svg class="w-3 h-3 text-[var(--text-secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+
+                        <!-- Platform Dropdown Picker -->
+                        <div id="platform-picker" class="hidden absolute right-0 mt-2 z-30 luxury-pass rounded-2xl p-3 shadow-2xl border w-64 text-xs space-y-2" style="border-color: var(--gold-border);">
+                          <div class="flex items-center justify-between pb-1.5 border-b" style="border-color: var(--border-subtle);">
+                            <span class="font-syne font-bold" style="color: var(--gold-primary);">Select Station Platform</span>
+                            <button id="btn-close-platform" class="p-1 rounded-lg opacity-60 hover:opacity-100 transition" title="Close platform picker">
+                              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                          </div>
+                          <div class="grid grid-cols-4 gap-1.5 font-telemetry text-center">
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 1">PF 1</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 2">PF 2</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 3">PF 3</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 4">PF 4</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 5">PF 5</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 6">PF 6</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 7">PF 7</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 8">PF 8</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 9">PF 9</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 10">PF 10</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 11">PF 11</button>
+                            <button class="pf-opt elevated-tile py-1.5 rounded-lg font-bold hover:border-amber-400" data-pf="PF 12">PF 12</button>
+                          </div>
+                          <button class="pf-opt w-full elevated-tile py-1.5 rounded-lg font-semibold hover:border-amber-400 flex items-center justify-center gap-1.5 text-center text-[11px]" data-pf="TBA (Announcing Soon)">
+                            <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>TBA (Announcing Soon)</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 font-telemetry text-xs">
+                      <span id="disp-date" class="font-semibold">Date: 06-NOV-2026</span>
+                      <span style="color: var(--text-muted);">•</span>
+                      <span id="disp-pnr" style="color: var(--text-secondary);">PNR: 4447552121</span>
+                    </div>
+                  </div>
 
           <!-- Route Arc & Station Codes -->
           <div class="p-5 sm:p-6 pb-4">
@@ -817,8 +1013,69 @@
             </div>
 
           </div>
+        </div>
+        <!-- END FRONT FACE -->
+
+          <!-- BACK FACE: Digital IRCTC Barcode & Security Key (Apple Wallet Back View) -->
+          <div class="pass-face pass-back">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span class="text-xs font-bold tracking-wider uppercase text-emerald-500 dark:text-emerald-400">
+                    IRCTC Digital Boarding Pass
+                  </span>
+                </div>
+                <span id="disp-back-pnr" class="text-xs font-mono font-bold text-[var(--text-primary)]">PNR: 4447552121</span>
+              </div>
+
+              <!-- Pure CSS Apple Barcode -->
+              <div class="my-6 p-4 rounded-2xl bg-white text-center shadow-lg">
+                <div class="apple-barcode mb-2"></div>
+                <p id="disp-back-barcode-text" class="text-xs font-mono tracking-widest text-black font-bold">
+                  *4447552121-16629-S2-35MB*
+                </p>
+              </div>
+
+              <div class="space-y-2.5 text-xs">
+                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                  <span class="text-[var(--text-secondary)]">Passenger Name</span>
+                  <span id="disp-back-passenger" class="font-bold text-[var(--text-primary)]">ADEEB RASHDHAN</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                  <span class="text-[var(--text-secondary)]">Train & Service</span>
+                  <span id="disp-back-train" class="font-bold text-[var(--text-primary)]">16629 MALABAR EXPRESS</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                  <span class="text-[var(--text-secondary)]">Class & Fare</span>
+                  <span id="disp-back-fare" class="font-bold text-[var(--text-primary)]">Sleeper (SL) • ₹985</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                  <span class="text-[var(--text-secondary)]">Date of Journey</span>
+                  <span id="disp-back-doj" class="font-bold text-[var(--text-primary)]">06-NOV-2026</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-[var(--border-subtle)]">
+                  <span class="text-[var(--text-secondary)]">Boarding Verification</span>
+                  <span id="disp-back-notice" class="font-bold text-amber-500 dark:text-amber-400">Confirmed Booking</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-[var(--border-subtle)] text-center">
+              <button onclick="flipPassCard()" class="px-5 py-2.5 rounded-xl gold-pill text-xs font-semibold inline-flex items-center gap-2 hover:opacity-90 transition shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>Return to Boarding Pass Front</span>
+              </button>
+            </div>
           </div>
-        </main>
+          <!-- END BACK FACE -->
+
+        </div>
+        <!-- END .pass-card-3d -->
+      </div>
+      <!-- END .pass-3d-wrapper -->
+    </div>
+  </main>
 
       </div>
 
@@ -1077,6 +1334,22 @@
       </div>
     </div>
   </div>
+
+  <!-- SLIM APPLE NATIVE FLOATING NAVIGATION TAB BAR -->
+  <nav id="apple-nav-bar" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 apple-bottom-tabbar flex items-center justify-center gap-6 shadow-2xl">
+    <button onclick="scrollToSection('boarding-card')" class="flex items-center gap-1.5 text-xs font-semibold text-emerald-500 dark:text-emerald-400 hover:opacity-85 transition">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+      <span>Pass</span>
+    </button>
+    <button onclick="scrollToSection('clash-warning')" class="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>Timeline</span>
+    </button>
+    <button onclick="scrollToSection('ticket-input')" class="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      <span>Safeguard</span>
+    </button>
+  </nav>
 
   <script>
     const CONFUSION_PAIRS = {
@@ -2292,10 +2565,22 @@ Status: CNF`
       dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--text-secondary);">${data.berthType}</span>`;
       dispDate.textContent = `Date: ${data.date}`;
       dispPnr.textContent = `PNR: ${data.pnr}`;
-      dispCoach.textContent = data.coach;
-      dispBerth.innerHTML = `${data.berthNo} <span class="text-xs font-normal" style="color: var(--text-secondary);">${data.berthType}</span>`;
-      dispDate.textContent = `Date: ${data.date}`;
-      dispPnr.textContent = `PNR: ${data.pnr}`;
+
+      // Update Back Face Barcode & Pass Information (Apple Wallet Spec)
+      const backPnr = document.getElementById('disp-back-pnr');
+      if (backPnr) backPnr.textContent = `PNR: ${data.pnr}`;
+      const backBarcode = document.getElementById('disp-back-barcode-text');
+      if (backBarcode) backBarcode.textContent = `*${data.pnr}-${data.trainNo}-${data.coach}-${data.berthNo}*`;
+      const backPassenger = document.getElementById('disp-back-passenger');
+      if (backPassenger) backPassenger.textContent = data.passenger || 'ADEEB RASHDHAN';
+      const backTrain = document.getElementById('disp-back-train');
+      if (backTrain) backTrain.textContent = `${data.trainNo} ${data.trainName}`;
+      const backFare = document.getElementById('disp-back-fare');
+      if (backFare) backFare.textContent = data.fare || 'Sleeper (SL) • ₹985';
+      const backDoj = document.getElementById('disp-back-doj');
+      if (backDoj) backDoj.textContent = data.date;
+      const backNotice = document.getElementById('disp-back-notice');
+      if (backNotice) backNotice.textContent = data.boardingNotice || 'Confirmed Booking';
 
       if (dispOriginCity) dispOriginCity.textContent = STATION_NAMES[data.fromStn] || data.fromStn;
       if (dispDestCity) dispDestCity.textContent = STATION_NAMES[data.toStn] || data.toStn;
@@ -2313,6 +2598,9 @@ Status: CNF`
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
       }
+
+      const passCard = document.getElementById('passCard');
+      if (passCard) passCard.classList.remove('flipped');
 
       const emptyEl = document.getElementById('pass-empty-state');
       const activeEl = document.getElementById('pass-active-content');
@@ -2988,6 +3276,61 @@ Status: CNF`
         resetToEmptyState();
       }
     });
+
+    // ==========================================================================
+    // APPLE WALLET 3D TILT, SPECULAR FLARE & 3D CARD FLIP LOGIC
+    // ==========================================================================
+    function flipPassCard() {
+      const passCard = document.getElementById('passCard');
+      if (passCard) {
+        passCard.classList.toggle('flipped');
+        triggerHaptic('selection');
+      }
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        triggerHaptic('selection');
+      }
+    }
+
+    // Attach 3D tilt tracking to #cardContainer
+    const cardContainer = document.getElementById('cardContainer');
+    const passCard = document.getElementById('passCard');
+    const mouseFlare = document.getElementById('mouseFlare');
+
+    if (cardContainer && passCard) {
+      cardContainer.addEventListener('mousemove', (e) => {
+        const rect = cardContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = -((y - centerY) / centerY) * 8;
+        const rotateY = ((x - centerX) / centerX) * 8;
+
+        const isFlipped = passCard.classList.contains('flipped');
+        const baseRotationY = isFlipped ? 180 : 0;
+
+        passCard.style.transform = `rotateX(${rotateX}deg) rotateY(${baseRotationY + rotateY}deg)`;
+
+        if (mouseFlare) {
+          mouseFlare.style.left = `${x}px`;
+          mouseFlare.style.top = `${y}px`;
+          mouseFlare.style.opacity = '0.85';
+        }
+      });
+
+      cardContainer.addEventListener('mouseleave', () => {
+        const isFlipped = passCard.classList.contains('flipped');
+        passCard.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+        if (mouseFlare) mouseFlare.style.opacity = '0';
+      });
+    }
   </script>
 </body>
 </html>
