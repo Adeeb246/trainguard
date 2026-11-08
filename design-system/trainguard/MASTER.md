@@ -1,214 +1,50 @@
-# Design System Master File
+# TrainGuard design system
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+Tokens live in `src/app.css`. This file records the rules and why they exist. If the two disagree, the CSS is what ships, so fix this file.
 
----
+## The one job
 
-**Project:** TrainGuard
-**Generated:** 2026-11-07 15:26:22
-**Category:** Airline
+A passenger on a crowded platform must read the right train number at a glance. Every design choice serves that.
 
----
+## Liquid Glass
 
-## Global Rules
+- **Glass is for controls only:** the tab bar, top buttons, sheets and toasts. Apple's guidance: "Don't use Liquid Glass in the content layer."
+- **The pass stays solid.** It has to be readable on a bright platform and with blur turned off.
+- **No glass on glass.** Groups inside a sheet use a plain tint.
+- **The web can't refract.** Safari accepts `backdrop-filter: url()` and draws nothing, and `@supports` can't detect that. Web glass is blur, saturation, an edge highlight and spring motion. Real Apple glass only exists in the iPhone app.
+- **Text on glass must pass contrast with no blur at all.** That's why the tints are 66-72% opaque. Reduced Transparency falls back to the solid tint.
 
-### Color Palette
+## Colour
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#1E3A8A` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| On Secondary | `#000000` | `--color-on-secondary` |
-| Accent/CTA | `#EA580C` | `--color-accent` |
-| On Accent/CTA | `#000000` | `--color-on-accent` |
-| Background | `#EFF6FF` | `--color-background` |
-| Foreground | `#1E40AF` | `--color-foreground` |
-| Card | `#FFFFFF` | `--color-card` |
-| Card Foreground | `#1E40AF` | `--color-card-foreground` |
-| Muted | `#E9EEF5` | `--color-muted` |
-| Muted Foreground | `#475569` | `--color-muted-foreground` |
-| Border | `#BFDBFE` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| On Destructive | `#FFFFFF` | `--color-on-destructive` |
-| Ring | `#1E3A8A` | `--color-ring` |
+| Role | Dark | Light |
+|---|---|---|
+| Canvas | `#111111` | `#F2F2F7` |
+| Pass | `#1A1A1A` | `#FFFFFF` |
+| Your train, confirmed | `#4ADE80` | `#1A8A42` |
+| Not your train, waitlist, cancelled | `#FF6B6B` | `#D42620` |
+| Unknown or needs checking | `#FBBF24` | `#B45309` |
 
-**Color Notes:** Sky blue + booking orange [Accent adjusted from #F97316]
+Colour always carries meaning and never stands alone: every state also has words. Amber means "we don't know, so check". Green never appears on something unconfirmed.
 
-### Typography
+## Type
 
-- **Heading Font:** Inter
-- **Body Font:** Playfair Display
-- **Mood:** bold typography, editorial, poster, near-black, vermillion, luxury, type-as-hero, manifesto, high-contrast
-- **Google Fonts:** [Inter + Playfair Display](https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400&family=Playfair+Display:ital@1)
+System fonts only: SF on iPhone, Roboto on Android, Segoe UI on Windows. Malayalam, Hindi and Tamil come from the system too. Nothing loads from the network, so the app looks the same offline. Nothing is smaller than 12px, and digits are tabular wherever they line up.
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400&family=Playfair+Display:ital@1&display=swap');
-```
+## Touch and motion
 
-### Spacing Variables
+- Tap targets are at least 44pt. A smaller visual gets a larger hit area.
+- Only `transform` and `opacity` animate, so motion runs on the compositor. Press states never shift layout.
+- Springs come from CSS `linear()`, generated in `src/app.js`, with `cubic-bezier` as a fallback.
+- Blur never moves: sheets add it once they stop. No `filter` sits above moving content.
+- Views stay mounted, so switching tabs rebuilds nothing. Inactive views have `pointer-events: none`.
+- `prefers-reduced-motion` turns all of this off.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+## Honesty rules
 
-### Shadow Depths
+These matter more than anything visual, because a wrong fact here can cost someone a train.
 
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
-
----
-
-## Component Specs
-
-### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #EA580C;
-  color: #000000;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #1E3A8A;
-  border: 2px solid #1E3A8A;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #EFF6FF;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #1E3A8A;
-  outline: none;
-  box-shadow: 0 0 0 3px #1E3A8A20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
-
----
-
-## Style Guidelines
-
-**Style:** Minimalism & Swiss Style
-
-**Keywords:** Clean, simple, spacious, functional, white space, high contrast, geometric, sans-serif, grid-based, essential
-
-**Best For:** Enterprise apps, dashboards, documentation sites, SaaS platforms, professional tools
-
-**Key Effects:** Subtle hover (200-250ms), smooth transitions, sharp shadows if any, clear type hierarchy, fast loading
-
-### Page Pattern
-
-**Pattern Name:** Funnel (3-Step Conversion)
-
-- **Conversion Strategy:** Progressive disclosure. Show only essential info per step. Use progress indicators. Multiple CTAs.
-- **CTA Placement:** Each step: mini-CTA. Final: main CTA
-- **Section Order:** Hero > Step 1 (problem) > Step 2 (solution) > Step 3 (action) > CTA progression
-
----
-
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Complex booking
-- ❌ Poor mobile
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
-
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- Never show a value the ticket or timetable didn't provide. Unread fields say "Couldn't read, tap to add".
+- No label may claim something the app can't know: no "Verified", "Live", or official-looking railway branding.
+- The ticket's printed time always wins over the timetable. If they differ, say so.
+- Show the timetable's date wherever its data appears.
+- Don't draw a coach order, because we have no real source for it. Send people to the platform display.

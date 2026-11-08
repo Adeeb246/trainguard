@@ -1,60 +1,56 @@
-# 🚂 TrainGuard
+# TrainGuard
 
-**Make your exact train number impossible to miss right when you board.**
+**Never board the wrong train.**
 
-When two trains leave the same station within an hour of each other (such as **16629 Malabar Express** at 18:40 and **16604 Maveli Express** at 19:30 from Thiruvananthapuram Central), it is dangerously easy to step onto the wrong train during platform rush.
+TrainGuard started with a lost ticket. 16629 Malabar Express and 16604 Maveli Express leave the same station about an hour apart, and it's easy to book one believing it's the other. On a confirmed Tatkal ticket, that mistake isn't refundable.
 
-**TrainGuard** is a zero-dependency, offline-ready Progressive Web App (PWA) and Gmail automation script for Indian Railways passengers.
+Paste your IRCTC SMS and TrainGuard turns it into a clear pass, warns you about the trains you could board by mistake, and works with no signal at the station.
 
----
+**Live app:** https://trainguard-cyan.vercel.app/
 
-## ✨ Key Features
+## What it does
 
-1. **Glanceable Boarding Guard Card:** Displays your 5-digit train number in huge high-contrast monospace text alongside your Coach (`S2`), Berth (`35 MB`), and departure time.
-2. **Same-Station Clash Alert:** Automatically flags known high-confusion train pairs departing from the same station within ~90 minutes (`16629, NOT 16604!`).
-3. **Expectation Mismatch Detector:** Lets you enter the train you *thought* you booked and flashes an immediate red warning if your ticket is actually for a different train.
-4. **"When to Leave" Calculator:** Calculates the exact clock time you must leave for the station based on your commute time + a 30-minute station buffer.
-5. **1-Click Calendar (`.ics`) Export with 3 Alarms:** Generates a standard calendar event titled `16629 MALABAR · Coach S2 / Berth 35 · 18:40 TVC` with automatic notifications at **3 hours**, **1 hour**, and **15 minutes** before departure.
-6. **100% Client-Side & Offline Ready:** Persists your parsed ticket in `localStorage` and installs to any Android or iOS home screen with zero backend servers.
+- **Is this your train?** It reads your ticket back and asks. If you say you meant a different train, it tells you straight away.
+- **Before you pay.** Type the train number from the booking page and check it before you spend money you can't get back.
+- **Not your train.** Every train at your station within two hours of yours on that date, with the ones going your way first.
+- **It never guesses.** A waitlisted ticket shows no seat. Anything it can't read says so and asks you. Other SMS, like OTPs, are rejected.
+- **The screen follows your journey:** leave-by time, finding your platform, checking the coach board, waking up before your stop.
+- **Multiple trips and family.** Keep return journeys, see every passenger's berth, and share a trip without exposing your PNR.
+- **English, Malayalam, Hindi and Tamil** across the whole app. Train and station names stay in English, as they do on your ticket.
+- **Offline.** Everything, including the timetable, works after one visit. Your tickets stay on your phone and nothing is uploaded.
 
----
+The iPhone app adds a Live Activity and Dynamic Island with a real countdown, and a GPS wake-up that still works when the train runs late.
 
-## 📂 Repository Structure
+TrainGuard isn't a ticket and isn't affiliated with Indian Railways or IRCTC. The TTE checks your SMS and ID.
 
-```text
-trainguard/
-├── index.html                   # Standalone installable PWA (works offline in any browser)
-├── src/
-│   └── parser.js                # Shared IRCTC SMS/Email parser & clash detection module
-├── tests/
-│   └── parser.test.js           # Zero-dependency Node.js unit test suite
-├── gmail-addon/
-│   └── Code.gs                  # Google Apps Script to auto-parse IRCTC emails into Calendar
-├── .github/workflows/
-│   └── ci.yml                   # GitHub Actions CI pipeline running tests on every push
-├── package.json                 # NPM test runner configuration
-└── LICENSE                      # MIT License
-```
+## Development
 
----
-
-## 🚀 Quick Start
-
-### 1. Run the Web App Locally or Host on GitHub Pages
-Simply open `index.html` in any browser, or enable **GitHub Pages** on your repository settings (`Settings -> Pages -> Deploy from branch: main`) to get an instant live HTTPS link for your phone.
-
-### 2. Run the Automated Tests
 ```bash
-npm test
+npm test                     # parser, timetable, and app checks
+npm run build                # one self-contained page in public/ (Vercel) and www/ (Capacitor)
+python -m http.server 3300   # run from the repo root, then open http://localhost:3300/emulator.html
 ```
 
-### 3. Optional: Enable Gmail Auto-Import (`gmail-addon/Code.gs`)
-1. Go to [script.google.com](https://script.google.com) and create a new project.
-2. Paste the contents of `src/parser.js` and `gmail-addon/Code.gs`.
-3. Set a time-driven trigger to run `processIrctcEmails` every hour.
+| Path | What it is |
+|---|---|
+| `index.html`, `src/app.js`, `src/app.css` | The app |
+| `src/parser.js` | Reads tickets. It runs in Node, browsers and Apps Script |
+| `src/timetable.js`, `data/timetable.json` | Offline timetable lookups and data |
+| `src/i18n.js` | All text, in all four languages |
+| `design-system/trainguard/MASTER.md` | Design rules and the reasons for them |
+| `scripts/build_timetable.py` | Refreshes the timetable from the community feed |
+| `scripts/render_icons.py` | Renders `icons/icon.svg` into every icon and splash screen |
+| `ios/`, `android/` | Native apps, built by GitHub Actions |
+| `gmail-addon/Code.gs` | Optional: turns IRCTC emails into calendar events |
 
----
+`launch_iphone_webkit.py` opens the app in WebKit on Windows, but that build doesn't paint `backdrop-filter`, so it can't show the glass. Check the glass on a real iPhone.
 
-## 📄 License
+**Deploying:** pushing to `main` deploys to Vercel and builds the iOS IPA and the Android APK as GitHub Actions artifacts.
 
-Released under the [MIT License](./LICENSE).
+## Timetable data
+
+The timetable comes from a [community GTFS feed](https://mobilitydatabase.org/feeds/gtfs/mdb-2867). It's unofficial, it states no licence, and Indian Railways has asserted copyright over its database. Check that before any store listing. The app shows the snapshot's date, and the time printed on your ticket always wins.
+
+## License
+
+[MIT](./LICENSE), for the code. The licence doesn't cover the timetable data.

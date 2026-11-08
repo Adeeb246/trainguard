@@ -1,51 +1,28 @@
-const CACHE_NAME = 'trainguard-cache-v1';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  'https://cdn.tailwindcss.com/3.4.17',
-  'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&family=Syne:wght@700;800&display=swap'
-];
+// scripts/build.js swaps in a hash of the build, so every deploy installs and old caches get cleared.
+const CACHE_NAME = 'trainguard-__BUILD__';
+const ASSETS = ['./', './index.html', './manifest.json', './data/timetable.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE).catch(() => {});
-    })
-  );
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  // If any file fails, install fails and the previous worker and its cache stay in place.
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    })
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
+// Cache first, because station networks stall rather than fail. Nothing is stored at runtime, so shared links with a PNR never land in the cache.
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET' || url.origin !== location.origin) return;
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
+    caches.match(event.request, { ignoreSearch: true }).then(hit => {
+      if (hit) return hit;
+      return fetch(event.request).catch(() => (event.request.mode === 'navigate' ? caches.match('./index.html') : Response.error()));
     })
   );
 });
-
