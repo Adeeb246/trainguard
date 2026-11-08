@@ -49,7 +49,7 @@ const state = {
   lang: store.get(KEY.lang, 'en'), theme: store.get(KEY.theme, 'dark'),
   sound: store.get(KEY.sound, 'true') === 'true', haptics: store.get(KEY.haptic, 'true') === 'true',
   commute: parseInt(store.get(KEY.commute, '30'), 10) || 30,
-  gps: store.get(KEY.gps, 'true') === 'true', backup: store.get(KEY.backup, 'true') === 'true',
+  gps: store.get(KEY.gps, 'false') === 'true', backup: store.get(KEY.backup, 'false') === 'true', // off until asked for, because each one triggers a permission prompt
   add: {}, pay: {}, share: { seat: true, pnr: false }
 };
 if (!I18N[state.lang]) state.lang = 'en';
@@ -345,13 +345,13 @@ function viewJourney() {
   const p = t.passengers[0] || {};
   const list = timeline(t);
   const wake = wakeAt(t);
-  const wakePlugin = isIOSNative() && window.Capacitor.Plugins?.WakeUp;
+  const hasWakeUp = !!wakePlugin();
   return `<h1 class="ltitle">${esc(L('tabJourney'))}</h1><p class="lsub">${esc(t.trainNo)} · ${esc(L('routeTo', { from: t.fromName, to: t.toName }))} · ${esc(fmtDate(t.dateISO))}</p>
     <div class="card">${list.length ? `<ol class="track">${list.map(e => `<li class="${e.cls}"><div class="tm">${esc(atTime(e.at))}</div><div class="rail"><span class="pin"></span></div><div class="ti"><b>${esc(e.b)}</b><span>${esc(e.s)}</span>${e.mins ? `<div class="mins" role="group" aria-label="${esc(L('commuteT'))}">${COMMUTES.map(m => `<button data-act="commute" data-v="${m}" aria-pressed="${state.commute === m}">${m}</button>`).join('')}</div>` : ''}</div></li>`).join('')}</ol>` : `<p class="dim" style="margin:0">${esc(L('noTimeline'))}</p>${t.time ? '' : `<button class="btn ghost" style="margin-top:8px" data-act="editTime">${esc(L('addTimeBtn'))}</button>`}`}</div>
     ${p.coach ? `<div class="card"><h3>${esc(L('findCoachT', { coach: p.coach }))}</h3><p class="dim" style="margin:0">${esc(L('findCoachS'))}</p></div>` : ''}
     ${berthMap(t)}
     <div class="card" id="alerts"><h3>${esc(L('alertsT'))}</h3>
-      ${wakePlugin ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>
+      ${hasWakeUp ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>
       <div class="tog"><div class="tx"><b>${esc(wake ? L('backupT', { time: atTime(wake) }) : L('backupNoTime'))}</b>${esc(L('backupS'))}</div><button class="sw" role="switch" aria-checked="${state.backup}" aria-label="${esc(L('backupNoTime'))}" data-act="toggle" data-k="backup"></button></div>`
       : `<p class="dim" style="margin:0 0 10px;color:var(--ink-2);font-size:13px">${esc(wake ? L('wakeWebS', { time: atTime(wake), to: t.toName }) : L('wakeNoArr'))}</p>`}
       <button class="btn ghost" data-act="openCalendar">${ico('calendar', 18)}${esc(L('addCal'))}</button>
@@ -646,14 +646,7 @@ if (window.CSS?.supports?.('animation-timing-function', 'linear(0,1)')) {
 const pop = sel => { const el = $(sel); if (el && !REDUCED()) el.animate([{ opacity: 0, transform: 'translateY(8px) scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' }); };
 
 /* ---------- Native bridge ---------- */
-function liveActivityPlugin() {
-  if (!window.Capacitor) return null;
-  if (window.Capacitor.Plugins?.LiveActivity) return window.Capacitor.Plugins.LiveActivity;
-  if (typeof window.Capacitor.registerPlugin === 'function') {
-    try { return window.Capacitor.registerPlugin('LiveActivity'); } catch (e) { return null; }
-  }
-  return null;
-}
+const liveActivityPlugin = () => window.Capacitor?.Plugins?.LiveActivity || null;
 let liveKey = null;
 function syncLiveActivity() {
   const plugin = isIOSNative() ? liveActivityPlugin() : null;
@@ -674,12 +667,14 @@ let wakeKey = null;
 function syncWakeUp() {
   const plugin = wakePlugin();
   if (!plugin) return;
-  const t = tripLists().upcoming.find(x => x.arrivalDate && !['WL', 'CAN'].includes(x.status?.code));
+  const t = state.gps || state.backup ? tripLists().upcoming.find(x => x.arrivalDate && !['WL', 'CAN'].includes(x.status?.code)) : null;
   const key = t ? [t.id, +t.arrivalDate, state.gps, state.backup].join('|') : 'off';
   if (key === wakeKey) return;
   wakeKey = key;
-  if (!t) { plugin.cancel?.().catch(() => {}); return; }
-  plugin.schedule?.({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), expires: +t.arrivalDate + 2 * 36e5 }).catch(() => {});
+  if (!t) { plugin.cancel().catch(() => {}); return; }
+  plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
+    .then(r => { if (state.backup && r?.alarm === false) toast(L('alarmDenied')); else if (state.gps && r?.location === 'denied') toast(L('locationDenied')); })
+    .catch(() => {});
 }
 
 /* ---------- Chrome ---------- */
@@ -687,6 +682,7 @@ function applyTheme() {
   $('#app').dataset.theme = state.theme;
   document.documentElement.lang = state.lang;
   const meta = $('meta[name=theme-color]'); if (meta) meta.content = state.theme === 'light' ? '#F2F2F7' : '#111111';
+  window.Capacitor?.Plugins?.AppChrome?.setDark({ dark: state.theme !== 'light' }).catch(() => {});
 }
 function chrome() {
   applyTheme();

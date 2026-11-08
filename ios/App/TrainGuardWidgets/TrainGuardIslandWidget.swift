@@ -14,7 +14,7 @@ struct TrainGuardIslandWidget: Widget {
                     HStack(spacing: 8) {
                         Image(systemName: "tram.fill")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                             .frame(width: 32, height: 32)
                             .background(Color.white.opacity(0.08))
                             .clipShape(Circle())
@@ -26,7 +26,7 @@ struct TrainGuardIslandWidget: Widget {
                                 .lineLimit(1)
                             Text("Coach \(context.attributes.coach) • Berth \(cleanSeat(context.attributes.seat))")
                                 .font(.system(size: 12, weight: .medium, design: .monospaced))
-                                .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                                .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
                     }
                     Spacer()
@@ -41,11 +41,11 @@ struct TrainGuardIslandWidget: Widget {
                         
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .fill(Color(red: 0.29, green: 0.87, blue: 0.50))
                                 .frame(width: 5, height: 5)
-                            Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
+                            Text(context.state.countdownDate, style: .timer)
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
                     }
                 }
@@ -53,20 +53,20 @@ struct TrainGuardIslandWidget: Widget {
                 if context.state.hasClash {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                            .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.42))
                             .font(.system(size: 11))
                         Text(context.state.clashDetails)
                             .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                            .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.42))
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.18))
+                    .background(Color(red: 1.0, green: 0.42, blue: 0.42).opacity(0.18))
                     .cornerRadius(8)
                 }
             }
             .padding(14)
-            .background(Color(red: 0.05, green: 0.06, blue: 0.10))
+            .background(Color(red: 0.067, green: 0.067, blue: 0.067))
         } dynamicIsland: { context in
             DynamicIsland {
                 // ==========================================
@@ -76,7 +76,7 @@ struct TrainGuardIslandWidget: Widget {
                     HStack(spacing: 7) {
                         Image(systemName: "tram.fill")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                            .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                             .frame(width: 26, height: 26)
                             .background(Color.white.opacity(0.08))
                             .clipShape(Circle())
@@ -84,7 +84,7 @@ struct TrainGuardIslandWidget: Widget {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(context.attributes.trainNumber)
                                 .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                                .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                             Text(context.attributes.trainName)
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(.white)
@@ -109,11 +109,11 @@ struct TrainGuardIslandWidget: Widget {
 
                         HStack(spacing: 3) {
                             Circle()
-                                .fill(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .fill(Color(red: 0.29, green: 0.87, blue: 0.50))
                                 .frame(width: 5, height: 5)
-                            Text(timerInterval: Date()...context.state.countdownDate, countsDown: true)
+                            Text(context.state.countdownDate, style: .timer)
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                                .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
                     }
                     .padding(.trailing, 2)
@@ -147,7 +147,7 @@ struct TrainGuardIslandWidget: Widget {
                                     .foregroundColor(.white.opacity(0.55))
                                 Text(cleanSeat(context.attributes.seat))
                                     .font(.system(size: 14, weight: .bold, design: .monospaced))
-                                    .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                                    .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 5)
@@ -173,24 +173,24 @@ struct TrainGuardIslandWidget: Widget {
                         if context.state.hasClash {
                             HStack(spacing: 5) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                                    .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.42))
                                     .font(.system(size: 10))
                                 Text(context.state.clashDetails)
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(Color(red: 1.0, green: 0.27, blue: 0.23))
+                                    .foregroundColor(Color(red: 1.0, green: 0.42, blue: 0.42))
                                     .lineLimit(1)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color(red: 1.0, green: 0.27, blue: 0.23).opacity(0.18))
+                            .background(Color(red: 1.0, green: 0.42, blue: 0.42).opacity(0.18))
                             .cornerRadius(6)
                         } else {
                             HStack(spacing: 5) {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(Color(red: 0.20, green: 0.78, blue: 0.35))
+                                Image(systemName: "eye.fill")
+                                    .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                                     .font(.system(size: 10))
-                                Text("Verified Boarding • Safe Departure")
+                                Text("Check the number on the coach")
                                     .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.white.opacity(0.65))
                                 Spacer()
@@ -212,7 +212,7 @@ struct TrainGuardIslandWidget: Widget {
                 HStack(spacing: 3) {
                     Image(systemName: "tram.fill")
                         .font(.system(size: 9))
-                        .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                        .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                     Text(context.state.departureTime)
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
@@ -227,13 +227,13 @@ struct TrainGuardIslandWidget: Widget {
                     .padding(.vertical, 1.5)
                     .background(Color.white.opacity(0.16))
                     .cornerRadius(4)
-                    .foregroundColor(context.state.hasClash ? Color(red: 1.0, green: 0.27, blue: 0.23) : .white)
+                    .foregroundColor(context.state.hasClash ? Color(red: 1.0, green: 0.42, blue: 0.42) : .white)
             } minimal: {
                 // ==========================================
                 // 6. MINIMAL VIEW
                 // ==========================================
                 Image(systemName: "tram.fill")
-                    .foregroundColor(Color(red: 0.77, green: 0.63, blue: 0.35))
+                    .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
             }
         }
     }

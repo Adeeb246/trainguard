@@ -1,5 +1,9 @@
 {
   "appId": "com.trainguard.app",
   "appName": "TrainGuard",
-  "webDir": "www"
+  "webDir": "www",
+  "backgroundColor": "#111111",
+  "ios": {
+    "scrollEnabled": false
+  }
 }

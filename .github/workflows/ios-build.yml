@@ -1,15 +1,15 @@
-name: Build iOS Native App & Dynamic Island
+name: Build iOS app
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'ios/**' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,62 +24,112 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit test suite
+      - name: Run tests
         run: npm test
 
-      - name: Build web bundle & Sync Capacitor iOS
+      - name: Build web bundle and sync Capacitor
         run: |
           npm run build
           npx cap sync ios
           node -e 'const fs = require("fs"); const p = "./ios/App/App/capacitor.config.json"; const c = JSON.parse(fs.readFileSync(p, "utf8")); if (!c.packageClassList.includes("LiveActivityPlugin")) c.packageClassList.push("LiveActivityPlugin"); fs.writeFileSync(p, JSON.stringify(c, null, 2));'
 
-      - name: Show Xcode Version
+      - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Configure TrainGuardWidgets Target with Xcodeproj
+      - name: Configure the widget target
         run: |
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
-      - name: Build iOS App and Widgets for Physical iPhone
+      - name: Build for iPhone
         working-directory: ios/App
         run: |
-          xcodebuild -project App.xcodeproj \
-            -target TrainGuardWidgets \
-            -destination 'generic/platform=iOS' \
-            -configuration Release \
-            SYMROOT="$(pwd)/build" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build || true
+          xcodebuild -project App.xcodeproj -scheme App -destination 'generic/platform=iOS' -configuration Release \
+            SYMROOT="$(pwd)/build" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build > build.log 2>&1 || {
+              grep -E "error:" build.log | sort -u | head -n 30 | sed 's/^/::error::/'
+              tail -n 20 build.log
+              exit 1
+            }
 
-          xcodebuild -project App.xcodeproj \
-            -scheme App \
-            -destination 'generic/platform=iOS' \
-            -configuration Release \
-            SYMROOT="$(pwd)/build" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-
-      - name: Package Unsigned IPA for Sideloadly / AltStore
+      - name: Package unsigned IPA for Sideloadly and AltStore
         working-directory: ios/App
         run: |
           mkdir -p build/Payload
           cp -r build/Release-iphoneos/App.app build/Payload/
-          if [ -d "build/Release-iphoneos/TrainGuardWidgets.appex" ]; then
-            mkdir -p build/Payload/App.app/PlugIns
-            cp -r build/Release-iphoneos/TrainGuardWidgets.appex build/Payload/App.app/PlugIns/
-          fi
+          mkdir -p build/Payload/App.app/PlugIns
+          cp -r build/Release-iphoneos/TrainGuardWidgets.appex build/Payload/App.app/PlugIns/
+          test -f build/Payload/App.app/PlugIns/TrainGuardWidgets.appex/TrainGuardWidgets || { echo "::error::The widget extension is missing from the IPA"; exit 1; }
+          test -f build/Payload/App.app/public/data/timetable.json || { echo "::error::The timetable is missing from the IPA"; exit 1; }
           cd build
-          zip -r TrainGuard.ipa Payload
-          cd ..
+          zip -qr TrainGuard.ipa Payload
 
-      - name: Upload TrainGuard IPA Artifact
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: TrainGuard-iOS-Package
           path: ios/App/build/TrainGuard.ipa
           if-no-files-found: error
+
+  simulator:
+    # A real iOS Simulator, the only way to see the native app without a Mac.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Build and sync with a sample trip
+        run: |
+          npm ci
+          npm run build
+          npx cap sync ios
+          node -e 'const fs = require("fs"); const p = "./ios/App/App/capacitor.config.json"; const c = JSON.parse(fs.readFileSync(p, "utf8")); if (!c.packageClassList.includes("LiveActivityPlugin")) c.packageClassList.push("LiveActivityPlugin"); fs.writeFileSync(p, JSON.stringify(c, null, 2));'
+          node scripts/ci_seed_simulator.js
+          gem install xcodeproj --no-document
+          ruby scripts/setup_widget_extension.rb
+
+      - name: Build, install and screenshot
+        working-directory: ios/App
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -E 'iPhone [0-9]+ Pro \(' | grep -oE '[0-9A-F-]{36}')
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -destination "id=$DEVICE" \
+            SYMROOT="$PWD/sim" CODE_SIGNING_ALLOWED=NO build > sim.log 2>&1 || {
+              grep -E "error:" sim.log | sort -u | head -n 30 | sed 's/^/::error::/'
+              exit 1
+            }
+          xcrun simctl install "$DEVICE" sim/Debug-iphonesimulator/App.app
+          xcrun simctl launch "$DEVICE" com.trainguard.app
+          mkdir -p shots
+          sleep 12; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
+          sleep 6;  xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
+          sleep 6;  xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
+
+      - name: Check the screens aren't blank
+        working-directory: ios/App/shots
+        run: |
+          pip3 install --quiet --break-system-packages pillow
+          python3 - <<'EOF'
+          import pathlib, sys
+          from PIL import Image, ImageChops
+          shots = sorted(pathlib.Path('.').glob('*.png'))
+          images = [Image.open(s).convert('RGB').resize((200, 433)) for s in shots]
+          colours = [len(i.getcolors(100000) or []) for i in images]
+          print(f'::notice::{len(shots)} screens, distinct colours {colours}')
+          blank = [str(s) for s, c in zip(shots, colours) if c < 50]
+          same = ImageChops.difference(images[0], images[1]).getbbox() is None
+          if blank: print(f'::error::Blank screens: {blank}'); sys.exit(1)
+          if same: print('::error::Tabs did not change the screen'); sys.exit(1)
+          EOF
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Simulator-Screenshots
+          path: ios/App/shots

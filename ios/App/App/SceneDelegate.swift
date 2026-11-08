@@ -7,6 +7,8 @@ class CustomBridgeViewController: CAPBridgeViewController {
         if #available(iOS 16.2, *) {
             bridge?.registerPluginInstance(LiveActivityPlugin())
         }
+        bridge?.registerPluginInstance(WakeUpPlugin())
+        bridge?.registerPluginInstance(AppChromePlugin())
     }
 }
 

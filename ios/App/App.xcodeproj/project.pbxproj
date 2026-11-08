@@ -13,6 +13,7 @@
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		TG0001011FED79650016851F /* TrainGuardAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = TG0001021FED79650016851F /* TrainGuardAttributes.swift */; };
 		TG0001031FED79650016851F /* LiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = TG0001041FED79650016851F /* LiveActivityPlugin.swift */; };
+		TG0001051FED79650016851F /* WakeUpPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = TG0001061FED79650016851F /* WakeUpPlugin.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
@@ -27,6 +28,7 @@
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		TG0001021FED79650016851F /* TrainGuardAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainGuardAttributes.swift; sourceTree = "<group>"; };
 		TG0001041FED79650016851F /* LiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPlugin.swift; sourceTree = "<group>"; };
+		TG0001061FED79650016851F /* WakeUpPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpPlugin.swift; sourceTree = "<group>"; };
 		504EC30C1FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -73,6 +75,7 @@
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				TG0001021FED79650016851F /* TrainGuardAttributes.swift */,
 				TG0001041FED79650016851F /* LiveActivityPlugin.swift */,
+				TG0001061FED79650016851F /* WakeUpPlugin.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
@@ -168,6 +171,7 @@
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				TG0001011FED79650016851F /* TrainGuardAttributes.swift in Sources */,
 				TG0001031FED79650016851F /* LiveActivityPlugin.swift in Sources */,
+				TG0001051FED79650016851F /* WakeUpPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

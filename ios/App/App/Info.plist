@@ -54,8 +54,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -70,6 +68,14 @@
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
 	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>TrainGuard rings an alarm before your stop, even if your phone is on silent.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TrainGuard uses your location to wake you before your station, even if the train runs late.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>While you sleep on the train, TrainGuard watches for your station so it can wake you, even if the train runs late. Your location stays on this phone.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>TrainGuard needs access to your calendar to schedule train departure alerts and boarding reminders.</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
