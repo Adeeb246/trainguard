@@ -217,21 +217,3 @@ public class WakeUpPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 }
-
-/// Keeps the status bar readable when the app's own theme differs from the phone's.
-@objc(AppChromePlugin)
-public class AppChromePlugin: CAPPlugin, CAPBridgedPlugin {
-    public let identifier = "AppChromePlugin"
-    public let jsName = "AppChrome"
-    public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "setDark", returnType: CAPPluginReturnPromise)
-    ]
-
-    @objc func setDark(_ call: CAPPluginCall) {
-        let dark = call.getBool("dark") ?? true
-        DispatchQueue.main.async {
-            (self.bridge?.viewController as? CAPBridgeViewController)?.setStatusBarStyle(dark ? .lightContent : .darkContent)
-            call.resolve()
-        }
-    }
-}

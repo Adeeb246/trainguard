@@ -516,7 +516,7 @@ function sheetHTML() {
   if (s === 'calendar' && t) {
     if (!t.departureDate) return frame(L('calT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('calNeedsTime'))}</span></div>${t.time ? '' : `<button class="btn primary" data-act="editTime">${esc(L('addTimeBtn'))}</button>`}`);
     const wake = wakeAt(t);
-    const buttons = kind => `<button class="btn ghost" data-act="calPhone" data-k="${kind}">${esc(L('calPhone'))}</button><a class="btn ghost" href="${esc(googleUrl(calEvent(t, kind)))}" target="_blank" rel="noopener">${esc(L('calGoogle'))}</a>`;
+    const buttons = kind => `${window.Capacitor?.getPlatform?.() === 'android' ? '' : `<button class="btn ghost" data-act="calPhone" data-k="${kind}">${esc(L('calPhone'))}</button>`}<a class="btn ghost" href="${esc(googleUrl(calEvent(t, kind)))}" target="_blank" rel="noopener">${esc(L('calGoogle'))}</a>`;
     return frame(L('calT'), `<div class="group"><p class="gtitle">${esc(L('calJourneyT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calJourneyS'))}</p>${buttons('trip')}</div>
       ${wake ? `<div class="group"><p class="gtitle">${esc(L('calWakeT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calWakeS', { time: atTime(wake), to: t.toName }))}</p>${buttons('wake')}</div>` : ''}`);
   }
@@ -682,7 +682,7 @@ function applyTheme() {
   $('#app').dataset.theme = state.theme;
   document.documentElement.lang = state.lang;
   const meta = $('meta[name=theme-color]'); if (meta) meta.content = state.theme === 'light' ? '#F2F2F7' : '#111111';
-  window.Capacitor?.Plugins?.AppChrome?.setDark({ dark: state.theme !== 'light' }).catch(() => {});
+  window.Capacitor?.Plugins?.SystemBars?.setStyle({ style: state.theme === 'light' ? 'LIGHT' : 'DARK' }).catch(() => {});
 }
 function chrome() {
   applyTheme();
@@ -709,6 +709,23 @@ function syncTabs() {
   TAB_ORDER.forEach((k, i) => { const v = $('#view-' + k); v.style.setProperty('--dir', i < ai ? -1 : 1); v.classList.toggle('on', i === ai); });
   document.querySelectorAll('.tab').forEach(b => { const on = b.dataset.tab === state.tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; b.classList.remove('near'); });
   placeLens();
+  syncGlass();
+}
+/* Real Liquid Glass on iOS 26: the native bar sits exactly over the web one, which stays as the fallback. */
+let glassSent = '', glassTimer = 0;
+function syncGlass() {
+  const plugin = isIOSNative() && window.Capacitor.Plugins?.GlassTabBar;
+  if (!plugin || glassTimer) return;
+  // Waits a tick because closing one sheet and opening the next arrive together.
+  glassTimer = setTimeout(() => {
+    glassTimer = 0;
+    const box = s => { const r = $(s).getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; };
+    const msg = { hidden: !!state.sheet || !!state.big, tab: state.tab, dark: state.theme !== 'light', labels: [...document.querySelectorAll('.tab span')].map(l => l.textContent), addLabel: L('addT'), bar: box('#tabbar'), add: box('.add') };
+    const key = JSON.stringify(msg);
+    if (key === glassSent) return;
+    glassSent = key;
+    plugin.update(msg).then(() => $('#dock').classList.add('native')).catch(() => {});
+  });
 }
 function setTab(k) {
   if (state.tab === k) { placeLens(); return; }
@@ -768,7 +785,7 @@ function renderViews(enter) {
   syncWakeUp();
   const t = current(); lastStage = t ? `${t.id}:${stageOf(t)}` : null;
 }
-function renderOverlay() { $('#bigHost').innerHTML = bigHTML(); }
+function renderOverlay() { $('#bigHost').innerHTML = bigHTML(); syncGlass(); }
 function render(enter) { chrome(); renderViews(enter); renderSheet(); renderOverlay(); }
 function renderSheet() {
   const h = $('#sheetHost'), body = $('.sbody', h), st = body ? body.scrollTop : 0, had = !!$('#sheet', h);
@@ -780,16 +797,18 @@ function renderSheet() {
     const b = $('.sbody', sh); if (b) b.scrollTop = st;
     bindGrabber(sh);
   }
+  syncGlass();
 }
 function openSheet(n) { state.sheet = n; renderSheet(); const x = $('#sheet .xbtn'); if (x) x.focus({ preventScroll: true }); }
 function closeSheet() {
   const sh = $('#sheet'), sc = $('#sheetHost .scrim');
   state.sheet = null;
+  syncGlass();
   if (!sh) return;
   sh.classList.remove('settled'); sh.classList.add('closing'); if (sc) sc.classList.add('closing');
   setTimeout(() => { if (!state.sheet) $('#sheetHost').innerHTML = ''; }, 270);
 }
-function closeNow() { state.sheet = null; $('#sheetHost').innerHTML = ''; }
+function closeNow() { state.sheet = null; $('#sheetHost').innerHTML = ''; syncGlass(); }
 function bindGrabber(sh) {
   const g = $('#grabber', sh); let y0 = null, dy = 0;
   g.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; sh.style.animation = 'none'; try { g.setPointerCapture(e.pointerId); } catch (err) {} });
@@ -912,10 +931,8 @@ document.addEventListener('click', e => {
   const fn = ACT[b.dataset.act];
   if (fn) { e.preventDefault(); fn(b, e); }
 });
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  if (state.sheet) closeSheet(); else if (state.big) ACT.bigClose();
-});
+const back = () => { if (state.sheet) closeSheet(); else if (state.big) ACT.bigClose(); else return false; return true; };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') back(); });
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); ACT.installPrompt = e; });
 
 /* ---------- Pass tilt: one eased loop instead of restarting a transition on every mouse event ---------- */
@@ -971,6 +988,7 @@ $('#views').addEventListener('pointerout', e => { const el = e.target.closest('#
 
 /* ---------- Clock: the screen follows the journey ---------- */
 function tick() {
+  syncGlass();
   const t = current(); if (!t) return;
   const key = `${t.id}:${stageOf(t)}`;
   if (key !== lastStage) {
@@ -986,7 +1004,7 @@ function tick() {
 }
 setInterval(tick, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
-addEventListener('resize', placeLens);
+addEventListener('resize', () => { placeLens(); syncGlass(); });
 
 /* ---------- Timetable: loaded once, cached by the service worker for offline use ---------- */
 fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
@@ -996,9 +1014,10 @@ fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
   renderViews(); renderSheet();
 }).catch(() => {});
 
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
+if ('serviceWorker' in navigator && !isNative() && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
 if (sharedRec) state.tripId = sharedRec.id;
 render(true);
 if (document.fonts?.ready) document.fonts.ready.then(placeLens);
-window.__tg = { state, render, ACT, tripOf, get recs() { return recs; } };
+// Used by the native apps, and by tests.
+window.__tg = { state, render, ACT, tripOf, back, tab(k) { triggerHaptic('selection'); setTab(k); }, get recs() { return recs; } };
 })();

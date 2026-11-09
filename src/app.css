@@ -13,7 +13,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--live);outline-offset:2px}
 
 .app{position:fixed;inset:0;overflow:hidden;font-family:var(--font);font-size:15px;line-height:1.35;color:var(--ink);background:var(--canvas);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
-  --gut:16px;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+  --gut:16px;--sat:var(--safe-area-inset-top,env(safe-area-inset-top,0px));--sab:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))}
 .app[data-theme=dark]{color-scheme:dark;
   --canvas:#111111;--pass:#1A1A1A;--card:#1E1E1E;--card-2:#262626;--ink:#F5F5F5;--ink-2:#B8B8B8;--ink-3:#9A9A9A;--hair:rgba(255,255,255,.1);--hair-2:rgba(255,255,255,.24);
   --live:#4ADE80;--live-ink:#06170D;--live-soft:rgba(74,222,128,.15);--live-text:#6EE7A0;
@@ -75,6 +75,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .lens{position:absolute;left:0;top:4px;height:54px;border-radius:27px;background:var(--lens);transform:translateX(var(--lx,4px));transition:transform .6s var(--sp-snap),scale .3s var(--sp-snap);will-change:transform;box-shadow:inset 0 1px 0 var(--g-spec),inset 0 0 14px var(--g-sheen-lo)}
 .lens.drag{scale:1.12;transition:scale .3s var(--sp-snap);background:var(--g-sheen)}
 .add{width:62px;height:62px;color:var(--live-text)}
+.dock.native{visibility:hidden}
 
 /* Pass: a solid, high-contrast surface */
 .pass-3d{position:relative;perspective:1400px}
@@ -243,7 +244,7 @@ details.also .tlist{margin-top:8px}
 /* Sheets: tinted thick, because they hold text. Blur only once settled: a moving blur re-samples every frame. */
 .scrim{position:absolute;inset:0;background:var(--scrim);z-index:20;animation:fade .22s}
 @keyframes fade{from{opacity:0}}
-.sheet{position:absolute;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom,0px));max-height:calc(100% - var(--sat) - 20px);display:flex;flex-direction:column;border-radius:34px;z-index:21;background:var(--g-strong);animation:up .62s var(--sp-sheet);will-change:transform}
+.sheet{position:absolute;left:8px;right:8px;bottom:max(8px,var(--sab));max-height:calc(100% - var(--sat) - 20px);display:flex;flex-direction:column;border-radius:34px;z-index:21;background:var(--g-strong);animation:up .62s var(--sp-sheet);will-change:transform}
 .sheet.glass:not(.settled){-webkit-backdrop-filter:none;backdrop-filter:none}
 @keyframes up{from{transform:translateY(106%)}}
 .sheet.closing{animation:none;transform:translateY(110%);transition:transform .26s cubic-bezier(.4,0,1,1)}

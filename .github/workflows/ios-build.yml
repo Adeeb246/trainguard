@@ -88,7 +88,7 @@ jobs:
           npm run build
           npx cap sync ios
           node -e 'const fs = require("fs"); const p = "./ios/App/App/capacitor.config.json"; const c = JSON.parse(fs.readFileSync(p, "utf8")); if (!c.packageClassList.includes("LiveActivityPlugin")) c.packageClassList.push("LiveActivityPlugin"); fs.writeFileSync(p, JSON.stringify(c, null, 2));'
-          node scripts/ci_seed_simulator.js
+          node scripts/ci_seed_simulator.js ios/App/App/public/index.html
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
@@ -106,26 +106,14 @@ jobs:
           xcrun simctl install "$DEVICE" sim/Debug-iphonesimulator/App.app
           xcrun simctl launch "$DEVICE" com.trainguard.app
           mkdir -p shots
-          sleep 12; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
-          sleep 6;  xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
-          sleep 6;  xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
+          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
+          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
+          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
 
       - name: Check the screens aren't blank
-        working-directory: ios/App/shots
         run: |
           pip3 install --quiet --break-system-packages pillow
-          python3 - <<'EOF'
-          import pathlib, sys
-          from PIL import Image, ImageChops
-          shots = sorted(pathlib.Path('.').glob('*.png'))
-          images = [Image.open(s).convert('RGB').resize((200, 433)) for s in shots]
-          colours = [len(i.getcolors(100000) or []) for i in images]
-          print(f'::notice::{len(shots)} screens, distinct colours {colours}')
-          blank = [str(s) for s, c in zip(shots, colours) if c < 50]
-          same = ImageChops.difference(images[0], images[1]).getbbox() is None
-          if blank: print(f'::error::Blank screens: {blank}'); sys.exit(1)
-          if same: print('::error::Tabs did not change the screen'); sys.exit(1)
-          EOF
+          python3 scripts/ci_check_screens.py ios/App/shots
 
       - name: Upload screenshots
         if: always()
