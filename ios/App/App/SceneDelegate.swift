@@ -8,6 +8,7 @@ class CustomBridgeViewController: CAPBridgeViewController {
             bridge?.registerPluginInstance(LiveActivityPlugin())
         }
         bridge?.registerPluginInstance(WakeUpPlugin())
+        bridge?.registerPluginInstance(SigningPlugin())
         if #available(iOS 26.0, *) {
             bridge?.registerPluginInstance(GlassTabBarPlugin())
         }

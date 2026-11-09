@@ -232,6 +232,14 @@ function timetableBanner(t) {
   else if (f.diffMin !== null && Math.abs(f.diffMin) >= 5) text = L('ttDiff', { time: fmt(f.dep), station: t.fromName, ticket: fmt(t.time) });
   return text ? `<div class="banner warn">${ico('alert', 20)}<span>${esc(text)}</span></div>` : '';
 }
+// A sideloaded app stops opening when its signature expires, so it must not wait until the platform to say so.
+let signExpiry = 0;
+function signingBanner(t) {
+  const end = +(t.arrivalDate || t.departureDate || (t.dateISO && ttDate(t.dateISO))) || 0;
+  if (!signExpiry || !end || signExpiry >= end) return '';
+  const d = new Date(signExpiry), date = fmtDate(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`);
+  return `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('signExpires', { date }))}</span></div>`;
+}
 function viewEmpty() {
   return `<div class="welcome">${LOGO}
     <h1>${esc(L('firstT'))}</h1><p>${esc(L('firstS'))}</p>
@@ -289,6 +297,7 @@ function viewPass() {
     <div class="pass-3d ${state.flipped ? 'is-flipped' : ''}" id="pass3d"><div class="pass-tilt" id="passTilt"><div class="pass-flip">${front}${back}</div></div></div>
     ${code === 'RAC' ? `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('racBody'))}</span></div>` : ''}
     ${timetableBanner(t)}
+    ${signingBanner(t)}
     <${tag} class="next ${si.tone || ''}" ${attrs}>
       <div class="row"><span class="eyebrow">${esc(L('next'))}</span>${si.chip ? `<span class="tchip" id="nextChip">${esc(si.chip)}</span>` : ''}</div>
       <div class="next-title">${esc(si.title)}</div><div class="next-sub">${esc(si.sub)}</div>
@@ -1017,6 +1026,7 @@ fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
 if ('serviceWorker' in navigator && !isNative() && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
 if (sharedRec) state.tripId = sharedRec.id;
 render(true);
+window.Capacitor?.Plugins?.Signing?.expiry().then(r => { if (r?.date) { signExpiry = r.date; renderViews(); } }).catch(() => {});
 if (document.fonts?.ready) document.fonts.ready.then(placeLens);
 // Used by the native apps, and by tests.
 window.__tg = { state, render, ACT, tripOf, back, tab(k) { triggerHaptic('selection'); setTab(k); }, get recs() { return recs; } };

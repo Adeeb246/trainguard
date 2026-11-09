@@ -19,7 +19,7 @@ Paste your IRCTC SMS and TrainGuard turns it into a clear pass, warns you about 
 - **English, Malayalam, Hindi and Tamil** across the whole app. Train and station names stay in English, as they do on your ticket.
 - **Offline.** Everything, including the timetable, works after one visit. Your tickets stay on your phone and nothing is uploaded.
 
-The iPhone app adds a Live Activity and Dynamic Island with a real countdown, and a GPS wake-up that still works when the train runs late.
+The iPhone app adds a Live Activity and Dynamic Island with a real countdown, a GPS wake-up that still works when the train runs late, and a real Liquid Glass tab bar on iOS 26.
 
 TrainGuard isn't a ticket and isn't affiliated with Indian Railways or IRCTC. The TTE checks your SMS and ID.
 
@@ -46,6 +46,10 @@ python -m http.server 3300   # run from the repo root, then open http://localhos
 `launch_iphone_webkit.py` opens the app in WebKit on Windows, but that build doesn't paint `backdrop-filter`, so it can't show the glass. Check the glass on a real iPhone.
 
 **Deploying:** pushing to `main` deploys to Vercel and builds the iOS IPA and the Android APK as GitHub Actions artifacts.
+
+**Installing:** download the artifact from the latest Actions run, signed in to GitHub.
+- **iPhone:** sideload `TrainGuard.ipa` with Sideloadly. With a free Apple ID the app stops opening after 7 days until you sideload it again, so re-sign it before a trip.
+- **Android:** open `TrainGuard.apk` and allow installs from that app. Each CI build has its own signing key, so a newer APK only installs after you remove the old one, and that clears saved trips.
 
 ## Timetable data
 

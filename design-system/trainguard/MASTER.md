@@ -12,6 +12,7 @@ A passenger on a crowded platform must read the right train number at a glance. 
 - **The pass stays solid.** It has to be readable on a bright platform and with blur turned off.
 - **No glass on glass.** Groups inside a sheet use a plain tint.
 - **The web can't refract.** Safari accepts `backdrop-filter: url()` and draws nothing, and `@supports` can't detect that. Web glass is blur, saturation, an edge highlight and spring motion. Real Apple glass only exists in the iPhone app.
+- **On iOS 26 the tab bar is real glass.** A native `UIGlassEffect` capsule sits exactly over the web bar, which stays as the fallback. Everything else on glass in the iPhone app is still web glass.
 - **Text on glass must pass contrast with no blur at all.** That's why the tints are 66-72% opaque. Reduced Transparency falls back to the solid tint.
 
 ## Colour
