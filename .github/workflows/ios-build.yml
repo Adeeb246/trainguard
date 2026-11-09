@@ -41,6 +41,15 @@ jobs:
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
+      - name: Log in for downloads from GitHub
+        # GitHub times out anonymous downloads when it's busy. The token only lasts as long as this job.
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          printf 'machine github.com login x-access-token password %s\n' "$TOKEN" > ~/.netrc
+          chmod 600 ~/.netrc
+          echo "::notice::Logged-in download test: HTTP $(curl -sS -n -L -o /dev/null --max-time 120 -w '%{http_code}' https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.6.0/Capacitor.xcframework.zip)"
+
       - name: Download Swift packages
         working-directory: ios/App
         run: sh ../../scripts/ci_retry.sh xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
@@ -95,6 +104,15 @@ jobs:
           node scripts/ci_seed_simulator.js ios/App/App/public/index.html
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
+
+      - name: Log in for downloads from GitHub
+        # GitHub times out anonymous downloads when it's busy. The token only lasts as long as this job.
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          printf 'machine github.com login x-access-token password %s\n' "$TOKEN" > ~/.netrc
+          chmod 600 ~/.netrc
+          echo "::notice::Logged-in download test: HTTP $(curl -sS -n -L -o /dev/null --max-time 120 -w '%{http_code}' https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.6.0/Capacitor.xcframework.zip)"
 
       - name: Build, install and screenshot
         working-directory: ios/App
