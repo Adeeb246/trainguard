@@ -3,7 +3,8 @@ import pathlib
 import sys
 from PIL import Image, ImageChops
 
-shots = sorted(pathlib.Path(sys.argv[1]).glob('*.png'))
+# The three tabs. A fourth screenshot of the Dynamic Island is only there for people to look at.
+shots = sorted(pathlib.Path(sys.argv[1]).glob('*.png'))[:3]
 if len(shots) < 3:
     print(f'::error::Expected 3 screenshots, found {len(shots)}')
     sys.exit(1)

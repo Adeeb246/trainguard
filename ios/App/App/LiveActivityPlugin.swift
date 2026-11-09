@@ -22,11 +22,17 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func startActivity(_ call: CAPPluginCall) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            call.reject("Live Activities are not enabled by the user")
+            call.resolve(["status": "disabled"])
             return
         }
-        guard let trainNumber = call.getString("trainNumber"), let etaMinutes = call.getInt("etaMinutes") else {
-            call.reject("trainNumber and etaMinutes are required")
+        // Sideloading tools can remove extensions, and without this one nothing would ever appear.
+        guard let plugIns = Bundle.main.builtInPlugInsURL,
+              FileManager.default.fileExists(atPath: plugIns.appendingPathComponent("TrainGuardWidgets.appex").path) else {
+            call.reject("the widget was removed when this app was installed")
+            return
+        }
+        guard let trainNumber = call.getString("trainNumber"), let departure = call.getDouble("departure") else {
+            call.reject("trainNumber and departure are required")
             return
         }
 
@@ -43,19 +49,33 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         let state = TrainGuardAttributes.ContentState(
             platform: call.getString("platform") ?? "PF ?",
             departureTime: call.getString("departureTime") ?? "",
-            countdownDate: Date().addingTimeInterval(TimeInterval(etaMinutes * 60)),
+            countdownDate: Date(timeIntervalSince1970: departure / 1000),
             hasClash: call.getBool("hasClash") ?? false,
             clashDetails: call.getString("clashDetails") ?? ""
         )
 
+        let content = ActivityContent(state: state, staleDate: nil)
+        let start = Date(timeIntervalSince1970: (call.getDouble("startAt") ?? 0) / 1000)
+        let alertTitle = call.getString("alertTitle") ?? trainNumber
+        let alertBody = call.getString("alertBody") ?? ""
+
         Task {
-            // Activities outlive the app, so the one from an earlier launch has to be ended too.
+            // Activities outlive the app, and that includes scheduled ones, so earlier ones have to be ended too.
             await endRunningActivities()
             do {
-                let activity = try Activity.request(attributes: attributes, content: .init(state: state, staleDate: nil))
-                call.resolve(["activityId": activity.id, "status": "started"])
+                if start <= Date() {
+                    _ = try Activity.request(attributes: attributes, content: content)
+                    call.resolve(["status": "started"])
+                } else if #available(iOS 26.0, *) {
+                    // The system starts it at this date even if the app is closed, which a normal request can't do.
+                    let alert = AlertConfiguration(title: LocalizedStringResource(stringLiteral: alertTitle), body: LocalizedStringResource(stringLiteral: alertBody), sound: .default)
+                    _ = try Activity.request(attributes: attributes, content: content, pushType: nil, style: .standard, alertConfiguration: alert, start: start)
+                    call.resolve(["status": "scheduled"])
+                } else {
+                    call.resolve(["status": "tooEarly"])
+                }
             } catch {
-                call.reject("Failed to start Live Activity: \(error.localizedDescription)")
+                call.reject(error.localizedDescription)
             }
         }
     }

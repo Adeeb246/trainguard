@@ -56,7 +56,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .view-inner.enter{animation:rise .34s var(--ease)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .edge{position:absolute;left:0;right:0;pointer-events:none;z-index:4}
-.edge.top{top:0;height:calc(var(--sat) + 62px);background:linear-gradient(var(--edge) 42%,transparent)}
+.edge.top{top:0;height:calc(var(--sat) + 62px);background:linear-gradient(var(--canvas) calc(var(--sat)*.8),var(--edge) calc(var(--sat) + 10px),transparent)}
 .edge.bottom{bottom:0;height:calc(max(10px,var(--sab) - 8px) + 92px);background:linear-gradient(transparent,var(--edge) 62%)}
 .topbar{position:absolute;top:calc(var(--sat) + 6px);left:max(var(--gut),env(safe-area-inset-left,0px));right:max(var(--gut),env(safe-area-inset-right,0px));display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:6}
 .gbtn{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;color:var(--ink);flex:none;transition:transform .3s var(--sp-snap)}
@@ -75,7 +75,6 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .lens{position:absolute;left:0;top:4px;height:54px;border-radius:27px;background:var(--lens);transform:translateX(var(--lx,4px));transition:transform .6s var(--sp-snap),scale .3s var(--sp-snap);will-change:transform;box-shadow:inset 0 1px 0 var(--g-spec),inset 0 0 14px var(--g-sheen-lo)}
 .lens.drag{scale:1.12;transition:scale .3s var(--sp-snap);background:var(--g-sheen)}
 .add{width:62px;height:62px;color:var(--live-text)}
-.dock.native{visibility:hidden}
 
 /* Pass: a solid, high-contrast surface */
 .pass-3d{position:relative;perspective:1400px}
@@ -204,6 +203,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .b.me strong{color:var(--live-ink)}
 .tog{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--hair);min-height:44px}
 .tog.first{border-top:0;padding-top:0}
+.tog .live-now{flex:none;width:auto;min-height:44px;margin:0;padding:0 14px;font-size:14px;white-space:nowrap}
 .tog .tx{min-width:0;font-size:13px;color:var(--ink-2);line-height:1.3}
 .tog .tx b{display:block;color:var(--ink);font-size:15px;font-weight:600}
 .sw{flex:none;position:relative;width:52px;height:32px;border:0;border-radius:16px;background:var(--card-2);transition:background .2s;padding:0}

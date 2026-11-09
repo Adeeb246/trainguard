@@ -19,7 +19,7 @@ Paste your IRCTC SMS and TrainGuard turns it into a clear pass, warns you about 
 - **English, Malayalam, Hindi and Tamil** across the whole app. Train and station names stay in English, as they do on your ticket.
 - **Offline.** Everything, including the timetable, works after one visit. Your tickets stay on your phone and nothing is uploaded.
 
-The iPhone app adds a Live Activity and Dynamic Island with a real countdown, a GPS wake-up that still works when the train runs late, and a real Liquid Glass tab bar on iOS 26.
+The iPhone app adds a Live Activity and Dynamic Island with a real countdown, and a GPS wake-up that still works when the train runs late.
 
 TrainGuard isn't a ticket and isn't affiliated with Indian Railways or IRCTC. The TTE checks your SMS and ID.
 

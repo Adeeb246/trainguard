@@ -6,7 +6,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 
 const APP_URL = 'https://trainguard-cyan.vercel.app/';
 const PNR_URL = 'https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en';
-const KEY = { trips: 'trainguard_trips_v2', legacy: 'trainguard_saved_ticket_v1', theme: 'trainguard_theme_v2', lang: 'trainguard_lang', sound: 'trainguard_sound_enabled', haptic: 'trainguard_haptic_enabled', commute: 'trainguard_commute_min', gps: 'trainguard_gps_wake', backup: 'trainguard_backup_alarm' };
+const KEY = { trips: 'trainguard_trips_v2', legacy: 'trainguard_saved_ticket_v1', theme: 'trainguard_theme_v2', lang: 'trainguard_lang', sound: 'trainguard_sound_enabled', haptic: 'trainguard_haptic_enabled', commute: 'trainguard_commute_min', gps: 'trainguard_gps_wake', backup: 'trainguard_backup_alarm', liveNow: 'trainguard_live_now' };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
@@ -363,8 +363,18 @@ function viewJourney() {
       ${hasWakeUp ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>
       <div class="tog"><div class="tx"><b>${esc(wake ? L('backupT', { time: atTime(wake) }) : L('backupNoTime'))}</b>${esc(L('backupS'))}</div><button class="sw" role="switch" aria-checked="${state.backup}" aria-label="${esc(L('backupNoTime'))}" data-act="toggle" data-k="backup"></button></div>`
       : `<p class="dim" style="margin:0 0 10px;color:var(--ink-2);font-size:13px">${esc(wake ? L('wakeWebS', { time: atTime(wake), to: t.toName }) : L('wakeNoArr'))}</p>`}
+      ${liveRow(t)}
       <button class="btn ghost" data-act="openCalendar">${ico('calendar', 18)}${esc(L('addCal'))}</button>
     </div>`;
+}
+function liveRow(t) {
+  const status = liveResult.status;
+  if (!status || !t.departureDate) return '';
+  const start = new Date(+t.departureDate - LIVE_LEAD), iso = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
+  const time = start.toDateString() === new Date().toDateString() ? atTime(start) : `${fmtDate(iso)}, ${atTime(start)}`;
+  const text = { scheduled: L('liveSoon', { time }), tooEarly: L('liveOpen', { time }), started: L('liveNow'), disabled: L('liveOff'), failed: L('liveFail', { why: liveResult.why }) }[status];
+  const canStart = status === 'scheduled' || status === 'tooEarly';
+  return text ? `<div class="tog"><div class="tx"><b>${esc(L('liveT'))}</b>${esc(text)}</div>${canStart ? `<button class="btn ghost live-now" data-act="liveNow">${esc(L('liveStart'))}</button>` : ''}</div>` : '';
 }
 function viewSafety() {
   const t = current();
@@ -672,20 +682,23 @@ const pop = sel => { const el = $(sel); if (el && !REDUCED()) el.animate([{ opac
 
 /* ---------- Native bridge ---------- */
 const liveActivityPlugin = () => window.Capacitor?.Plugins?.LiveActivity || null;
-let liveKey = null;
+// Apple ends a Live Activity after 8 hours, so it starts by itself 7.5 hours before departure and outlasts it a little.
+const LIVE_LEAD = 7.5 * 36e5;
+let liveKey = null, liveResult = {};
 function syncLiveActivity() {
   const plugin = isIOSNative() ? liveActivityPlugin() : null;
   if (!plugin) return;
   const t = current();
-  const code = t?.status?.code, mins = t?.departureDate ? Math.round((+t.departureDate - Date.now()) / 60000) : null;
-  // ActivityKit keeps an activity for about 8 hours, so start it once the journey is that close.
-  const on = t && mins > 0 && mins <= 480 && code !== 'WL' && code !== 'CAN' && !t.isShared;
-  const key = on ? [t.id, t.platform, +t.departureDate, state.lang].join('|') : 'off';
+  const code = t?.status?.code, left = t?.departureDate ? +t.departureDate - Date.now() : 0;
+  const on = t && left > 0 && code !== 'WL' && code !== 'CAN' && !t.isShared;
+  const now = on && (left <= LIVE_LEAD || store.get(KEY.liveNow, '') === t.id);
+  const key = on ? [t.id, t.platform, +t.departureDate, state.lang, now].join('|') : 'off';
   if (key === liveKey) return;
   liveKey = key;
-  if (!on) { plugin.stopActivity?.().catch(() => {}); return; }
-  const p = t.passengers[0] || {};
-  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), etaMinutes: mins, hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) }).catch(() => {});
+  if (!on) { liveResult = {}; plugin.stopActivity?.().catch(() => {}); return; }
+  const p = t.passengers[0] || {}, done = r => { liveResult = r; renderViews(); };
+  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), departure: +t.departureDate, startAt: now ? 0 : +t.departureDate - LIVE_LEAD, alertTitle: `${t.trainNo} ${t.name || ''}`.trim(), alertBody: L('tlArriveS', { no: t.trainNo }), hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) })
+    .then(r => done(r || {})).catch(e => done({ status: 'failed', why: e?.message || '' }));
 }
 function wakePlugin() { return isIOSNative() ? window.Capacitor.Plugins?.WakeUp || null : null; }
 let wakeKey = null;
@@ -734,23 +747,6 @@ function syncTabs() {
   TAB_ORDER.forEach((k, i) => { const v = $('#view-' + k); v.style.setProperty('--dir', i < ai ? -1 : 1); v.classList.toggle('on', i === ai); });
   document.querySelectorAll('.tab').forEach(b => { const on = b.dataset.tab === state.tab; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; b.classList.remove('near'); });
   placeLens();
-  syncGlass();
-}
-/* Real Liquid Glass on iOS 26: the native bar sits exactly over the web one, which stays as the fallback. */
-let glassSent = '', glassTimer = 0;
-function syncGlass() {
-  const plugin = isIOSNative() && window.Capacitor.Plugins?.GlassTabBar;
-  if (!plugin || glassTimer) return;
-  // Waits a tick because closing one sheet and opening the next arrive together.
-  glassTimer = setTimeout(() => {
-    glassTimer = 0;
-    const box = s => { const r = $(s).getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; };
-    const msg = { hidden: !!state.sheet || !!state.big, tab: state.tab, dark: state.theme !== 'light', labels: [...document.querySelectorAll('.tab span')].map(l => l.textContent), addLabel: L('addT'), bar: box('#tabbar'), add: box('.add') };
-    const key = JSON.stringify(msg);
-    if (key === glassSent) return;
-    glassSent = key;
-    plugin.update(msg).then(() => $('#dock').classList.add('native')).catch(() => {});
-  });
 }
 function setTab(k) {
   if (state.tab === k) { placeLens(); return; }
@@ -810,7 +806,7 @@ function renderViews(enter) {
   syncWakeUp();
   const t = current(); lastStage = t ? `${t.id}:${stageOf(t)}` : null;
 }
-function renderOverlay() { $('#bigHost').innerHTML = bigHTML(); syncGlass(); }
+function renderOverlay() { $('#bigHost').innerHTML = bigHTML(); }
 function render(enter) { chrome(); renderViews(enter); renderSheet(); renderOverlay(); }
 function renderSheet() {
   const h = $('#sheetHost'), body = $('.sbody', h), st = body ? body.scrollTop : 0, had = !!$('#sheet', h);
@@ -822,18 +818,16 @@ function renderSheet() {
     const b = $('.sbody', sh); if (b) b.scrollTop = st;
     bindGrabber(sh);
   }
-  syncGlass();
 }
 function openSheet(n) { state.sheet = n; renderSheet(); const x = $('#sheet .xbtn'); if (x) x.focus({ preventScroll: true }); }
 function closeSheet() {
   const sh = $('#sheet'), sc = $('#sheetHost .scrim');
   state.sheet = null;
-  syncGlass();
   if (!sh) return;
   sh.classList.remove('settled'); sh.classList.add('closing'); if (sc) sc.classList.add('closing');
   setTimeout(() => { if (!state.sheet) $('#sheetHost').innerHTML = ''; }, 270);
 }
-function closeNow() { state.sheet = null; $('#sheetHost').innerHTML = ''; syncGlass(); }
+function closeNow() { state.sheet = null; $('#sheetHost').innerHTML = ''; }
 function bindGrabber(sh) {
   const g = $('#grabber', sh); let y0 = null, dy = 0;
   g.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; sh.style.animation = 'none'; try { g.setPointerCapture(e.pointerId); } catch (err) {} });
@@ -868,6 +862,7 @@ const ACT = {
     if (k === 'gps' && state.gps && !state.backup) { state.backup = true; store.set(KEY.backup, true); $('[data-k=backup]')?.setAttribute('aria-checked', true); }
     if (k === 'gps' || k === 'backup') { store.set(KEY[k], state[k]); syncWakeUp(); }
   },
+  liveNow() { const t = current(); if (t) { store.set(KEY.liveNow, t.id); syncLiveActivity(); } },
   flip() { state.flipped = !state.flipped; const p = $('#pass3d'); if (p) p.classList.toggle('is-flipped', state.flipped); },
   tabSafety() { setTab('safety'); },
   tabJourney() { setTab('journey'); },
@@ -1015,7 +1010,6 @@ $('#views').addEventListener('pointerout', e => { const el = e.target.closest('#
 
 /* ---------- Clock: the screen follows the journey ---------- */
 function tick() {
-  syncGlass();
   const t = current(); if (!t) return;
   const key = `${t.id}:${stageOf(t)}`;
   if (key !== lastStage) {
@@ -1031,7 +1025,7 @@ function tick() {
 }
 setInterval(tick, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
-addEventListener('resize', () => { placeLens(); syncGlass(); });
+addEventListener('resize', placeLens);
 
 /* ---------- Timetable: loaded once, cached by the service worker for offline use ---------- */
 fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
@@ -1048,6 +1042,6 @@ render(true);
 window.Capacitor?.Plugins?.Haptics?.selectionStart().catch(() => {});
 window.Capacitor?.Plugins?.Signing?.expiry().then(r => { if (r?.date) { signExpiry = r.date; renderViews(); } }).catch(() => {});
 if (document.fonts?.ready) document.fonts.ready.then(placeLens);
-// Used by the native apps, and by tests.
-window.__tg = { state, render, ACT, tripOf, back, tab(k) { triggerHaptic('selection'); setTab(k); }, add() { triggerHaptic('medium'); ACT.add(); }, get recs() { return recs; } };
+// Used by the Android app, and by tests.
+window.__tg = { state, render, ACT, tripOf, back, get recs() { return recs; } };
 })();

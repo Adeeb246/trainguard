@@ -11,8 +11,8 @@ A passenger on a crowded platform must read the right train number at a glance. 
 - **Glass is for controls only:** the tab bar, top buttons, sheets and toasts. Apple's guidance: "Don't use Liquid Glass in the content layer."
 - **The pass stays solid.** It has to be readable on a bright platform and with blur turned off.
 - **No glass on glass.** Groups inside a sheet use a plain tint.
-- **The web can't refract.** Safari accepts `backdrop-filter: url()` and draws nothing, and `@supports` can't detect that. Web glass is blur, saturation, an edge highlight and spring motion. Real Apple glass only exists in the iPhone app.
-- **On iOS 26 the tab bar is real glass.** A native `UIGlassEffect` capsule sits exactly over the web bar, which stays as the fallback. Everything else on glass in the iPhone app is still web glass.
+- **The web can't refract.** Safari accepts `backdrop-filter: url()` and draws nothing, and `@supports` can't detect that. Web glass is blur, saturation, an edge highlight and spring motion.
+- **The iPhone app uses web glass too.** A native `UIGlassEffect` tab bar was tried and removed: real glass bends what's behind it, so over this app's dark background it showed as a flat dark pill, and it looked worse than the web bar on a real iPhone. Trying it again needs the app's own icons and a background that gives it something to bend.
 - **Text on glass must pass contrast with no blur at all.** That's why the tints are 66-72% opaque. Reduced Transparency falls back to the solid tint.
 
 ## Colour
