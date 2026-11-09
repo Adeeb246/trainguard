@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TrainGuard</string>
+    <string name="title_activity_main">TrainGuard</string>
+    <string name="package_name">com.trainguard.app</string>
+    <string name="custom_url_scheme">com.trainguard.app</string>
+</resources>

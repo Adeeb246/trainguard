@@ -16,6 +16,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
     "@capacitor/cli": "^8.6.0",
     "@capacitor/core": "^8.6.0",
     "@capacitor/haptics": "^8.0.2",
