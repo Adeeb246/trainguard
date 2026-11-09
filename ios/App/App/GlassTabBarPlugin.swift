@@ -109,7 +109,7 @@ public class GlassTabBarPlugin: CAPPlugin, CAPBridgedPlugin {
             return button
         }
 
-        let plus = makeButton(symbol: "plus", pointSize: 24, script: "document.querySelector('.add').click()")
+        let plus = makeButton(symbol: "plus", pointSize: 24, script: "window.__tg.add()")
         plus.configuration?.baseForegroundColor = Self.accent
         plus.frame = add.contentView.bounds
         plus.autoresizingMask = [.flexibleWidth, .flexibleHeight]

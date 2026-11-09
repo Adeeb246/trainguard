@@ -1028,8 +1028,10 @@ fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
 if ('serviceWorker' in navigator && !isNative() && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
 if (sharedRec) state.tripId = sharedRec.id;
 render(true);
+// The native plugin ignores selectionChanged until this has run once.
+window.Capacitor?.Plugins?.Haptics?.selectionStart().catch(() => {});
 window.Capacitor?.Plugins?.Signing?.expiry().then(r => { if (r?.date) { signExpiry = r.date; renderViews(); } }).catch(() => {});
 if (document.fonts?.ready) document.fonts.ready.then(placeLens);
 // Used by the native apps, and by tests.
-window.__tg = { state, render, ACT, tripOf, back, tab(k) { triggerHaptic('selection'); setTab(k); }, get recs() { return recs; } };
+window.__tg = { state, render, ACT, tripOf, back, tab(k) { triggerHaptic('selection'); setTab(k); }, add() { triggerHaptic('medium'); ACT.add(); }, get recs() { return recs; } };
 })();
