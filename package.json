@@ -5,7 +5,9 @@
   "main": "src/parser.js",
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node tests/parser.test.js && node tests/timetable.test.js && node tests/app.test.js"
+    "test": "node tests/parser.test.js && node tests/timetable.test.js && node tests/app.test.js",
+    "test:browser": "python tests/browser/run.py",
+    "test:watch": "node scripts/build.js && python tests/browser/watch.py"
   },
   "keywords": [
     "irctc",

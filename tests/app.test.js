@@ -27,7 +27,8 @@ for (const key of [...asked, ...stages]) assert.ok(I18N.en[key], `app.js asks fo
 // The page must work offline and carry nobody's real data
 const shipped = ['index.html', 'src/app.js', 'src/app.css', 'src/parser.js', 'src/i18n.js', 'sw.js'].map(read).join('\n');
 assert.ok(!/cdn\.tailwindcss|fonts\.googleapis|<script[^>]+src="https?:/.test(shipped), 'no remote code or styles: the app must load with no network');
-assert.ok(!/RASHDHAN|4147679046/.test(shipped + read('tests/parser.test.js')), 'no real passenger data in the repo');
+const browserTests = fs.readdirSync(path.join(root, 'tests/browser')).map(f => read(`tests/browser/${f}`)).join('\n');
+assert.ok(!/RASHDHAN|4147679046/.test(shipped + read('tests/parser.test.js') + browserTests), 'no real passenger data in the repo');
 assert.ok(!/function parseTicketText/.test(read('index.html') + app), 'parser.js is the only parser');
 
 // Everything the service worker precaches must be built

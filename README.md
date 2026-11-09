@@ -31,6 +31,16 @@ npm run build                # one self-contained page in public/ (Vercel) and w
 python -m http.server 3300   # run from the repo root, then open http://localhost:3300/emulator.html
 ```
 
+The browser tests use the real app in a real browser, and need `pip install -r tests/browser/requirements.txt` and `playwright install chromium` once:
+
+```bash
+npm run test:browser                                        # everything, on this computer
+python tests/browser/run.py https://trainguard-cyan.vercel.app/   # the live site
+npm run test:watch                                          # opens a window so you can watch the robot
+```
+
+They can't prove how a real phone behaves, and they don't run in GitHub Actions.
+
 | Path | What it is |
 |---|---|
 | `index.html`, `src/app.js`, `src/app.css` | The app |
