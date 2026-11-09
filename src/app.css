@@ -5,7 +5,7 @@
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sp-snap:cubic-bezier(.3,1.35,.45,1);--sp-sheet:cubic-bezier(.22,1.04,.36,1);--sp-flip:cubic-bezier(.3,1.2,.5,1);--ease:cubic-bezier(.2,.8,.2,1);
 }
-html,body{height:100%;margin:0;background:#0B0C0B}
+html,body{height:100%;margin:0;background:var(--page,#111111)}
 button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 a{color:inherit;-webkit-tap-highlight-color:transparent}
@@ -33,6 +33,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 
 /* Depth behind the glass: long-exposure train lights */
 .wall{position:absolute;inset:0;overflow:hidden;background:radial-gradient(70% 38% at 88% 4%,var(--glow-a),transparent 72%),radial-gradient(70% 46% at 4% 40%,var(--glow-b),transparent 72%),radial-gradient(100% 34% at 62% 104%,var(--glow-c),transparent 72%),var(--canvas)}
+@media (display-mode:standalone){.wall{background:radial-gradient(70% 38% at 88% 4%,var(--glow-a),transparent 72%),radial-gradient(70% 46% at 4% 40%,var(--glow-b),transparent 72%),var(--canvas)}}
 .wall::before{content:"";position:absolute;inset:-12%;filter:blur(5px);transform:rotate(-7deg);background:
   linear-gradient(90deg,transparent 4%,var(--streak-a) 36%,transparent 70%) 0 28%/100% 3px no-repeat,
   linear-gradient(90deg,transparent 22%,var(--streak-b) 62%,transparent 96%) 0 32%/100% 2px no-repeat,

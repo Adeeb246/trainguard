@@ -719,7 +719,10 @@ function syncWakeUp() {
 function applyTheme() {
   $('#app').dataset.theme = state.theme;
   document.documentElement.lang = state.lang;
-  const meta = $('meta[name=theme-color]'); if (meta) meta.content = state.theme === 'light' ? '#F2F2F7' : '#111111';
+  const page = state.theme === 'light' ? '#F2F2F7' : '#111111';
+  // iOS paints the empty strip under a Home Screen web app in this colour, and no page element can reach it (WebKit bug 301994).
+  document.documentElement.style.setProperty('--page', page);
+  const meta = $('meta[name=theme-color]'); if (meta) meta.content = page;
   window.Capacitor?.Plugins?.SystemBars?.setStyle({ style: state.theme === 'light' ? 'LIGHT' : 'DARK' }).catch(() => {});
 }
 function chrome() {
