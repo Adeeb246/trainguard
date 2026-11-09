@@ -35,6 +35,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
+          sh ../scripts/ci_retry.sh ./gradlew --version --no-daemon
           ./gradlew assembleDebug --no-daemon > build.log 2>&1 || {
             grep -E -A4 "error:|What went wrong|Exception in thread" build.log | head -n 30 | sed 's/^/::error::/'
             tail -n 20 build.log
@@ -80,7 +81,9 @@ jobs:
           npx cap sync android
           node scripts/ci_seed_simulator.js android/app/src/main/assets/public/index.html
           chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug --no-daemon --quiet
+          cd android
+          sh ../scripts/ci_retry.sh ./gradlew --version --no-daemon
+          ./gradlew assembleDebug --no-daemon --quiet
 
       - name: Enable KVM
         run: |

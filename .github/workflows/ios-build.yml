@@ -41,6 +41,10 @@ jobs:
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
+      - name: Download Swift packages
+        working-directory: ios/App
+        run: sh ../../scripts/ci_retry.sh xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
+
       - name: Build for iPhone
         working-directory: ios/App
         run: |
@@ -96,6 +100,7 @@ jobs:
         working-directory: ios/App
         run: |
           DEVICE=$(xcrun simctl list devices available | grep -m1 -E 'iPhone [0-9]+ Pro \(' | grep -oE '[0-9A-F-]{36}')
+          sh ../../scripts/ci_retry.sh xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
           xcrun simctl boot "$DEVICE"
           xcrun simctl bootstatus "$DEVICE" -b
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug -destination "id=$DEVICE" \
