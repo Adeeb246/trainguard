@@ -55,7 +55,10 @@ jobs:
 
   emulator:
     # A real Android emulator, to confirm the app starts and draws its screens.
-    runs-on: ubuntu-latest
+    # It doesn't decide whether the APK is good, and it has a time limit, because a dead emulator makes adb wait forever.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 

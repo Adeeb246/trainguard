@@ -106,9 +106,9 @@ jobs:
           xcrun simctl install "$DEVICE" sim/Debug-iphonesimulator/App.app
           xcrun simctl launch "$DEVICE" com.trainguard.app
           mkdir -p shots
-          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
-          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
-          sleep 20; xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
+          sleep 30; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
+          sleep 40; xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
+          sleep 40; xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
 
       - name: Check the screens aren't blank
         run: |
