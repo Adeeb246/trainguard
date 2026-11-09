@@ -41,15 +41,6 @@ jobs:
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
-      - name: Log in for downloads from GitHub
-        # GitHub times out anonymous downloads when it's busy. The token only lasts as long as this job.
-        env:
-          TOKEN: ${{ github.token }}
-        run: |
-          printf 'machine github.com login x-access-token password %s\n' "$TOKEN" > ~/.netrc
-          chmod 600 ~/.netrc
-          echo "::notice::Logged-in download test: HTTP $(curl -sS -n -L -o /dev/null --max-time 120 -w '%{http_code}' https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.6.0/Capacitor.xcframework.zip)"
-
       - name: Download Swift packages
         working-directory: ios/App
         run: sh ../../scripts/ci_retry.sh xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
@@ -105,15 +96,6 @@ jobs:
           gem install xcodeproj --no-document
           ruby scripts/setup_widget_extension.rb
 
-      - name: Log in for downloads from GitHub
-        # GitHub times out anonymous downloads when it's busy. The token only lasts as long as this job.
-        env:
-          TOKEN: ${{ github.token }}
-        run: |
-          printf 'machine github.com login x-access-token password %s\n' "$TOKEN" > ~/.netrc
-          chmod 600 ~/.netrc
-          echo "::notice::Logged-in download test: HTTP $(curl -sS -n -L -o /dev/null --max-time 120 -w '%{http_code}' https://github.com/ionic-team/capacitor-swift-pm/releases/download/8.6.0/Capacitor.xcframework.zip)"
-
       - name: Build, install and screenshot
         working-directory: ios/App
         run: |
@@ -129,12 +111,12 @@ jobs:
           xcrun simctl install "$DEVICE" sim/Debug-iphonesimulator/App.app
           xcrun simctl launch "$DEVICE" com.trainguard.app
           mkdir -p shots
-          sleep 30; xcrun simctl io "$DEVICE" screenshot shots/1-pass.png
-          sleep 40; xcrun simctl io "$DEVICE" screenshot shots/2-journey.png
-          sleep 40; xcrun simctl io "$DEVICE" screenshot shots/3-safety.png
+          for shot in 01 02 03 04 05 06 07 08 09 10 11 12; do
+            sleep 8; xcrun simctl io "$DEVICE" screenshot "shots/$shot.png"
+          done
           # Leave the app, because the Dynamic Island doesn't show an app's own Live Activity while it's open.
           xcrun simctl launch "$DEVICE" com.apple.Preferences
-          sleep 10; xcrun simctl io "$DEVICE" screenshot shots/4-island.png
+          sleep 10; xcrun simctl io "$DEVICE" screenshot shots/island.png
 
       - name: Check the screens aren't blank
         run: |

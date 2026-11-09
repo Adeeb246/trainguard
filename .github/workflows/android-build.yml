@@ -99,6 +99,8 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: false
+          ram-size: 4096M
+          heap-size: 512M
           script: sh scripts/ci_android_screens.sh
 
       - name: Check the screens aren't blank
