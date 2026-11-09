@@ -75,6 +75,8 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
 
     private let location = CLLocationManager()
     private let store = UserDefaults.standard
+    private var wantsAlways = false
+    private var pendingRegion: CLCircularRegion?
 
     private override init() {
         super.init()
@@ -109,6 +111,7 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
 
     func cancel() async {
         await MainActor.run {
+            pendingRegion = nil
             for region in location.monitoredRegions where region.identifier == Self.regionId {
                 location.stopMonitoring(for: region)
             }
@@ -118,7 +121,6 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
 
     private func startRegion(latitude: Double, longitude: Double) {
         guard CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) else { return }
-        if location.authorizationStatus != .authorizedAlways { location.requestAlwaysAuthorization() }
         let region = CLCircularRegion(
             center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
             radius: min(Self.radiusMeters, location.maximumRegionMonitoringDistance),
@@ -127,6 +129,29 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
         region.notifyOnEntry = true
         region.notifyOnExit = false
         location.startMonitoring(for: region)
+        pendingRegion = region
+        // Asking for Always directly gets a provisional grant: iOS holds the event back until the person answers
+        // a prompt, typically while the app isn't running, so someone asleep on the train would never hear it.
+        // Asking in two steps, as Apple documents, settles it now, while they're looking at the phone.
+        switch location.authorizationStatus {
+        case .notDetermined:
+            wantsAlways = true
+            location.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse:
+            location.requestAlwaysAuthorization()
+        default:
+            break
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if wantsAlways && manager.authorizationStatus == .authorizedWhenInUse {
+            wantsAlways = false
+            manager.requestAlwaysAuthorization()
+        } else if manager.authorizationStatus == .authorizedAlways, let region = pendingRegion {
+            pendingRegion = nil
+            manager.startMonitoring(for: region)
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {

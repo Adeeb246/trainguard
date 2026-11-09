@@ -39,7 +39,7 @@ const I18N = {
     noTimeline: 'Add your departure time and date to build this timeline.', addTimeBtn: 'Add time',
     findCoachT: 'Find coach {coach}', findCoachS: 'Coach order differs by train and direction, so check the coach display on the platform.',
     insideT: 'Inside the coach', insideS: 'Bay {bay}. Upper berths are at the top.',
-    alertsT: 'Alerts', gpsT: 'GPS wake-up', gpsS: 'Rings about 20 km before {to}, even if the train runs late.', backupT: 'Backup alarm, {time}', backupNoTime: 'Backup alarm', backupS: '30 min before the timetable arrival.',
+    alertsT: 'Alerts', gpsT: 'GPS wake-up', gpsS: 'Rings about 20 km before {to}, even if the train runs late. When your iPhone asks, choose Always.', backupT: 'Backup alarm, {time}', backupNoTime: 'Backup alarm', backupS: '30 min before the timetable arrival.',
     wakeWebS: 'Add a calendar alert for {time}, 30 min before reaching {to}. Trains can run late. The iPhone app adds a GPS wake-up.', wakeNoArr: 'A wake-up alert needs your arrival time, which the timetable fills in when it knows your stations.', addCal: 'Add to calendar',
     safetyT: 'Not your train', safetyS: 'Trains at {station} within 2 hours of yours, {date}', safetyGeneric: 'Look-alike trains at your station',
     warnNear: '{no} {name} goes your way and leaves {station} at {time}. Yours leaves at {dep}. Check the number on the coach before you board.',
@@ -71,7 +71,7 @@ const I18N = {
     soundsT: 'Sounds', soundsS: 'Boarding chime and wrong-train warning. An iPhone on silent mutes these.', hapticsT: 'Haptics', hapticsS: 'Taps and warnings.', hapticsDesk: 'A computer has no motor, so you hear a soft click instead.',
     installT: 'Install on your phone', installS: 'Opens from your Home Screen and works offline.', installIos: 'Open this page in Safari, tap Share, then Add to Home Screen.', installAndroid: 'Open the Chrome menu, then tap Install app.',
     aboutS: "Your tickets stay on this phone and nothing is uploaded. TrainGuard isn't affiliated with Indian Railways or IRCTC.", aboutTT: 'Timetable: community feed, snapshot from {date}. It may be out of date.',
-    bigTrain: 'Train', sunlight: 'Sunlight', night: 'Night', saveFail: "Couldn't save on this device. Private browsing can block it.", alarmDenied: 'The alarm needs permission. Turn it on in Settings, then TrainGuard.', locationDenied: 'GPS wake-up needs location access. Turn it on in Settings, then TrainGuard.', signExpires: 'This app stops opening on {date}, before this trip is over. Install it again before you travel, or add your ticket to the web version too.'
+    bigTrain: 'Train', sunlight: 'Sunlight', night: 'Night', saveFail: "Couldn't save on this device. Private browsing can block it.", alarmDenied: 'The alarm needs permission. Turn it on in Settings, then TrainGuard.', locationDenied: 'GPS wake-up needs location access set to Always. Change it in Settings, then TrainGuard.', signExpires: 'This app stops opening on {date}, before this trip is over. Install it again before you travel, or add your ticket to the web version too.'
   },
   ml: {
     tabPass: 'പാസ്', tabJourney: 'യാത്ര', tabSafety: 'സുരക്ഷ',
@@ -112,7 +112,7 @@ const I18N = {
     noTimeline: 'ഈ സമയക്രമം കാണാൻ പുറപ്പെടൽ സമയവും തീയതിയും ചേർക്കുക.', addTimeBtn: 'സമയം ചേർക്കുക',
     findCoachT: 'കോച്ച് {coach} കണ്ടെത്തുക', findCoachS: 'ട്രെയിനും ദിശയും അനുസരിച്ച് കോച്ചുകളുടെ ക്രമം മാറും, അതിനാൽ പ്ലാറ്റ്ഫോമിലെ കോച്ച് ഡിസ്‌പ്ലേ നോക്കുക.',
     insideT: 'കോച്ചിനുള്ളിൽ', insideS: 'ബേ {bay}. അപ്പർ ബെർത്തുകൾ മുകളിലാണ്.',
-    alertsT: 'അലേർട്ടുകൾ', gpsT: 'GPS ഉണർത്തൽ', gpsS: 'ട്രെയിൻ വൈകിയാലും {to} എത്തുന്നതിന് ഏകദേശം 20 കി.മീ. മുമ്പ് മുഴങ്ങും.', backupT: 'ബാക്കപ്പ് അലാറം, {time}', backupNoTime: 'ബാക്കപ്പ് അലാറം', backupS: 'സമയപ്പട്ടിക പ്രകാരമുള്ള എത്തിച്ചേരലിന് 30 മിനിറ്റ് മുമ്പ്.',
+    alertsT: 'അലേർട്ടുകൾ', gpsT: 'GPS ഉണർത്തൽ', gpsS: 'ട്രെയിൻ വൈകിയാലും {to} എത്തുന്നതിന് ഏകദേശം 20 കി.മീ. മുമ്പ് മുഴങ്ങും. iPhone ചോദിക്കുമ്പോൾ Always തിരഞ്ഞെടുക്കുക.', backupT: 'ബാക്കപ്പ് അലാറം, {time}', backupNoTime: 'ബാക്കപ്പ് അലാറം', backupS: 'സമയപ്പട്ടിക പ്രകാരമുള്ള എത്തിച്ചേരലിന് 30 മിനിറ്റ് മുമ്പ്.',
     wakeWebS: '{to} എത്തുന്നതിന് 30 മിനിറ്റ് മുമ്പ്, {time}-ന് കലണ്ടർ അലേർട്ട് ചേർക്കുക. ട്രെയിൻ വൈകിയേക്കാം. iPhone ആപ്പിൽ GPS ഉണർത്തലും ഉണ്ട്.', wakeNoArr: 'ഉണർത്തലിന് എത്തിച്ചേരുന്ന സമയം വേണം. സ്റ്റേഷനുകൾ അറിയാമെങ്കിൽ സമയപ്പട്ടിക അത് നൽകും.', addCal: 'കലണ്ടറിൽ ചേർക്കുക',
     safetyT: 'നിങ്ങളുടെ ട്രെയിൻ അല്ല', safetyS: '{date}, നിങ്ങളുടെ ട്രെയിനിന് 2 മണിക്കൂറിനുള്ളിൽ {station}-ലെ ട്രെയിനുകൾ', safetyGeneric: 'നിങ്ങളുടെ സ്റ്റേഷനിലെ സമാന ട്രെയിനുകൾ',
     warnNear: '{no} {name} നിങ്ങളുടെ ദിശയിൽ {time}-ന് {station}-ൽ നിന്ന് പുറപ്പെടും. നിങ്ങളുടെ ട്രെയിൻ {dep}-ന്. കയറുന്നതിനു മുമ്പ് കോച്ചിലെ നമ്പർ നോക്കുക.',
@@ -144,7 +144,7 @@ const I18N = {
     soundsT: 'ശബ്ദങ്ങൾ', soundsS: 'ബോർഡിംഗ് ചൈമും തെറ്റായ ട്രെയിൻ മുന്നറിയിപ്പും. സൈലന്റിലുള്ള iPhone ഇവ നിശബ്ദമാക്കും.', hapticsT: 'ഹാപ്റ്റിക്സ്', hapticsS: 'ടാപ്പുകളും മുന്നറിയിപ്പുകളും.', hapticsDesk: 'കമ്പ്യൂട്ടറിൽ മോട്ടോർ ഇല്ല, പകരം ചെറിയ ക്ലിക്ക് ശബ്ദം കേൾക്കാം.',
     installT: 'ഫോണിൽ ഇൻസ്റ്റാൾ ചെയ്യുക', installS: 'ഹോം സ്ക്രീനിൽ നിന്ന് തുറക്കാം, ഓഫ്‌ലൈനായി പ്രവർത്തിക്കും.', installIos: 'ഈ പേജ് Safari-യിൽ തുറന്ന് Share ടാപ്പ് ചെയ്ത് Add to Home Screen തിരഞ്ഞെടുക്കുക.', installAndroid: 'Chrome മെനു തുറന്ന് Install app ടാപ്പ് ചെയ്യുക.',
     aboutS: 'നിങ്ങളുടെ ടിക്കറ്റുകൾ ഈ ഫോണിൽ മാത്രം, ഒന്നും അപ്‌ലോഡ് ചെയ്യില്ല. TrainGuard-ന് ഇന്ത്യൻ റെയിൽവേയുമായോ IRCTC-യുമായോ ബന്ധമില്ല.', aboutTT: 'സമയപ്പട്ടിക: കമ്മ്യൂണിറ്റി ഫീഡ്, {date}-ലെ പതിപ്പ്. ഇത് പഴയതായിരിക്കാം.',
-    bigTrain: 'ട്രെയിൻ', sunlight: 'വെയിലിൽ', night: 'രാത്രി', saveFail: 'ഈ ഉപകരണത്തിൽ സേവ് ചെയ്യാനായില്ല. പ്രൈവറ്റ് ബ്രൗസിംഗ് തടഞ്ഞേക്കാം.', alarmDenied: 'അലാറത്തിന് അനുമതി വേണം. Settings-ൽ TrainGuard തുറന്ന് ഓണാക്കുക.', locationDenied: 'GPS ഉണർത്തലിന് ലൊക്കേഷൻ അനുമതി വേണം. Settings-ൽ TrainGuard തുറന്ന് ഓണാക്കുക.', signExpires: 'ഈ ആപ്പ് {date}-ന് തുറക്കാതാകും, ഈ യാത്ര കഴിയുന്നതിന് മുമ്പ്. യാത്രയ്ക്ക് മുമ്പ് വീണ്ടും ഇൻസ്റ്റാൾ ചെയ്യുക, അല്ലെങ്കിൽ ടിക്കറ്റ് വെബ് പതിപ്പിലും ചേർക്കുക.'
+    bigTrain: 'ട്രെയിൻ', sunlight: 'വെയിലിൽ', night: 'രാത്രി', saveFail: 'ഈ ഉപകരണത്തിൽ സേവ് ചെയ്യാനായില്ല. പ്രൈവറ്റ് ബ്രൗസിംഗ് തടഞ്ഞേക്കാം.', alarmDenied: 'അലാറത്തിന് അനുമതി വേണം. Settings-ൽ TrainGuard തുറന്ന് ഓണാക്കുക.', locationDenied: 'GPS ഉണർത്തലിന് ലൊക്കേഷൻ അനുമതി Always ആയിരിക്കണം. Settings-ൽ TrainGuard തുറന്ന് മാറ്റുക.', signExpires: 'ഈ ആപ്പ് {date}-ന് തുറക്കാതാകും, ഈ യാത്ര കഴിയുന്നതിന് മുമ്പ്. യാത്രയ്ക്ക് മുമ്പ് വീണ്ടും ഇൻസ്റ്റാൾ ചെയ്യുക, അല്ലെങ്കിൽ ടിക്കറ്റ് വെബ് പതിപ്പിലും ചേർക്കുക.'
   },
   hi: {
     tabPass: 'पास', tabJourney: 'यात्रा', tabSafety: 'सुरक्षा',
@@ -185,7 +185,7 @@ const I18N = {
     noTimeline: 'यह समय-रेखा देखने के लिए प्रस्थान समय और तारीख जोड़ें।', addTimeBtn: 'समय जोड़ें',
     findCoachT: 'कोच {coach} ढूँढें', findCoachS: 'कोचों का क्रम ट्रेन और दिशा के अनुसार बदलता है, इसलिए प्लेटफ़ॉर्म पर कोच डिस्प्ले देखें।',
     insideT: 'कोच के अंदर', insideS: 'बे {bay}। अपर बर्थ सबसे ऊपर है।',
-    alertsT: 'अलर्ट', gpsT: 'GPS से जगाना', gpsS: 'ट्रेन देर से चले तब भी {to} से लगभग 20 किमी पहले बजेगा।', backupT: 'बैकअप अलार्म, {time}', backupNoTime: 'बैकअप अलार्म', backupS: 'समय-सारणी के आगमन से 30 मिनट पहले।',
+    alertsT: 'अलर्ट', gpsT: 'GPS से जगाना', gpsS: 'ट्रेन देर से चले तब भी {to} से लगभग 20 किमी पहले बजेगा। iPhone पूछे तो Always चुनें।', backupT: 'बैकअप अलार्म, {time}', backupNoTime: 'बैकअप अलार्म', backupS: 'समय-सारणी के आगमन से 30 मिनट पहले।',
     wakeWebS: '{to} पहुँचने से 30 मिनट पहले, {time} का कैलेंडर अलर्ट जोड़ें। ट्रेन देर से चल सकती है। iPhone ऐप में GPS से जगाना भी है।', wakeNoArr: 'जगाने के लिए आगमन समय चाहिए। स्टेशन पता होने पर समय-सारणी यह बता देती है।', addCal: 'कैलेंडर में जोड़ें',
     safetyT: 'आपकी ट्रेन नहीं', safetyS: '{date}, आपकी ट्रेन के 2 घंटे के भीतर {station} की ट्रेनें', safetyGeneric: 'आपके स्टेशन की मिलती-जुलती ट्रेनें',
     warnNear: '{no} {name} आपकी ही दिशा में {time} पर {station} से छूटती है। आपकी ट्रेन {dep} पर है। चढ़ने से पहले कोच पर नंबर देखें।',
@@ -217,7 +217,7 @@ const I18N = {
     soundsT: 'ध्वनियाँ', soundsS: 'बोर्डिंग की घंटी और गलत ट्रेन की चेतावनी। साइलेंट iPhone पर ये नहीं बजतीं।', hapticsT: 'हैप्टिक्स', hapticsS: 'टैप और चेतावनियाँ।', hapticsDesk: 'कंप्यूटर में मोटर नहीं होती, इसलिए हल्की क्लिक सुनाई देगी।',
     installT: 'फ़ोन पर इंस्टॉल करें', installS: 'होम स्क्रीन से खुलता है और ऑफ़लाइन चलता है।', installIos: 'यह पेज Safari में खोलें, Share टैप करें, फिर Add to Home Screen चुनें।', installAndroid: 'Chrome मेनू खोलें, फिर Install app टैप करें।',
     aboutS: 'आपके टिकट इसी फ़ोन पर रहते हैं और कुछ अपलोड नहीं होता। TrainGuard का भारतीय रेलवे या IRCTC से कोई संबंध नहीं है।', aboutTT: 'समय-सारणी: सामुदायिक फ़ीड, {date} का संस्करण। यह पुरानी हो सकती है।',
-    bigTrain: 'ट्रेन', sunlight: 'धूप', night: 'रात', saveFail: 'इस डिवाइस पर सेव नहीं हो सका। प्राइवेट ब्राउज़िंग इसे रोक सकती है।', alarmDenied: 'अलार्म के लिए अनुमति चाहिए। Settings में TrainGuard खोलकर चालू करें।', locationDenied: 'GPS से जगाने के लिए लोकेशन की अनुमति चाहिए। Settings में TrainGuard खोलकर चालू करें।', signExpires: 'यह ऐप {date} को खुलना बंद हो जाएगा, इस यात्रा के पूरा होने से पहले। यात्रा से पहले इसे फिर से इंस्टॉल करें, या अपना टिकट वेब वर्शन में भी जोड़ लें।'
+    bigTrain: 'ट्रेन', sunlight: 'धूप', night: 'रात', saveFail: 'इस डिवाइस पर सेव नहीं हो सका। प्राइवेट ब्राउज़िंग इसे रोक सकती है।', alarmDenied: 'अलार्म के लिए अनुमति चाहिए। Settings में TrainGuard खोलकर चालू करें।', locationDenied: 'GPS से जगाने के लिए लोकेशन की अनुमति Always होनी चाहिए। Settings में TrainGuard खोलकर बदलें।', signExpires: 'यह ऐप {date} को खुलना बंद हो जाएगा, इस यात्रा के पूरा होने से पहले। यात्रा से पहले इसे फिर से इंस्टॉल करें, या अपना टिकट वेब वर्शन में भी जोड़ लें।'
   },
   ta: {
     tabPass: 'பாஸ்', tabJourney: 'பயணம்', tabSafety: 'பாதுகாப்பு',
@@ -258,7 +258,7 @@ const I18N = {
     noTimeline: 'இந்த நேரக்கோட்டைக் காண புறப்படும் நேரத்தையும் தேதியையும் சேருங்கள்.', addTimeBtn: 'நேரம் சேர்',
     findCoachT: 'பெட்டி {coach}-ஐக் கண்டறியுங்கள்', findCoachS: 'ரயில் மற்றும் திசைக்கேற்ப பெட்டி வரிசை மாறும், எனவே நடைமேடையில் உள்ள பெட்டிக் காட்சிப் பலகையைப் பாருங்கள்.',
     insideT: 'பெட்டிக்குள்', insideS: 'பகுதி {bay}. மேல் படுக்கைகள் உச்சியில் இருக்கும்.',
-    alertsT: 'எச்சரிக்கைகள்', gpsT: 'GPS எழுப்புதல்', gpsS: 'ரயில் தாமதமானாலும் {to}-க்கு சுமார் 20 கி.மீ. முன் ஒலிக்கும்.', backupT: 'காப்பு அலாரம், {time}', backupNoTime: 'காப்பு அலாரம்', backupS: 'கால அட்டவணை வருகைக்கு 30 நிமிடம் முன்.',
+    alertsT: 'எச்சரிக்கைகள்', gpsT: 'GPS எழுப்புதல்', gpsS: 'ரயில் தாமதமானாலும் {to}-க்கு சுமார் 20 கி.மீ. முன் ஒலிக்கும். iPhone கேட்கும்போது Always-ஐத் தேர்ந்தெடுக்கவும்.', backupT: 'காப்பு அலாரம், {time}', backupNoTime: 'காப்பு அலாரம்', backupS: 'கால அட்டவணை வருகைக்கு 30 நிமிடம் முன்.',
     wakeWebS: '{to} அடைவதற்கு 30 நிமிடம் முன், {time}-க்கு நாட்காட்டி எச்சரிக்கையைச் சேருங்கள். ரயில் தாமதமாகலாம். iPhone செயலியில் GPS எழுப்புதலும் உண்டு.', wakeNoArr: 'எழுப்புதலுக்கு வருகை நேரம் தேவை. நிலையங்கள் தெரிந்தால் கால அட்டவணை அதைத் தரும்.', addCal: 'நாட்காட்டியில் சேர்',
     safetyT: 'உங்கள் ரயில் அல்ல', safetyS: '{date}, உங்கள் ரயிலுக்கு 2 மணி நேரத்திற்குள் {station}-இல் உள்ள ரயில்கள்', safetyGeneric: 'உங்கள் நிலையத்தில் உள்ள ஒத்த ரயில்கள்',
     warnNear: '{no} {name} உங்கள் திசையில் {time}-க்கு {station}-லிருந்து புறப்படும். உங்கள் ரயில் {dep}-க்கு. ஏறுவதற்கு முன் பெட்டியில் உள்ள எண்ணைப் பாருங்கள்.',
@@ -290,7 +290,7 @@ const I18N = {
     soundsT: 'ஒலிகள்', soundsS: 'ஏறும் மணி ஒலி மற்றும் தவறான ரயில் எச்சரிக்கை. அமைதி நிலையில் உள்ள iPhone இவற்றை ஒலிக்காது.', hapticsT: 'ஹாப்டிக்ஸ்', hapticsS: 'தட்டல்களும் எச்சரிக்கைகளும்.', hapticsDesk: 'கணினியில் மோட்டார் இல்லை, எனவே மெல்லிய கிளிக் ஒலி கேட்கும்.',
     installT: 'ஃபோனில் நிறுவுங்கள்', installS: 'முகப்புத் திரையிலிருந்து திறக்கும், ஆஃப்லைனில் செயல்படும்.', installIos: 'இந்தப் பக்கத்தை Safari-இல் திறந்து, Share தட்டி, Add to Home Screen தேர்ந்தெடுங்கள்.', installAndroid: 'Chrome மெனுவைத் திறந்து Install app தட்டுங்கள்.',
     aboutS: 'உங்கள் டிக்கெட்டுகள் இந்த ஃபோனில் மட்டுமே இருக்கும், எதுவும் பதிவேற்றப்படாது. TrainGuard-க்கும் இந்திய ரயில்வே அல்லது IRCTC-க்கும் தொடர்பில்லை.', aboutTT: 'கால அட்டவணை: சமூக ஊட்டம், {date} பதிப்பு. இது பழையதாக இருக்கலாம்.',
-    bigTrain: 'ரயில்', sunlight: 'வெயில்', night: 'இரவு', saveFail: 'இந்தச் சாதனத்தில் சேமிக்க முடியவில்லை. தனிப்பட்ட உலாவல் இதைத் தடுக்கலாம்.', alarmDenied: 'அலாரத்திற்கு அனுமதி தேவை. Settings-இல் TrainGuard-ஐத் திறந்து இயக்குங்கள்.', locationDenied: 'GPS எழுப்புதலுக்கு இருப்பிட அனுமதி தேவை. Settings-இல் TrainGuard-ஐத் திறந்து இயக்குங்கள்.', signExpires: 'இந்த ஆப் {date} அன்று திறக்காது, இந்தப் பயணம் முடியும் முன்பே. பயணத்திற்கு முன் மீண்டும் நிறுவவும், அல்லது டிக்கெட்டை வலைப் பதிப்பிலும் சேர்க்கவும்.'
+    bigTrain: 'ரயில்', sunlight: 'வெயில்', night: 'இரவு', saveFail: 'இந்தச் சாதனத்தில் சேமிக்க முடியவில்லை. தனிப்பட்ட உலாவல் இதைத் தடுக்கலாம்.', alarmDenied: 'அலாரத்திற்கு அனுமதி தேவை. Settings-இல் TrainGuard-ஐத் திறந்து இயக்குங்கள்.', locationDenied: 'GPS எழுப்புதலுக்கு இருப்பிட அனுமதி Always ஆக இருக்க வேண்டும். Settings-இல் TrainGuard-ஐத் திறந்து மாற்றுங்கள்.', signExpires: 'இந்த ஆப் {date} அன்று திறக்காது, இந்தப் பயணம் முடியும் முன்பே. பயணத்திற்கு முன் மீண்டும் நிறுவவும், அல்லது டிக்கெட்டை வலைப் பதிப்பிலும் சேர்க்கவும்.'
   }
 };
 

@@ -74,6 +74,8 @@
 	<string>TrainGuard rings an alarm before your stop, even if your phone is on silent.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>TrainGuard uses your location to wake you before your station, even if the train runs late.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>While you sleep on the train, TrainGuard watches for your station so it can wake you, even if the train runs late. Your location stays on this phone.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>While you sleep on the train, TrainGuard watches for your station so it can wake you, even if the train runs late. Your location stays on this phone.</string>
 	<key>NSCalendarsUsageDescription</key>

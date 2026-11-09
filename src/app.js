@@ -682,7 +682,7 @@ function syncWakeUp() {
   wakeKey = key;
   if (!t) { plugin.cancel().catch(() => {}); return; }
   plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
-    .then(r => { if (state.backup && r?.alarm === false) toast(L('alarmDenied')); else if (state.gps && r?.location === 'denied') toast(L('locationDenied')); })
+    .then(r => { if (state.backup && r?.alarm === false) toast(L('alarmDenied')); else if (state.gps && ['denied', 'whenInUse'].includes(r?.location)) toast(L('locationDenied')); })
     .catch(() => {});
 }
 
@@ -848,6 +848,8 @@ const ACT = {
     b.setAttribute('aria-checked', state[k]); // keeps the thumb's spring; a re-render would make it jump
     if (k === 'sound') { store.set(KEY.sound, state.sound); playRailwayChime(); }
     if (k === 'haptics') { store.set(KEY.haptic, state.haptics); triggerHaptic('success'); }
+    // GPS can be late or held back by iOS, so it never runs without the timed alarm behind it.
+    if (k === 'gps' && state.gps && !state.backup) { state.backup = true; store.set(KEY.backup, true); $('[data-k=backup]')?.setAttribute('aria-checked', true); }
     if (k === 'gps' || k === 'backup') { store.set(KEY[k], state[k]); syncWakeUp(); }
   },
   flip() { state.flipped = !state.flipped; const p = $('#pass3d'); if (p) p.classList.toggle('is-flipped', state.flipped); },
