@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(PhoneCalendarPlugin.class);
         super.onCreate(savedInstanceState);
         // Back closes an open sheet first. Only with nothing open does it leave the app.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

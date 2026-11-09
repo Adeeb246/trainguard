@@ -37,7 +37,9 @@ for (const m of read('sw.js').matchAll(/'\.\/([^']+)'/g)) assert.ok(m[1] === 'in
 // Every native plugin the page calls must exist, or a renamed one would silently switch a feature off
 const swiftDir = path.join(root, 'ios/App/App');
 const swift = fs.readdirSync(swiftDir).filter(f => f.endsWith('.swift')).map(f => fs.readFileSync(path.join(swiftDir, f), 'utf8')).join('\n');
-const native = new Set(['Haptics', 'SystemBars', ...[...swift.matchAll(/jsName = "(\w+)"/g)].map(m => m[1])]); // The first two ship with Capacitor
+const javaDir = path.join(root, 'android/app/src/main/java/com/trainguard/app');
+const java = fs.readdirSync(javaDir).map(f => fs.readFileSync(path.join(javaDir, f), 'utf8')).join('\n');
+const native = new Set(['Haptics', 'SystemBars', ...[...(swift + java).matchAll(/(?:jsName = |@CapacitorPlugin\(name = )"(\w+)"/g)].map(m => m[1])]); // The first two ship with Capacitor
 for (const m of app.matchAll(/\.Plugins\??\.(\w+)/g)) assert.ok(native.has(m[1]), `app.js calls a native plugin that doesn't exist: ${m[1]}`);
 
 console.log('app: all checks passed');

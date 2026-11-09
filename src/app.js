@@ -414,17 +414,32 @@ function buildIcs(ev) {
 function googleUrl(ev) {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${icsDate(ev.start)}/${icsDate(ev.end)}&ctz=Asia/Kolkata&details=${encodeURIComponent(ev.notes)}&location=${encodeURIComponent(ev.location)}`;
 }
+const isSafariTab = () => IOS && /Version\/[\d.]+.*Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPT\//.test(navigator.userAgent) && !navigator.standalone;
 async function addToPhoneCalendar(ev) {
-  const plugin = liveActivityPlugin();
-  if (plugin?.addToCalendar) {
+  const ios = liveActivityPlugin(), android = window.Capacitor?.Plugins?.PhoneCalendar;
+  if (ios?.addToCalendar || android) {
+    const details = { title: ev.title, location: ev.location, notes: ev.notes, startDate: +ev.start, endDate: +ev.end, alarmMinutes: ev.alarms };
+    // The iPhone app saves it straight away. Android opens the calendar app with it filled in.
     try {
-      await plugin.addToCalendar({ title: ev.title, location: ev.location, notes: ev.notes, startDate: +ev.start, endDate: +ev.end, alarmMinutes: ev.alarms });
-      toast(L('calAdded')); return;
-    } catch (e) { /* no permission: fall through to the file */ }
+      if (android) await android.add(details);
+      else { await ios.addToCalendar(details); toast(L('calAdded')); }
+    } catch (e) { toast(L(android ? 'calNoApp' : 'calDenied')); }
+    return;
   }
-  const file = new File([buildIcs(ev)], 'TrainGuard.ics', { type: 'text/calendar' });
+  const ics = buildIcs(ev);
+  // Safari shows its "Add to Calendar" sheet for a calendar file it navigates to, and only saves one it's told to download.
+  // The service worker serves this one from the phone, so the trip never reaches a server.
+  if (isSafariTab() && navigator.serviceWorker?.controller) {
+    try {
+      const cache = await caches.open('trainguard-calendar');
+      await cache.put('./TrainGuard.ics', new Response(ics, { headers: { 'Content-Type': 'text/calendar; charset=utf-8' } }));
+      location.href = './TrainGuard.ics';
+      return;
+    } catch (e) { /* storage blocked: the share sheet below still works */ }
+  }
+  const file = new File([ics], 'TrainGuard.ics', { type: 'text/calendar' });
   try {
-    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: ev.title }); return; }
+    if (matchMedia('(pointer:coarse)').matches && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: ev.title }); return; }
   } catch (e) { if (e.name === 'AbortError') return; }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(file); a.download = 'TrainGuard.ics';
@@ -525,9 +540,10 @@ function sheetHTML() {
   if (s === 'calendar' && t) {
     if (!t.departureDate) return frame(L('calT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('calNeedsTime'))}</span></div>${t.time ? '' : `<button class="btn primary" data-act="editTime">${esc(L('addTimeBtn'))}</button>`}`);
     const wake = wakeAt(t);
-    const buttons = kind => `${window.Capacitor?.getPlatform?.() === 'android' ? '' : `<button class="btn ghost" data-act="calPhone" data-k="${kind}">${esc(L('calPhone'))}</button>`}<a class="btn ghost" href="${esc(googleUrl(calEvent(t, kind)))}" target="_blank" rel="noopener">${esc(L('calGoogle'))}</a>`;
+    const phone = isNative() || matchMedia('(pointer:coarse)').matches ? 'calPhone' : 'calFile';
+    const buttons = kind => `<button class="btn ghost" data-act="calPhone" data-k="${kind}">${esc(L(phone))}</button><a class="btn ghost" href="${esc(googleUrl(calEvent(t, kind)))}" target="_blank" rel="noopener">${esc(L('calGoogle'))}</a>`;
     return frame(L('calT'), `<div class="group"><p class="gtitle">${esc(L('calJourneyT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calJourneyS'))}</p>${buttons('trip')}</div>
-      ${wake ? `<div class="group"><p class="gtitle">${esc(L('calWakeT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calWakeS', { time: atTime(wake), to: t.toName }))}</p>${buttons('wake')}</div>` : ''}`);
+      ${wake ? `<div class="group"><p class="gtitle">${esc(L('calWakeT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calWakeS', { time: atTime(wake), to: t.toName }))}</p>${buttons('wake')}</div>` : ''}<p class="fhelp">${esc(L('calAlertNote'))}</p>`);
   }
   if (s === 'settings') {
     const standalone = matchMedia('(display-mode:standalone)').matches || navigator.standalone || isNative();
