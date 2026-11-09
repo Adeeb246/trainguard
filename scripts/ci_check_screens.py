@@ -1,12 +1,14 @@
-"""CI only: fails if simulator or emulator screenshots are blank, or if switching tabs didn't change the screen."""
+"""CI only: fails if simulator or emulator screenshots are blank, or if the tab switches never changed the screen.
+
+Screenshots are taken about every 10 seconds, so this doesn't depend on exactly when each tab switch lands.
+"""
 import pathlib
 import sys
 from PIL import Image, ImageChops
 
-# The three tabs. A fourth screenshot of the Dynamic Island is only there for people to look at.
-shots = sorted(pathlib.Path(sys.argv[1]).glob('*.png'))[:3]
+shots = sorted(pathlib.Path(sys.argv[1]).glob('[0-9]*.png'))
 if len(shots) < 3:
-    print(f'::error::Expected 3 screenshots, found {len(shots)}')
+    print(f'::error::Expected a series of screenshots, found {len(shots)}')
     sys.exit(1)
 images = [Image.open(s).convert('RGB').resize((200, 433)) for s in shots]
 colours = [len(i.getcolors(100000) or []) for i in images]
@@ -18,11 +20,12 @@ def share_changed(a, b):
     return diff.histogram()[255] / (diff.width * diff.height)
 
 
-changed = [share_changed(a, b) for a, b in zip(images, images[1:])]
-print(f'::notice::{len(shots)} screens, distinct colours {colours}, share changed between tabs {[round(c, 3) for c in changed]}')
-if any(c < 50 for c in colours):
-    print('::error::At least one screen is blank')
+changed = [round(share_changed(a, b), 3) for a, b in zip(images, images[1:])]
+switches = sum(c >= 0.03 for c in changed)
+print(f'::notice::{len(shots)} screenshots, {switches} screen changes, last one has {colours[-1]} colours, share changed {changed}')
+if colours[-1] < 50:
+    print('::error::The last screen is blank')
     sys.exit(1)
-if any(c < 0.03 for c in changed):
-    print('::error::Switching tabs did not change the screen')
+if switches < 2:
+    print('::error::The screen did not change when the tabs were switched')
     sys.exit(1)
