@@ -36,7 +36,7 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon > build.log 2>&1 || {
-            grep -E -A4 "error:|What went wrong" build.log | head -n 30 | sed 's/^/::error::/'
+            grep -E -A4 "error:|What went wrong|Exception in thread" build.log | head -n 30 | sed 's/^/::error::/'
             tail -n 20 build.log
             exit 1
           }
