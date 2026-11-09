@@ -664,12 +664,12 @@ function syncLiveActivity() {
   const code = t?.status?.code, mins = t?.departureDate ? Math.round((+t.departureDate - Date.now()) / 60000) : null;
   // ActivityKit keeps an activity for about 8 hours, so start it once the journey is that close.
   const on = t && mins > 0 && mins <= 480 && code !== 'WL' && code !== 'CAN' && !t.isShared;
-  const key = on ? [t.id, t.platform, +t.departureDate].join('|') : 'off';
+  const key = on ? [t.id, t.platform, +t.departureDate, state.lang].join('|') : 'off';
   if (key === liveKey) return;
   liveKey = key;
   if (!on) { plugin.stopActivity?.().catch(() => {}); return; }
   const p = t.passengers[0] || {};
-  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), etaMinutes: mins, hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '' }).catch(() => {});
+  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), etaMinutes: mins, hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) }).catch(() => {});
 }
 function wakePlugin() { return isIOSNative() ? window.Capacitor.Plugins?.WakeUp || null : null; }
 let wakeKey = null;
@@ -677,11 +677,11 @@ function syncWakeUp() {
   const plugin = wakePlugin();
   if (!plugin) return;
   const t = state.gps || state.backup ? tripLists().upcoming.find(x => x.arrivalDate && !['WL', 'CAN'].includes(x.status?.code)) : null;
-  const key = t ? [t.id, +t.arrivalDate, state.gps, state.backup].join('|') : 'off';
+  const key = t ? [t.id, +t.arrivalDate, state.gps, state.backup, state.lang].join('|') : 'off';
   if (key === wakeKey) return;
   wakeKey = key;
   if (!t) { plugin.cancel().catch(() => {}); return; }
-  plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
+  plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), stopLabel: L('alarmStop'), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
     .then(r => { if (state.backup && r?.alarm === false) toast(L('alarmDenied')); else if (state.gps && ['denied', 'whenInUse'].includes(r?.location)) toast(L('locationDenied')); })
     .catch(() => {});
 }

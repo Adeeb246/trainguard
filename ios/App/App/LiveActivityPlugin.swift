@@ -34,7 +34,11 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
             trainNumber: trainNumber,
             trainName: call.getString("trainName") ?? "",
             coach: call.getString("coach") ?? "—",
-            seat: call.getString("seat") ?? "—"
+            seat: call.getString("seat") ?? "—",
+            coachLabel: call.getString("coachLabel") ?? "Coach",
+            berthLabel: call.getString("berthLabel") ?? "Berth",
+            leavesLabel: call.getString("leavesLabel") ?? "Leaves",
+            checkCoach: call.getString("checkCoach") ?? "Check the number on the coach"
         )
         let state = TrainGuardAttributes.ContentState(
             platform: call.getString("platform") ?? "PF ?",

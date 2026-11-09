@@ -24,7 +24,7 @@ struct TrainGuardIslandWidget: Widget {
                                 .font(.system(size: 15, weight: .bold))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
-                            Text("Coach \(context.attributes.coach) • Berth \(cleanSeat(context.attributes.seat))")
+                            Text("\(context.attributes.coachLabel) \(context.attributes.coach) • \(context.attributes.berthLabel) \(cleanSeat(context.attributes.seat))")
                                 .font(.system(size: 12, weight: .medium, design: .monospaced))
                                 .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
@@ -43,7 +43,7 @@ struct TrainGuardIslandWidget: Widget {
                             Circle()
                                 .fill(Color(red: 0.29, green: 0.87, blue: 0.50))
                                 .frame(width: 5, height: 5)
-                            Text(context.state.countdownDate, style: .timer)
+                            Text(timerInterval: min(Date(), context.state.countdownDate)...context.state.countdownDate, countsDown: true)
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                                 .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
@@ -111,7 +111,7 @@ struct TrainGuardIslandWidget: Widget {
                             Circle()
                                 .fill(Color(red: 0.29, green: 0.87, blue: 0.50))
                                 .frame(width: 5, height: 5)
-                            Text(context.state.countdownDate, style: .timer)
+                            Text(timerInterval: min(Date(), context.state.countdownDate)...context.state.countdownDate, countsDown: true)
                                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                                 .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                         }
@@ -128,7 +128,7 @@ struct TrainGuardIslandWidget: Widget {
                         HStack(spacing: 6) {
                             // Column 1: Coach
                             VStack(spacing: 1) {
-                                Text("COACH")
+                                Text(context.attributes.coachLabel.uppercased())
                                     .font(.system(size: 9, weight: .semibold, design: .monospaced))
                                     .foregroundColor(.white.opacity(0.55))
                                 Text(context.attributes.coach)
@@ -142,7 +142,7 @@ struct TrainGuardIslandWidget: Widget {
 
                             // Column 2: Berth
                             VStack(spacing: 1) {
-                                Text("BERTH")
+                                Text(context.attributes.berthLabel.uppercased())
                                     .font(.system(size: 9, weight: .semibold, design: .monospaced))
                                     .foregroundColor(.white.opacity(0.55))
                                 Text(cleanSeat(context.attributes.seat))
@@ -156,7 +156,7 @@ struct TrainGuardIslandWidget: Widget {
 
                             // Column 3: Dep Time
                             VStack(spacing: 1) {
-                                Text("DEP TIME")
+                                Text(context.attributes.leavesLabel.uppercased())
                                     .font(.system(size: 9, weight: .semibold, design: .monospaced))
                                     .foregroundColor(.white.opacity(0.55))
                                 Text(context.state.departureTime)
@@ -190,7 +190,7 @@ struct TrainGuardIslandWidget: Widget {
                                 Image(systemName: "eye.fill")
                                     .foregroundColor(Color(red: 0.29, green: 0.87, blue: 0.50))
                                     .font(.system(size: 10))
-                                Text("Check the number on the coach")
+                                Text(context.attributes.checkCoach)
                                     .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(.white.opacity(0.65))
                                 Spacer()

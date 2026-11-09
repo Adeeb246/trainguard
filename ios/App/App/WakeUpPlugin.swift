@@ -14,7 +14,7 @@ struct WakeUpAlarmMetadata: AlarmMetadata {}
 /// A real alarm: AlarmKit rings through silent mode and Focus, which a notification can't do.
 @available(iOS 26.0, *)
 enum WakeUpAlarm {
-    static func schedule(title: String, at date: Date) async throws -> UUID {
+    static func schedule(title: String, stopLabel: String, at date: Date) async throws -> UUID {
         let manager = AlarmManager.shared
         guard try await manager.requestAuthorization() == .authorized else {
             throw CocoaError(.userCancelled)
@@ -22,7 +22,7 @@ enum WakeUpAlarm {
         let emerald = Color(red: 0.29, green: 0.87, blue: 0.50)
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
-            stopButton: AlarmButton(text: "Stop", textColor: emerald, systemImageName: "stop.circle"),
+            stopButton: AlarmButton(text: LocalizedStringResource(stringLiteral: stopLabel), textColor: emerald, systemImageName: "stop.circle"),
             secondaryButton: nil,
             secondaryButtonBehavior: nil
         )
@@ -54,6 +54,7 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
 
     struct Plan {
         let title: String
+        let stopLabel: String
         let gps: Bool
         let latitude: Double
         let longitude: Double
@@ -64,6 +65,7 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
 
     private enum Key {
         static let title = "wake.title"
+        static let stopLabel = "wake.stopLabel"
         static let notBefore = "wake.notBefore"
         static let expires = "wake.expires"
         static let backupAlarm = "wake.backupAlarm"
@@ -95,6 +97,7 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
     func schedule(_ plan: Plan) async -> [String: Any] {
         await cancel()
         store.set(plan.title, forKey: Key.title)
+        store.set(plan.stopLabel, forKey: Key.stopLabel)
         store.set(plan.notBefore, forKey: Key.notBefore)
         store.set(plan.expires, forKey: Key.expires)
         var alarmSet = true
@@ -176,7 +179,7 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
     private func ring(title: String, at date: Date, isBackup: Bool) async -> Bool {
         #if canImport(AlarmKit)
         if #available(iOS 26.0, *) {
-            if let id = try? await WakeUpAlarm.schedule(title: title, at: date) {
+            if let id = try? await WakeUpAlarm.schedule(title: title, stopLabel: store.string(forKey: Key.stopLabel) ?? "Stop", at: date) {
                 if isBackup { store.set(id.uuidString, forKey: Key.backupAlarm) }
                 return true
             }
@@ -223,6 +226,7 @@ public class WakeUpPlugin: CAPPlugin, CAPBridgedPlugin {
         let backup = call.getBool("backup") ?? false
         let plan = WakeUpManager.Plan(
             title: title,
+            stopLabel: call.getString("stopLabel") ?? "Stop",
             gps: call.getBool("gps") ?? false,
             latitude: call.getDouble("latitude") ?? 0,
             longitude: call.getDouble("longitude") ?? 0,

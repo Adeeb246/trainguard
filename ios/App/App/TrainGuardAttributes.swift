@@ -23,12 +23,20 @@ public struct TrainGuardAttributes: ActivityAttributes {
     public var trainName: String
     public var coach: String
     public var seat: String
+    public var coachLabel: String
+    public var berthLabel: String
+    public var leavesLabel: String
+    public var checkCoach: String
 
-    public init(trainNumber: String, trainName: String, coach: String, seat: String) {
+    public init(trainNumber: String, trainName: String, coach: String, seat: String, coachLabel: String, berthLabel: String, leavesLabel: String, checkCoach: String) {
         self.trainNumber = trainNumber
         self.trainName = trainName
         self.coach = coach
         self.seat = seat
+        self.coachLabel = coachLabel
+        self.berthLabel = berthLabel
+        self.leavesLabel = leavesLabel
+        self.checkCoach = checkCoach
     }
 }
 
