@@ -19,7 +19,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -65,7 +65,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
@@ -93,16 +93,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: false
-          script: |
-            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -n com.trainguard.app/.MainActivity
-            mkdir -p shots
-            sleep 20
-            adb exec-out screencap -p > shots/1-pass.png
-            sleep 20
-            adb exec-out screencap -p > shots/2-journey.png
-            sleep 20
-            adb exec-out screencap -p > shots/3-safety.png
+          script: sh scripts/ci_android_screens.sh
 
       - name: Check the screens aren't blank
         run: |
