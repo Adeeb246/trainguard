@@ -87,7 +87,9 @@ const I18N = {
     posLate: 'Running about {d} late', posOnTime: 'Running on time', posEarly: 'Ahead of the timetable', posReach: 'Reaching {station} around {time}',
     posNote: "An estimate from your phone's location and the timetable. Nothing leaves your phone.",
     ntesBtn: 'Official live status', pnrBtn: 'PNR status', noCopied: 'Train number {no} copied. Paste it on the page.', pnrCopied: 'PNR copied. Paste it on the page.',
-    privacyT: 'Privacy policy', privacyS: 'What TrainGuard keeps, and what never leaves your phone.'
+    privacyT: 'Privacy policy', privacyS: 'What TrainGuard keeps, and what never leaves your phone.',
+    testAlarmT: 'Test the wake-up alarm', testAlarmS: 'Rings in 10 seconds, so you can check it works and is loud enough. You can lock your phone.',
+    testAlarmTitle: 'TrainGuard test alarm', testAlarmSet: 'Test alarm set. It rings in 10 seconds.'
   },
   ml: {
     tabPass: 'പാസ്', tabJourney: 'യാത്ര', tabSafety: 'സുരക്ഷ',
@@ -176,7 +178,9 @@ const I18N = {
     posLate: 'ഏകദേശം {d} വൈകി ഓടുന്നു', posOnTime: 'കൃത്യസമയത്ത് ഓടുന്നു', posEarly: 'സമയപ്പട്ടികയെക്കാൾ മുന്നിൽ', posReach: '{station} ഏകദേശം {time}-ന് എത്തും',
     posNote: 'ഫോണിന്റെ ലൊക്കേഷനും സമയപ്പട്ടികയും വെച്ചുള്ള ഏകദേശ കണക്ക്. ഒന്നും ഫോണിൽ നിന്ന് പുറത്തുപോകില്ല.',
     ntesBtn: 'ഔദ്യോഗിക തത്സമയ നില', pnrBtn: 'PNR നില', noCopied: 'ട്രെയിൻ നമ്പർ {no} പകർത്തി. പേജിൽ ഒട്ടിക്കുക.', pnrCopied: 'PNR പകർത്തി. പേജിൽ ഒട്ടിക്കുക.',
-    privacyT: 'സ്വകാര്യതാ നയം', privacyS: 'TrainGuard എന്ത് സൂക്ഷിക്കുന്നു, എന്ത് ഒരിക്കലും ഫോൺ വിട്ടുപോകില്ല.'
+    privacyT: 'സ്വകാര്യതാ നയം', privacyS: 'TrainGuard എന്ത് സൂക്ഷിക്കുന്നു, എന്ത് ഒരിക്കലും ഫോൺ വിട്ടുപോകില്ല.',
+    testAlarmT: 'ഉണർത്തൽ അലാറം പരീക്ഷിക്കുക', testAlarmS: '10 സെക്കൻഡിൽ മുഴങ്ങും, അത് പ്രവർത്തിക്കുന്നുണ്ടോ, ശബ്ദം മതിയോ എന്ന് പരിശോധിക്കാം. ഫോൺ ലോക്ക് ചെയ്യാം.',
+    testAlarmTitle: 'TrainGuard പരീക്ഷണ അലാറം', testAlarmSet: 'പരീക്ഷണ അലാറം സെറ്റ് ചെയ്തു. 10 സെക്കൻഡിൽ മുഴങ്ങും.'
   },
   hi: {
     tabPass: 'पास', tabJourney: 'यात्रा', tabSafety: 'सुरक्षा',
@@ -265,7 +269,9 @@ const I18N = {
     posLate: 'लगभग {d} देर से चल रही है', posOnTime: 'समय पर चल रही है', posEarly: 'समय-सारणी से आगे', posReach: '{station} लगभग {time} तक पहुँचेगी',
     posNote: 'फ़ोन की लोकेशन और समय-सारणी से अनुमान। कुछ भी फ़ोन से बाहर नहीं जाता।',
     ntesBtn: 'आधिकारिक लाइव स्थिति', pnrBtn: 'PNR स्थिति', noCopied: 'ट्रेन नंबर {no} कॉपी हुआ। पेज पर पेस्ट करें।', pnrCopied: 'PNR कॉपी हुआ। पेज पर पेस्ट करें।',
-    privacyT: 'गोपनीयता नीति', privacyS: 'TrainGuard क्या रखता है, और क्या कभी आपके फ़ोन से बाहर नहीं जाता।'
+    privacyT: 'गोपनीयता नीति', privacyS: 'TrainGuard क्या रखता है, और क्या कभी आपके फ़ोन से बाहर नहीं जाता।',
+    testAlarmT: 'जगाने वाला अलार्म जाँचें', testAlarmS: '10 सेकंड में बजेगा, ताकि आप देख सकें कि यह काम करता है और आवाज़ काफ़ी है। आप फ़ोन लॉक कर सकते हैं।',
+    testAlarmTitle: 'TrainGuard टेस्ट अलार्म', testAlarmSet: 'टेस्ट अलार्म सेट हो गया। 10 सेकंड में बजेगा।'
   },
   ta: {
     tabPass: 'பாஸ்', tabJourney: 'பயணம்', tabSafety: 'பாதுகாப்பு',
@@ -354,7 +360,9 @@ const I18N = {
     posLate: 'சுமார் {d} தாமதமாக ஓடுகிறது', posOnTime: 'சரியான நேரத்தில் ஓடுகிறது', posEarly: 'கால அட்டவணையை விட முன்னால்', posReach: '{station} சுமார் {time}-க்கு அடையும்',
     posNote: 'ஃபோனின் இருப்பிடம் மற்றும் கால அட்டவணையிலிருந்து ஒரு மதிப்பீடு. எதுவும் ஃபோனை விட்டு வெளியே போகாது.',
     ntesBtn: 'அதிகாரப்பூர்வ நேரடி நிலை', pnrBtn: 'PNR நிலை', noCopied: 'ரயில் எண் {no} நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.', pnrCopied: 'PNR நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.',
-    privacyT: 'தனியுரிமைக் கொள்கை', privacyS: 'TrainGuard எதைச் சேமிக்கிறது, எது ஒருபோதும் உங்கள் ஃபோனை விட்டு வெளியேறாது.'
+    privacyT: 'தனியுரிமைக் கொள்கை', privacyS: 'TrainGuard எதைச் சேமிக்கிறது, எது ஒருபோதும் உங்கள் ஃபோனை விட்டு வெளியேறாது.',
+    testAlarmT: 'எழுப்பும் அலாரத்தைச் சோதி', testAlarmS: '10 விநாடிகளில் ஒலிக்கும், அது செயல்படுகிறதா, சத்தம் போதுமா என்று சரிபார்க்கலாம். ஃபோனைப் பூட்டலாம்.',
+    testAlarmTitle: 'TrainGuard சோதனை அலாரம்', testAlarmSet: 'சோதனை அலாரம் அமைக்கப்பட்டது. 10 விநாடிகளில் ஒலிக்கும்.'
   }
 };
 

@@ -18,6 +18,11 @@ SMS = 'PNR:1234567890,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,DP:20:55,Boarding at CAN
 WL = 'PNR:1234567892,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,DP:20:55,Boarding at CAN only,\nANU MENON,WL 12,\nFare:485\n-IRCTC'
 OTP = 'Your OTP is 12345 for login. Do not share.'
 W, H = 744, 724  # Fits a 1536x864 screen with the browser's own bars
+# Halfway between Kannur and the Malabar's next stop, for Where is my train
+TT = json.load(open(REPO / 'data' / 'timetable.json', encoding='utf-8'))
+_flat = TT['tr']['16630'][4]; _ci = next(i for i in range(0, len(_flat), 3) if TT['st'][_flat[i]][0] == 'CAN')
+_a, _b = TT['st'][_flat[_ci]], TT['st'][_flat[_ci + 3]]
+MID, HALF = ((_a[2] + _b[2]) / 2, (_a[3] + _b[3]) / 2), (_flat[_ci + 4] - _flat[_ci + 2]) / 2
 STAGE = """<!doctype html><html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:#0b0c0b;color:#f5f5f5;font:15px/1.35 -apple-system,'Segoe UI',Roboto,sans-serif;overflow:hidden}
 body{display:flex}.phone{width:334px;height:724px;overflow:hidden;flex:none;background:#111}iframe{width:393px;height:852px;border:0;background:#111;transform:scale(.85);transform-origin:0 0}
@@ -116,6 +121,48 @@ try:
             must('16603' in t and 'Not your train' in t, 'no list')
             shot('safety')
         check('Safety tab lists every train you could mistake', safety, 900)
+
+        def find_trains():
+            tap('#tab-trains', 700)
+            must(app.locator('#qFrom').input_value() == 'Kannur (CAN)', 'did not start from your route')
+            app.locator('#qDate').fill('2026-11-16'); page.wait_for_timeout(300)
+            tap('[data-act="findTrains"]', 1000)
+            t = text('.view.on')
+            must('16630' in t and 'Malabar Express' in t, 'no trains listed')
+            shot('find')
+        check('Trains tab: every train from Kannur to Kazhakuttam', find_trains, 900)
+
+        def schedule():
+            tap('.view.on button.t[data-v="16630"]', 900)
+            must('Runs daily' in text('#sheet'), 'no schedule')
+            app.locator('#sheet .sbody').first.evaluate('e => e.scrollTo({top: 700, behavior: "smooth"})'); page.wait_for_timeout(1100)
+            tap('#sheet .xbtn', 500)
+        check('Tapping a train shows every stop, yours marked', schedule, 300)
+
+        def suggests():
+            # The usual spelling, although the timetable says Kozhikkode
+            app.locator('#qFrom').fill(''); app.locator('#qFrom').press_sequentially('kozhikode', delay=110); page.wait_for_timeout(500)
+            must(app.locator('#sg-from button').count() > 0, 'no suggestions')
+            must(app.locator('#sg-from button').first.get_attribute('data-v') == 'CLT', 'Kozhikode not suggested')
+            tap('#sg-from button', 500)
+            tap('[data-act="findTrains"]', 1000)
+            must('Trains on' in text('.view.on'), 'no results')
+        check('Suggests stations as you type, in the usual spelling', suggests, 900)
+
+        def where():
+            # Halfway to the next stop, 15 minutes after the train should have been there
+            ctx.grant_permissions(['geolocation'])
+            ctx.set_geolocation({'latitude': MID[0], 'longitude': MID[1], 'accuracy': 30})
+            ctx.clock.set_fixed_time(datetime.datetime(2026, 11, 16, 20, 55, tzinfo=IST) + datetime.timedelta(minutes=HALF + 15))
+            page.frames[1].evaluate("document.dispatchEvent(new Event('visibilitychange'))")
+            tap('#tab-journey', 900)
+            tap('#liveCard [data-act="liveStart"]', 1400)
+            t = text('#liveCard')
+            must('Running about 15m late' in t and 'Reaching Kazhakuttam around 7:40 AM' in t, 'no live estimate')
+            shot('where')
+            ctx.clock.set_fixed_time(datetime.datetime(2026, 11, 16, 14, 10, tzinfo=IST))
+            page.frames[1].evaluate("document.dispatchEvent(new Event('visibilitychange'))")
+        check('Where is my train: position, delay and new arrival, from GPS', where, 1800)
 
         def waitlist():
             tap('.dock [data-act="add"]', 700)

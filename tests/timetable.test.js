@@ -75,6 +75,11 @@ assert.strictEqual(ttFindStations(tt, 'Kannur')[0].code, 'CAN', 'Kannur before K
 assert.strictEqual(ttFindStations(tt, 'can')[0].code, 'CAN');
 assert.ok(ttFindStations(tt, 'kazha').some(s => s.code === 'KZK'));
 assert.deepStrictEqual(ttFindStations(tt, '  '), []);
+// The names people actually type, against the timetable's own spellings
+for (const [typed, code] of [['Kozhikode', 'CLT'], ['Calicut', 'CLT'], ['Trivandrum', 'TVC'], ['Thrissur', 'TCR'], ['Bangalore', 'SBC'], ['Chennai Central', 'MAS'], ['Mumbai CST', 'CSMT'], ['Cochin', 'ERS'], ['Kolkata', 'HWH']]) {
+  assert.strictEqual(ttFindStations(tt, typed)[0]?.code, code, `"${typed}" should find ${code}, got ${JSON.stringify(ttFindStations(tt, typed, 3))}`);
+}
+assert.strictEqual(ttFindStations(tt, 'Chennai Egmore')[0].code, 'MS', 'a real name still beats a city alias');
 
 // Trains between two stations on a day, the way people plan a trip
 const between = ttBetween(tt, 'CAN', 'KZK', '2026-11-16');

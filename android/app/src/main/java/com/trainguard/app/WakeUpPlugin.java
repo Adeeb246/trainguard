@@ -53,4 +53,28 @@ public class WakeUpPlugin extends Plugin {
         WakeUpReceiver.cancel(getContext());
         call.resolve();
     }
+
+    /** Rings once a few seconds from now, without touching the trip's own alarm, so people can check it works. */
+    @PluginMethod
+    public void test(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 33 && getPermissionState("notifications") != PermissionState.GRANTED) {
+            requestPermissionForAlias("notifications", call, "afterTestPermission");
+            return;
+        }
+        ringTest(call);
+    }
+
+    @PermissionCallback
+    private void afterTestPermission(PluginCall call) {
+        ringTest(call);
+    }
+
+    private void ringTest(PluginCall call) {
+        long at = System.currentTimeMillis() + Math.max(3, call.getInt("seconds", 10)) * 1000L;
+        boolean set = NotificationManagerCompat.from(getContext()).areNotificationsEnabled()
+            && WakeUpReceiver.test(getContext(), at, call.getString("title", "TrainGuard test alarm"), call.getString("stopLabel", "Stop"));
+        JSObject result = new JSObject();
+        result.put("alarm", set);
+        call.resolve(result);
+    }
 }

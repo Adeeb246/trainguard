@@ -231,6 +231,8 @@ with sync_playwright() as p:
     ok('The Trains tab opens the search', 'Find trains' in text(pg) and pg.locator('#qFrom').count() == 1)
     pg.locator('#qFrom').fill('kann'); pg.wait_for_timeout(150)
     ok('Typing suggests the busy Kannur first', pg.locator('#sg-from button').first.inner_text().startswith('Kannur'), pg.locator('#sg-from').inner_text()[:80])
+    pg.locator('#qTo').fill('calicut'); pg.wait_for_timeout(150)
+    ok('Old and common names find the station too', pg.locator('#sg-to button').first.get_attribute('data-v') == 'CLT', pg.locator('#sg-to').inner_text()[:80])
     tap(pg, '#sg-from button'); pg.locator('#qTo').fill('kazhak'); pg.wait_for_timeout(150); tap(pg, '#sg-to button')
     pg.locator('#qDate').fill('2026-11-16'); tap(pg, '[data-act="findTrains"]'); pg.wait_for_timeout(300); t = text(pg)
     ok('Search lists that day\'s trains, Malabar included', all(s in t for s in ['Trains on', '16630', 'Malabar Express', 'Reaches Kazhakuttam 7:25 AM +1']), t[:300])

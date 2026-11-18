@@ -112,6 +112,17 @@ final class WakeUpManager: NSObject, CLLocationManagerDelegate {
         return ["alarm": alarmSet, "location": status]
     }
 
+    /// Rings once a few seconds from now, without touching the trip's own alarm, so people can check it works and is loud enough.
+    func test(title: String, stopLabel: String, seconds: Double) async -> Bool {
+        let date = Date().addingTimeInterval(max(3, seconds))
+        #if canImport(AlarmKit)
+        if #available(iOS 26.0, *) {
+            if (try? await WakeUpAlarm.schedule(title: title, stopLabel: stopLabel, at: date)) != nil { return true }
+        }
+        #endif
+        return await notify(title: title, at: date, identifier: "trainguard.wake.test")
+    }
+
     func cancel() async {
         await MainActor.run {
             pendingRegion = nil
@@ -215,7 +226,8 @@ public class WakeUpPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "WakeUp"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "schedule", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "cancel", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "cancel", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "test", returnType: CAPPluginReturnPromise)
     ]
 
     @objc func schedule(_ call: CAPPluginCall) {
@@ -243,6 +255,15 @@ public class WakeUpPlugin: CAPPlugin, CAPBridgedPlugin {
         Task {
             await WakeUpManager.shared.cancel()
             call.resolve()
+        }
+    }
+
+    @objc func test(_ call: CAPPluginCall) {
+        let title = call.getString("title") ?? "TrainGuard test alarm"
+        let stopLabel = call.getString("stopLabel") ?? "Stop"
+        let seconds = call.getDouble("seconds") ?? 10
+        Task {
+            call.resolve(["alarm": await WakeUpManager.shared.test(title: title, stopLabel: stopLabel, seconds: seconds)])
         }
     }
 }

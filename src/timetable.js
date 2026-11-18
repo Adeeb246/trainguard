@@ -118,18 +118,36 @@ function ttTrainsNear(tt, ticket) {
   return { way, other, nearest };
 }
 
-/** Stations matching typed text: exact code first, then names starting with it, then names containing it. Busier stations rank higher. */
+// Names people type that the timetable spells differently: old names, new names and its own official ones.
+const TT_ALIASES = {
+  CALICUT: 'CLT', TRIVANDRUM: 'TVC', COCHIN: 'ERS', KOCHI: 'ERS', ALLEPPEY: 'ALLP', QUILON: 'QLN', TRICHUR: 'TCR', PALGHAT: 'PGT',
+  CANNANORE: 'CAN', TELLICHERRY: 'TLY', BADAGARA: 'BDJ', MANGALURU: 'MAQ', BANGALORE: 'SBC', BENGALURU: 'SBC', MYSURU: 'MYS',
+  CHENNAI: 'MAS', 'CHENNAI CENTRAL': 'MAS', MADRAS: 'MAS', MUMBAI: 'CSMT', 'MUMBAI CST': 'CSMT', BOMBAY: 'CSMT', CALCUTTA: 'HWH', KOLKATA: 'HWH', BARODA: 'BRC',
+  BENARES: 'BSB', BANARAS: 'BSB', TRICHY: 'TPJ', TIRUCHIRAPPALLI: 'TPJ', POONA: 'PUNE', VIZAG: 'VSKP'
+};
+// Letters only, with doubled letters made single, so "Kozhikode" finds the timetable's "Kozhikkode".
+const ttLoose = s => String(s).toUpperCase().replace(/[^A-Z]/g, '').replace(/(.)\1+/g, '$1');
+
+/** Stations matching typed text, best first. Busier stations rank higher within each kind of match. */
 function ttFindStations(tt, text, limit = 6) {
-  const q = String(text || '').trim().toUpperCase();
+  const q = String(text || '').trim().toUpperCase(), lq = ttLoose(q);
   if (!q) return [];
   if (!tt.calls) {
     tt.calls = new Uint16Array(tt.st.length);
     for (const no in tt.tr) { const flat = tt.tr[no][4]; for (let i = 0; i < flat.length; i += 3) tt.calls[flat[i]]++; }
+    tt.loose = tt.st.map(s => ttLoose(s[1]));
+  }
+  // A common name typed in full ("chennai"), its start ("trivan"), or it plus more words ("mumbai central").
+  const aliasExact = new Set(), aliasStart = new Set(), aliasWhole = new Set();
+  if (lq.length >= 3) for (const [k, code] of Object.entries(TT_ALIASES)) {
+    const lk = ttLoose(k);
+    if (lk === lq) aliasExact.add(code); else if (lk.startsWith(lq)) aliasStart.add(code); else if (lq.startsWith(lk)) aliasWhole.add(code);
   }
   const out = [];
   tt.st.forEach((s, i) => {
     const name = s[1].toUpperCase();
-    const rank = s[0] === q ? 0 : name.startsWith(q) ? 1 : s[0].startsWith(q) ? 2 : name.includes(q) ? 3 : -1;
+    const rank = s[0] === q || name === q || aliasExact.has(s[0]) ? 0 : name.startsWith(q) || aliasStart.has(s[0]) ? 1 : s[0].startsWith(q) || aliasWhole.has(s[0]) ? 2
+      : name.includes(q) ? 3 : lq.length >= 3 && tt.loose[i].includes(lq) ? 4 : -1;
     if (rank !== -1) out.push({ rank, calls: tt.calls[i], code: s[0], name: s[1] });
   });
   return out.sort((a, b) => a.rank - b.rank || b.calls - a.calls).slice(0, limit).map(({ code, name }) => ({ code, name }));

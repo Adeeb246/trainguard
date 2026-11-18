@@ -295,6 +295,9 @@ details.also .tlist{margin-top:8px}
 .fhelp{font-size:13px;color:var(--ink-2);line-height:1.35;margin:6px 0 0}
 .gtitle{margin:0 0 2px;font-size:15px;font-weight:700}
 .field{display:block;width:100%;padding:11px 12px;border:1px solid var(--hair-2);border-radius:12px;background:var(--pass);font-size:16px;color:var(--ink);box-sizing:border-box;min-height:44px}
+/* iPhone Safari gives date and time boxes its own minimum width and centred text, which pushed them past the card's edge. */
+.field[type=date],.field[type=time]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;line-height:normal;text-align:left}
+.field::-webkit-date-and-time-value{text-align:left;margin:0}
 textarea.field{font:500 16px/1.4 var(--mono);min-height:112px;resize:none}
 .ferr{display:flex;gap:6px;margin-top:6px;color:var(--danger-text);font-size:13px;font-weight:600;line-height:1.3}
 .ferr svg{flex:none}

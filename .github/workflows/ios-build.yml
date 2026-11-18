@@ -109,11 +109,15 @@ jobs:
               exit 1
             }
           xcrun simctl install "$DEVICE" sim/Debug-iphonesimulator/App.app
-          xcrun simctl launch "$DEVICE" com.trainguard.app
           mkdir -p shots
+          # A video of the whole run, so it can be watched afterwards from the screenshots download.
+          xcrun simctl io "$DEVICE" recordVideo --codec=h264 --force shots/run.mp4 &
+          RECORDER=$!
+          xcrun simctl launch "$DEVICE" com.trainguard.app
           for shot in 01 02 03 04 05 06 07 08 09 10 11 12; do
             sleep 8; xcrun simctl io "$DEVICE" screenshot "shots/$shot.png"
           done
+          kill -INT "$RECORDER"; wait "$RECORDER" || true
           # Leave the app, because the Dynamic Island doesn't show an app's own Live Activity while it's open.
           xcrun simctl launch "$DEVICE" com.apple.Preferences
           sleep 10; xcrun simctl io "$DEVICE" screenshot shots/island.png

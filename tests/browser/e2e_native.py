@@ -112,10 +112,20 @@ try:
         sent = page.evaluate("window.__wake.at(-1) || null")
         check('Turning it on sets the alarm for 30 min before arrival, without GPS', bool(sent) and sent.get('backup') is True and sent.get('gps') is False and sent.get('backupDate', 0) > 0, sent)
         ctx.close()
+        # A test ring from Settings, when the app's alarm can do one
+        ctx, page = open_page("window.__test=[];window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{WakeUp:{schedule:()=>Promise.resolve({alarm:true}),cancel:()=>Promise.resolve(),test:o=>{window.__test.push(o);return Promise.resolve({alarm:true})}}}};")
+        page.evaluate("window.__tg.ACT.openSettings()"); page.wait_for_timeout(300)
+        page.evaluate("document.querySelector('#sheet [data-act=testAlarm]').click()"); page.wait_for_timeout(200)
+        sent = page.evaluate("window.__test[0] || null")
+        check('Settings offers a test alarm that rings in 10 seconds', bool(sent) and sent.get('seconds') == 10 and 'rings in 10 seconds' in page.evaluate("document.querySelector('#toastHost').innerText"), sent)
+        ctx.close()
 
         # Browser: phone calendar still offered, and no countdown row
         ctx, page = open_page('')
         check('the web shows no countdown row', 'Lock Screen' not in page.evaluate("document.querySelector('#alerts')?.innerText || ''"))
+        page.evaluate("window.__tg.ACT.openSettings()"); page.wait_for_timeout(300)
+        check('the web offers no test alarm, because it has no alarm', page.locator('#sheet [data-act=testAlarm]').count() == 0)
+        page.evaluate("window.__tg.back()"); page.wait_for_timeout(350)
         page.evaluate("window.__tg.ACT.openCalendar()"); page.wait_for_timeout(150)
         check('the web keeps the phone calendar button', 'calPhone' in page.evaluate("document.querySelector('#sheet')?.innerHTML || ''"))
         ctx.close()

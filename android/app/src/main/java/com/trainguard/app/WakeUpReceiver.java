@@ -25,6 +25,7 @@ import androidx.core.app.NotificationManagerCompat;
 public class WakeUpReceiver extends BroadcastReceiver {
     static final String RING = "com.trainguard.app.WAKE_RING";
     static final String STOP = "com.trainguard.app.WAKE_STOP";
+    static final String TEST = "com.trainguard.app.WAKE_TEST";
     static final int NOTIFICATION = 4242;
     private static final String CHANNEL = "wakeup_alarm";
     private static final String PREFS = "trainguard_wakeup";
@@ -39,6 +40,16 @@ public class WakeUpReceiver extends BroadcastReceiver {
     static void rearm(Context ctx) {
         long at = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong("at", 0);
         if (at > System.currentTimeMillis()) arm(ctx, at);
+    }
+
+    /** A one-off ring, separate from the trip's alarm, so the test never moves or cancels the real one. */
+    static boolean test(Context ctx, long at, String title, String stop) {
+        AlarmManager alarms = ctx.getSystemService(AlarmManager.class);
+        if (Build.VERSION.SDK_INT >= 31 && !alarms.canScheduleExactAlarms()) return false;
+        Intent ring = new Intent(ctx, WakeUpReceiver.class).setAction(TEST).putExtra("title", title).putExtra("stop", stop);
+        PendingIntent show = PendingIntent.getActivity(ctx, 2, new Intent(ctx, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
+        alarms.setAlarmClock(new AlarmManager.AlarmClockInfo(at, show), PendingIntent.getBroadcast(ctx, 5, ring, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+        return true;
     }
 
     static void cancel(Context ctx) {
@@ -62,6 +73,9 @@ public class WakeUpReceiver extends BroadcastReceiver {
     public void onReceive(Context ctx, Intent intent) {
         if (STOP.equals(intent.getAction())) {
             NotificationManagerCompat.from(ctx).cancel(NOTIFICATION);
+        } else if (TEST.equals(intent.getAction())) {
+            String title = intent.getStringExtra("title"), stop = intent.getStringExtra("stop");
+            ring(ctx, title != null ? title : "TrainGuard test alarm", stop != null ? stop : "Stop");
         } else if (RING.equals(intent.getAction())) {
             SharedPreferences prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             ring(ctx, prefs.getString("title", "Wake up"), prefs.getString("stop", "Stop"));

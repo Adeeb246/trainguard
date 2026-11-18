@@ -686,6 +686,7 @@ function sheetHTML() {
       <div class="group"><div class="tog first"><div class="tx"><b>${esc(L('soundsT'))}</b>${esc(L('soundsS'))}</div><button class="sw" role="switch" aria-checked="${state.sound}" aria-label="${esc(L('soundsT'))}" data-act="toggle" data-k="sound"></button></div>
       <div class="tog"><div class="tx"><b>${esc(L('hapticsT'))}</b>${esc(L(matchMedia('(pointer:coarse)').matches ? 'hapticsS' : 'hapticsDesk'))}</div><button class="sw" role="switch" aria-checked="${state.haptics}" aria-label="${esc(L('hapticsT'))}" data-act="toggle" data-k="haptics"></button></div></div>
       ${standalone ? '' : `<button class="mini" data-act="installApp">${ico('phone')}<span class="tx"><b>${esc(L('installT'))}</b>${esc(L('installS'))}</span>${ico('chevron', 18)}</button>`}
+      ${typeof wakePlugin()?.test === 'function' ? `<button class="mini" data-act="testAlarm">${ico('alarm')}<span class="tx"><b>${esc(L('testAlarmT'))}</b>${esc(L('testAlarmS'))}</span>${ico('chevron', 18)}</button>` : ''}
       <a class="mini" href="${APP_URL}privacy.html" target="_blank" rel="noopener"><span class="tx"><b>${esc(L('privacyT'))}</b>${esc(L('privacyS'))}</span>${ico('external', 18)}</a>
       <p class="fine">${esc(L('aboutS'))} ${TT ? esc(L('aboutTT', { date: TT.asOf })) : ''}</p>`);
   }
@@ -1097,6 +1098,14 @@ const ACT = {
   bigClose() { $('.big')?.classList.add('out'); try { ACT.wl?.release(); } catch (e) {} setTimeout(() => { state.big = false; renderOverlay(); }, 180); },
   toggleSun() { state.sun = !state.sun; renderOverlay(); $('.big').style.animation = 'none'; },
   liveStart() { startWatch(); },
+  // Rings once, 10 seconds from now, without touching the trip's own alarm.
+  testAlarm() {
+    const plugin = wakePlugin();
+    if (!plugin?.test) return;
+    plugin.test({ title: L('testAlarmTitle'), stopLabel: L('alarmStop'), seconds: 10 })
+      .then(r => toast(L(r?.alarm === false ? 'alarmDenied' : 'testAlarmSet')))
+      .catch(() => toast(L('alarmDenied')));
+  },
   pickStation(b) {
     const k = b.dataset.k, f = state.find, input = $(k === 'from' ? '#qFrom' : '#qTo');
     Object.assign(f, { [k]: b.dataset.v, [k + 'Text']: stationLabel(b.dataset.v), touched: true, error: '' });
