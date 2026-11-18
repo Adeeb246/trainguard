@@ -212,6 +212,13 @@ function parseTicketText(raw) {
   };
 }
 
+// Two pasted tickets would mix into one trip with the wrong seats, so the app refuses them.
+function ticketCount(raw) {
+  if (!raw || typeof raw !== 'string') return 0;
+  const distinct = re => new Set([...raw.matchAll(re)].map(m => m[1])).size;
+  return Math.max(distinct(/\bPNR\s*(?:NO\.?|NUMBER)?\s*[:=\-]?\s*(\d{10})\b/gi), distinct(/\bTRN\s*[:=#\-]?\s*(\d{5})\b/gi));
+}
+
 function checkExpectationMismatch(parsedTicket, expectedInput) {
   if (!parsedTicket || !expectedInput || expectedInput.trim().length < 3) return { mismatch: false };
   const exp = expectedInput.trim().toUpperCase();
@@ -225,5 +232,5 @@ function checkExpectationMismatch(parsedTicket, expectedInput) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { parseTicketText, checkExpectationMismatch, getBerthTypeFromNumber, formatTo12Hour, CLASS_NAMES };
+  module.exports = { parseTicketText, ticketCount, checkExpectationMismatch, getBerthTypeFromNumber, formatTo12Hour, CLASS_NAMES };
 }

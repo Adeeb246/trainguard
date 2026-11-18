@@ -141,6 +141,7 @@ function buildTrip(rec) {
   if (!base) return null;
   const t = { ...base, rec, id: rec.id, platform: rec.platform || null, isShared: !rec.raw, sample: !!rec.sample, missing: [...(base.missing || [])] };
   if (!t.time && rec.time) { t.time = rec.time; t.time12 = fmt(rec.time); t.missing = t.missing.filter(m => m !== 'time'); }
+  if (!t.dateISO && rec.dateISO) { t.dateISO = rec.dateISO; t.missing = t.missing.filter(m => m !== 'date'); }
   t.departureDate = null;
   if (t.time && t.dateISO) { const d = ttDate(t.dateISO), [h, m] = t.time.split(':').map(Number); d.setHours(h, m, 0, 0); t.departureDate = d; }
   t.facts = TT ? ttTrainFacts(TT, t) : null;
@@ -208,7 +209,7 @@ function stageInfo(t) {
   if (code === 'CAN') return { tone: 'bad', title: L('canTitle'), sub: L('canBody') };
   if (code === 'WL') return { tone: 'bad', title: L('wlTitle'), sub: L('wlBody'), href: PNR_URL };
   if (!t.time) return { tone: 'warn', title: L('addTimeT'), sub: L('addTimeS'), act: 'editTime' };
-  if (!t.dateISO) return { tone: 'warn', title: L('dateMissT'), sub: L('dateMissS') };
+  if (!t.dateISO) return { tone: 'warn', title: L('dateMissT'), sub: L('dateMissS'), act: 'editDate' };
   const stage = stageOf(t);
   const v = { time: atTime(leaveAt(t)), min: state.commute, from: t.fromName, to: t.toName, no: t.trainNo, coach: p.coach || '—', berth: seatText(p), dep: fmt(t.time), arr: t.arrivalDate ? atTime(t.arrivalDate) : '' };
   const chip = stageChip(t, stage);
@@ -332,6 +333,9 @@ function timeline(t) {
   return ev.map((e, i) => ({ ...e, cls: [i < ci ? 'done' : '', i === ci ? 'now' : '', e.alert && i >= ci ? 'alert' : ''].join(' ').trim() }));
 }
 const noTrip = () => `<h1 class="ltitle">${esc(L('noTripT'))}</h1><p class="lsub">${esc(L('noTripS'))}</p><button class="btn primary" data-act="add">${esc(L('addYourTicket'))}</button>`;
+// Whichever of time and date the trip still lacks, so a dead end always has a way out.
+const dateOrTimeBtn = (t, cls, style = '') => !t.time ? `<button class="${cls}" style="${style}" data-act="editTime">${esc(L('addTimeBtn'))}</button>`
+  : !t.dateISO ? `<button class="${cls}" style="${style}" data-act="editDate">${esc(L('dateMissT'))}</button>` : '';
 function berthMap(t) {
   const p = t.passengers[0] || {};
   const n = parseInt(p.berthNo, 10);
@@ -356,7 +360,7 @@ function viewJourney() {
   const wake = wakeAt(t);
   const hasWakeUp = !!wakePlugin();
   return `<h1 class="ltitle">${esc(L('tabJourney'))}</h1><p class="lsub">${esc(t.trainNo)} · ${esc(L('routeTo', { from: t.fromName, to: t.toName }))} · ${esc(fmtDate(t.dateISO))}</p>
-    <div class="card">${list.length ? `<ol class="track">${list.map(e => `<li class="${e.cls}"><div class="tm">${esc(atTime(e.at))}</div><div class="rail"><span class="pin"></span></div><div class="ti"><b>${esc(e.b)}</b><span>${esc(e.s)}</span>${e.mins ? `<div class="mins" role="group" aria-label="${esc(L('commuteT'))}">${COMMUTES.map(m => `<button data-act="commute" data-v="${m}" aria-pressed="${state.commute === m}">${m}</button>`).join('')}</div>` : ''}</div></li>`).join('')}</ol>` : `<p class="dim" style="margin:0">${esc(L('noTimeline'))}</p>${t.time ? '' : `<button class="btn ghost" style="margin-top:8px" data-act="editTime">${esc(L('addTimeBtn'))}</button>`}`}</div>
+    <div class="card">${list.length ? `<ol class="track">${list.map(e => `<li class="${e.cls}"><div class="tm">${esc(atTime(e.at))}</div><div class="rail"><span class="pin"></span></div><div class="ti"><b>${esc(e.b)}</b><span>${esc(e.s)}</span>${e.mins ? `<div class="mins" role="group" aria-label="${esc(L('commuteT'))}">${COMMUTES.map(m => `<button data-act="commute" data-v="${m}" aria-pressed="${state.commute === m}">${m}</button>`).join('')}</div>` : ''}</div></li>`).join('')}</ol>` : `<p class="dim" style="margin:0">${esc(L('noTimeline'))}</p>${dateOrTimeBtn(t, 'btn ghost', 'margin-top:8px')}`}</div>
     ${p.coach ? `<div class="card"><h3>${esc(L('findCoachT', { coach: p.coach }))}</h3><p class="dim" style="margin:0">${esc(L('findCoachS'))}</p></div>` : ''}
     ${berthMap(t)}
     <div class="card" id="alerts"><h3>${esc(L('alertsT'))}</h3>
@@ -467,8 +471,9 @@ function readbackBody(a) {
   return `${mm.mismatch ? `<div class="banner bad">${ico('alert', 20)}<span><b>${esc(L('mismatchT'))}</b> ${esc(L('mismatchS', { said: mm.expected, train: `${t.trainNo}${t.name ? ` ${t.name}` : ''}` }))}</span></div>` : ''}
     ${code === 'WL' ? `<div class="banner bad">${ico('alert', 20)}<span>${esc(L('wlBody'))}</span></div>` : ''}
     ${code === 'CAN' ? `<div class="banner bad">${ico('alert', 20)}<span>${esc(L('canTitle'))}</span></div>` : ''}
+    ${a.old ? `<div class="banner ok">${ico('check', 20)}<span>${esc(L('sameTicket'))}</span></div>` : ''}
     <div class="group rb"><div class="eyebrow">${esc(L('yourTrainCap'))}</div><div class="no">${esc(t.trainNo)}</div><div class="nm">${esc(t.name || L('nameUnknown'))}</div>
-      <dl><dt>${esc(L('rbDate'))}</dt><dd class="${t.dateISO ? '' : 'miss'}">${esc(t.dateISO ? fmtDate(t.dateISO) : L('notRead'))}</dd>
+      <dl><dt>${esc(L('rbDate'))}</dt><dd class="${t.dateISO ? '' : 'miss'}">${esc(t.dateISO ? fmtDate(t.dateISO) : L('notReadTime'))}</dd>
       <dt>${esc(L('rbLeaves'))}</dt><dd class="${t.time ? '' : 'miss'}">${esc(t.time ? fmt(t.time) : L('notReadTime'))}</dd>
       <dt>${esc(L('rbRoute'))}</dt><dd class="${t.fromStn && t.toStn ? '' : 'miss'}">${esc(L('routeTo', { from: t.fromName, to: t.toName }))}</dd>
       <dt>${esc(L('rbSeat'))}</dt><dd class="${p.coach || t.status ? '' : 'miss'}">${esc(seatLine)}</dd>
@@ -524,9 +529,10 @@ function sheetHTML() {
       <button class="btn primary" data-act="payCheck">${esc(L('payCheck'))}</button>`);
   }
   if (s === 'platform') return frame(L('pfT'), `<p class="fhelp" style="margin:0 2px">${esc(L('pfS'))}</p>
-      <div class="pfgrid">${Array.from({ length: 12 }, (_, i) => String(i + 1)).map(n => `<button data-act="setPf" data-v="${n}" aria-pressed="${t?.platform === n}">${n}</button>`).join('')}</div>
+      <div class="pfgrid">${Array.from({ length: 24 }, (_, i) => String(i + 1)).map(n => `<button data-act="setPf" data-v="${n}" aria-pressed="${t?.platform === n}">${n}</button>`).join('')}</div>
       <button class="btn ghost" data-act="setPf" data-v="">${esc(L('pfNone'))}</button>`);
   if (s === 'time') return frame(L('timeT'), `<div class="group"><label class="flabel" for="dpt">${esc(L('timeLabel'))}</label><input class="field" id="dpt" type="time"><p class="fhelp">${esc(L('timeHelp'))}</p></div><button class="btn primary" data-act="saveTime">${esc(L('timeSave'))}</button>`);
+  if (s === 'date') return frame(L('dateMissT'), `<div class="group"><label class="flabel" for="dpd">${esc(L('payDate'))}</label><input class="field" id="dpd" type="date"><p class="fhelp">${esc(L('timeHelp'))}</p></div><button class="btn primary" data-act="saveDate">${esc(L('dateSave'))}</button>`);
   if (s === 'trips') {
     const { upcoming, past } = tripLists();
     const row = x => `<div class="trowwrap"><button class="trow" data-act="pickTrip" data-v="${esc(x.id)}"><span class="no">${esc(x.trainNo)}</span><span class="tx"><b>${esc(fmtDate(x.dateISO))}</b>${esc(L('routeTo', { from: x.fromName, to: x.toName }))}${x.passengers.length > 1 ? ` · ${esc(L('passengersN', { n: x.passengers.length }))}` : ''}</span>${t && x.id === t.id ? ico('check', 18) : ''}</button><button class="iconbtn" data-act="removeTrip" data-v="${esc(x.id)}" aria-label="${esc(L('removeTrip'))} ${esc(x.trainNo)}">${ico('trash', 18)}</button></div>`;
@@ -548,7 +554,7 @@ function sheetHTML() {
       <button class="btn ghost" data-act="copyMsg" data-msg="${esc(msg)}">${ico('copy', 18)}${esc(L('copyMsg'))}</button>`);
   }
   if (s === 'calendar' && t) {
-    if (!t.departureDate) return frame(L('calT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('calNeedsTime'))}</span></div>${t.time ? '' : `<button class="btn primary" data-act="editTime">${esc(L('addTimeBtn'))}</button>`}`);
+    if (!t.departureDate) return frame(L('calT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('calNeedsTime'))}</span></div>${dateOrTimeBtn(t, 'btn primary')}`);
     const wake = wakeAt(t);
     const phone = isNative() || matchMedia('(pointer:coarse)').matches ? 'calPhone' : 'calFile';
     const buttons = kind => `<button class="btn ghost" data-act="calPhone" data-k="${kind}">${esc(L(phone))}</button><a class="btn ghost" href="${esc(googleUrl(calEvent(t, kind)))}" target="_blank" rel="noopener">${esc(L('calGoogle'))}</a>`;
@@ -692,11 +698,13 @@ function syncLiveActivity() {
   const code = t?.status?.code, left = t?.departureDate ? +t.departureDate - Date.now() : 0;
   const on = t && left > 0 && code !== 'WL' && code !== 'CAN' && !t.isShared;
   const now = on && (left <= LIVE_LEAD || store.get(KEY.liveNow, '') === t.id);
-  const key = on ? [t.id, t.platform, +t.departureDate, state.lang, now].join('|') : 'off';
+  const p = t?.passengers[0] || {};
+  // The seat is in the key, so an updated SMS (waitlist cleared, berth changed) refreshes the Lock Screen too.
+  const key = on ? [t.id, t.platform, +t.departureDate, state.lang, now, p.coach, seatText(p)].join('|') : 'off';
   if (key === liveKey) return;
   liveKey = key;
   if (!on) { liveResult = {}; plugin.stopActivity?.().catch(() => {}); return; }
-  const p = t.passengers[0] || {}, done = r => { liveResult = r; renderViews(); };
+  const done = r => { liveResult = r; renderViews(); };
   plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), departure: +t.departureDate, startAt: now ? 0 : +t.departureDate - LIVE_LEAD, alertTitle: `${t.trainNo} ${t.name || ''}`.trim(), alertBody: L('tlArriveS', { no: t.trainNo }), hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) })
     .then(r => done(r || {})).catch(e => done({ status: 'failed', why: e?.message || '' }));
 }
@@ -885,16 +893,23 @@ const ACT = {
     syncAddFields();
     const a = state.add;
     if (!a.text.trim()) { a.error = L('errEmpty'); renderSheet(); return; }
+    if (ticketCount(a.text) > 1) { a.error = L('errMany'); playMismatchAlertSound(); triggerHaptic('error'); renderSheet(); return; }
     const rec = { id: uid(), raw: a.text.trim() }, t = tripOf(rec);
     if (!t) { a.error = L('errNotTicket'); playMismatchAlertSound(); triggerHaptic('error'); renderSheet(); return; }
+    // A later SMS for the same booking (chart prepared, waitlist cleared) replaces the old trip instead of sitting beside it.
+    a.old = t.pnr ? recs.find(r => { const x = tripOf(r); return x && x.pnr === t.pnr && x.trainNo === t.trainNo; }) || null : null;
     a.rec = rec; a.trip = t; a.step = 'read'; a.error = ''; a.refused = false; renderSheet();
     if (checkExpectationMismatch({ trainNo: t.trainNo, trainName: t.name }, a.expected).mismatch || t.status?.code === 'WL' || t.status?.code === 'CAN') { playMismatchAlertSound(); triggerHaptic('warning'); }
     const b = $('#sheet .sbody'); if (b) b.scrollTop = 0;
   },
   readYes() {
-    const rec = state.add.rec; recs.push(rec); saveRecords();
+    const { rec, old } = state.add, i = old ? recs.indexOf(old) : -1;
+    // Keep what the person set by hand. The new SMS still wins wherever it has its own time or date.
+    if (i !== -1) { Object.assign(rec, { id: old.id, platform: old.platform, time: old.time, dateISO: old.dateISO }); refreshTrip(rec); recs[i] = rec; }
+    else recs.push(rec);
+    saveRecords();
     state.tripId = rec.id; state.tab = 'pass'; state.flipped = false;
-    chrome(); renderViews(true); closeSheet(); playRailwayChime(); triggerHaptic('success'); toast(L('savedToast'));
+    chrome(); renderViews(true); closeSheet(); playRailwayChime(); triggerHaptic('success'); toast(L(i !== -1 ? 'updatedToast' : 'savedToast'));
   },
   readNo() { state.add.refused = true; renderSheet(); },
   readBack() { state.add.step = 'paste'; renderSheet(); },
@@ -928,6 +943,8 @@ const ACT = {
   },
   editTime() { closeNow(); openSheet('time'); },
   saveTime() { const t = current(), v = $('#dpt').value; if (t && v) { t.rec.time = v; refreshTrip(t.rec); saveRecords(); renderViews(); } closeSheet(); },
+  editDate() { closeNow(); openSheet('date'); },
+  saveDate() { const t = current(), v = $('#dpd').value; if (t && /^\d{4}-\d{2}-\d{2}$/.test(v)) { t.rec.dateISO = v; refreshTrip(t.rec); saveRecords(); renderViews(); } closeSheet(); },
   commute(b) { state.commute = +b.dataset.v; store.set(KEY.commute, state.commute); renderViews(); if (state.sheet) renderSheet(); },
   openTrips() { openSheet('trips'); },
   openSettings() { openSheet('settings'); },

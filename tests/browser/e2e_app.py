@@ -26,6 +26,7 @@ NOTIME = 'PNR:1234567893,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,Boarding at CAN only,
 CANX = 'PNR:1234567894,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,DP:20:55,Your ticket has been cancelled. Refund Rs 400.'
 OFFTIME = 'PNR:1234567895,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,DP:21:30,Boarding at CAN only,\nANU MENON,S2 3,'
 AC2 = 'PNR:1234567896,TRN:12625,DOJ:18-11-26,2A,TVC-NDLS,DP:12:30,Boarding at TVC only,\nANU MENON,A1 5,'
+NODATE = 'PNR:1234567897,TRN:16630,SL,CAN-KZK,DP:20:55,Boarding at CAN only,\nANU MENON,S2 3,\nFare:485\n-IRCTC'
 SPY = """window.__osc=0;window.__vib=0;window.__tick=0;const AC=window.AudioContext;if(AC){const o=AC.prototype.createOscillator;AC.prototype.createOscillator=function(){window.__osc++;return o.call(this)}}
 if(navigator.vibrate){const v=navigator.vibrate.bind(navigator);navigator.vibrate=p=>{window.__vib++;return v(p)}}const c=HTMLLabelElement.prototype.click;HTMLLabelElement.prototype.click=function(){window.__tick++;return c.call(this)};"""
 
@@ -164,6 +165,12 @@ with sync_playwright() as p:
     ok('Adding the time completes the trip', 'Leave by 7:55 PM' in t and '8:55 PM' in t and 'Not 16603' in t, t[:200])
     pg.reload(wait_until='load'); pg.wait_for_timeout(500)
     ok('The added time survives a reload', '8:55 PM' in text(pg)); c.close()
+    c = ctx(); pg = page(c, [NODATE]); t = text(pg)
+    ok('Missing date: asks, never guesses', 'Add your travel date' in t and 'Date unknown' in t, t[:240]); shot(pg, 'Missing date')
+    tap(pg, '.view.on .next'); pg.wait_for_timeout(300); pg.locator('#dpd').fill('2026-11-16'); tap(pg, '[data-act="saveDate"]'); pg.wait_for_timeout(350); t = text(pg)
+    ok('Adding the date completes the trip', 'Leave by 7:55 PM' in t and 'Not 16603' in t, t[:200])
+    pg.reload(wait_until='load'); pg.wait_for_timeout(500)
+    ok('The added date survives a reload', 'Leave by 7:55 PM' in text(pg)); c.close()
     c = ctx(); pg = page(c, [OFFTIME]); t = text(pg)
     ok('Ticket vs timetable mismatch is flagged, ticket wins', 'The timetable says 8:55 PM from Kannur, but your ticket says 9:30 PM' in t and '9:30 PM' in t, t[:300]); c.close()
     c = ctx(when=at(16, 9, 0)); pg = page(c, [AC2]); tap(pg, '#tab-journey'); pg.wait_for_timeout(200); t = text(pg)
@@ -184,6 +191,17 @@ with sync_playwright() as p:
     tap(pg, '#sheet .xbtn'); pg.wait_for_timeout(330)
     tap(pg, '.dock [data-act="add"]'); pg.wait_for_timeout(200); pg.locator('#tkt').fill(SMS); tap(pg, '[data-act="readTicket"]'); pg.wait_for_timeout(100); tap(pg, '[data-act="readYes"]'); pg.wait_for_timeout(400)
     ok('Saving creates the trip', '16630' in text(pg) and 'saved' in text(pg, '#toastHost') and len(json.loads(pg.evaluate("localStorage.getItem('trainguard_trips_v2')"))) == 1)
+    # The same booking again, say after the chart is prepared: it updates the trip and keeps the platform (13+ exists at big stations)
+    tap(pg, '.view.on [data-act="openPlatform"]'); pg.wait_for_timeout(300); tap(pg, '.pfgrid [data-v="15"]'); pg.wait_for_timeout(350)
+    tap(pg, '.dock [data-act="add"]'); pg.wait_for_timeout(200); pg.locator('#tkt').fill(SMS.replace('S2 3,S2 6', 'S4 21,S4 22')); tap(pg, '[data-act="readTicket"]'); pg.wait_for_timeout(100); t = text(pg, '#sheet')
+    ok('Same PNR again says it will update', 'You already saved this ticket' in t and 'S4/21' in t, t[:200])
+    tap(pg, '[data-act="readYes"]'); pg.wait_for_timeout(400); saved = json.loads(pg.evaluate("localStorage.getItem('trainguard_trips_v2')"))
+    ok('Updating replaces the trip and keeps the platform', len(saved) == 1 and saved[0].get('platform') == '15' and 'S4 21' in saved[0]['raw'] and 'updated' in text(pg, '#toastHost'), [(r.get('platform'), r['raw'][-40:]) for r in saved])
+    pg.reload(wait_until='load'); pg.wait_for_timeout(500); t = text(pg)
+    ok('After a reload the pass shows only the new seat', 'S4' in t and 'S2' not in t and 'Set by you' in t, t[:200])
+    tap(pg, '.dock [data-act="add"]'); pg.wait_for_timeout(200); pg.locator('#tkt').fill(SMS + '\n' + RET); tap(pg, '[data-act="readTicket"]')
+    ok('Two tickets in one paste are refused, not mixed', 'more than one ticket' in text(pg, '#sheet') and len(json.loads(pg.evaluate("localStorage.getItem('trainguard_trips_v2')"))) == 1)
+    tap(pg, '#sheet .xbtn'); pg.wait_for_timeout(330)
     # Before you pay
     tap(pg, '#tab-safety'); pg.wait_for_timeout(200); tap(pg, '[data-act="addPay"]'); pg.wait_for_timeout(650); shot(pg, 'Before you pay')
     pg.locator('#payNo').fill('166'); tap(pg, '[data-act="payCheck"]'); ok('Pay check needs 5 digits', 'Enter the 5-digit' in text(pg, '#sheet'))

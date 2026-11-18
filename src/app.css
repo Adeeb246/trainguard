@@ -278,7 +278,7 @@ textarea.field{font:500 16px/1.4 var(--mono);min-height:112px;resize:none}
 .rb dd{margin:0;font-weight:600}
 .rb dd.miss{color:var(--warn-text)}
 .ask{font:800 19px/1.2 var(--display);margin:2px 2px 0}
-.pfgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pfgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .pfgrid button{min-height:44px;border:0;border-radius:12px;background:var(--group);font:700 15px var(--display)}
 .pfgrid button[aria-pressed=true]{background:var(--live);color:var(--live-ink)}
 .trow{display:flex;align-items:center;gap:12px;width:100%;padding:10px 4px;box-sizing:border-box;border:0;border-top:1px solid var(--hair);background:none;text-align:left;color:var(--ink);min-height:56px}

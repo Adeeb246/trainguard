@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { parseTicketText, checkExpectationMismatch, formatTo12Hour, getBerthTypeFromNumber } = require('../src/parser');
+const { parseTicketText, ticketCount, checkExpectationMismatch, formatTo12Hour, getBerthTypeFromNumber } = require('../src/parser');
 
 const sms = (seat, more = 'DP:20:55,') => `PNR:1234567890,TRN:16630,DOJ:16-11-26,SL,CAN-KZK,${more}Boarding at CAN only,\n${seat}\nFare:985,C Fee:11.8+PG.This rail travel is insured.\n-IRCTC`;
 
@@ -128,6 +128,14 @@ assert.strictEqual(getBerthTypeFromNumber('12', 'C1'), null);
 const cancelled = parseTicketText('PNR:1234567890,TRN:16630,DOJ:16-11-26,CAN-KZK,Your ticket has been cancelled. Refund Rs 400.');
 assert.strictEqual(cancelled.status.code, 'CAN');
 assert.notStrictEqual(real.status.code, 'CAN');
+
+// Two tickets in one paste are counted, so the app can refuse them instead of mixing their seats
+const onward = sms('ANU MENON,S2 3,'), back = 'PNR:1234567899,TRN:16629,DOJ:21-11-26,SL,KZK-CAN,DP:18:56,\nANU MENON,S4 33,\n-IRCTC';
+assert.strictEqual(ticketCount(onward), 1);
+assert.strictEqual(ticketCount(`${onward}\n${back}`), 2);
+assert.strictEqual(ticketCount(`${onward}\n${onward}`), 1, 'the same SMS twice is still one booking');
+assert.strictEqual(ticketCount('PNR: 4521369874\nTrain No: 16629\nPNR No: 4521369874'), 1, 'an email repeating its PNR is one booking');
+assert.strictEqual(ticketCount(''), 0);
 
 // Expectation check
 assert.strictEqual(checkExpectationMismatch(email, '16604 Maveli').mismatch, true);
