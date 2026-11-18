@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { ttTrainFacts, ttTrainsNear, ttStation, ttFindStations, ttBetween, ttSchedule, ttLocate } = require('../src/timetable');
+const { ttTrainFacts, ttTrainsNear, ttStation, ttFindStations, ttBetween, ttSchedule, ttLocate, ttKind } = require('../src/timetable');
 
 const tt = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'timetable.json'), 'utf8'));
 const numbers = list => list.filter(t => !t.you).map(t => t.no);
@@ -117,5 +117,18 @@ assert.strictEqual(ttLocate(tt, '16630', 'CAN', 28.61, 77.21, 60).off, true, 'De
 const maq = stn('MAQ');
 assert.strictEqual(ttLocate(tt, '16630', 'CAN', maq[2], maq[3], -100).behind, true, 'Mangaluru is before Kannur');
 assert.strictEqual(ttLocate(tt, '99999', 'CAN', kan[2], kan[3], 0), null);
+
+// What a general ticket holder needs to know about each train
+const kind = no => ttKind(no, tt.tr[no][0]);
+const flags = k => [k.reserved, k.superfast, k.allGeneral];
+assert.deepStrictEqual(flags(kind('12001')), [true, false, false], 'Shatabdi is reserved only');
+assert.deepStrictEqual(flags(kind('12059')), [false, true, false], 'Jan Shatabdi is not reserved only, but it is superfast');
+assert.deepStrictEqual(flags(kind('20632')), [true, false, false], 'Vande Bharat is reserved only');
+assert.deepStrictEqual(flags(kind('12305')), [true, false, false], 'Rajdhani is reserved only');
+assert.deepStrictEqual(flags(kind('16313')), [false, false, true], 'Antyodaya is all unreserved');
+assert.deepStrictEqual(flags(kind('16549')), [false, false, true], 'a UR DEMU is all unreserved');
+assert.deepStrictEqual(flags(kind('12686')), [false, true, false], 'MAQ MAS Superfast');
+assert.deepStrictEqual(flags(kind('16630')), [false, false, false], 'Malabar is an ordinary express');
+assert.deepStrictEqual(flags(kind('11115')), [false, false, false], 'a MEMU');
 
 console.log('timetable: all checks passed');

@@ -89,7 +89,19 @@ const I18N = {
     ntesBtn: 'Official live status', pnrBtn: 'PNR status', noCopied: 'Train number {no} copied. Paste it on the page.', pnrCopied: 'PNR copied. Paste it on the page.',
     privacyT: 'Privacy policy', privacyS: 'What TrainGuard keeps, and what never leaves your phone.',
     testAlarmT: 'Test the wake-up alarm', testAlarmS: 'Rings in 10 seconds, so you can check it works and is loud enough. You can lock your phone.',
-    testAlarmTitle: 'TrainGuard test alarm', testAlarmSet: 'Test alarm set. It rings in 10 seconds.'
+    testAlarmTitle: 'TrainGuard test alarm', testAlarmSet: 'Test alarm set. It rings in 10 seconds.',
+    statusUr: 'Unreserved ticket', genWhere: 'Front or back of the train', urSeat: 'Any free seat',
+    urBack: 'An unreserved ticket has no PNR or seat number. Keep your ticket or the UTS app ready for checks.',
+    urSuperfast: 'Superfast train: your unreserved ticket must include the superfast charge.', urReserved: "This train is reserved only. A general ticket isn't valid on it.",
+    boardingUrS: 'It must say {no}. Unreserved coaches are usually the first and last ones.', stationPfUrS: 'Then go to the front or back of the platform for the unreserved coaches.',
+    genT: 'Where the unreserved coaches are', genS: "Usually the first and last coaches, next to the engine and the guard's van. It varies by train, so check the coach board.",
+    urValidT: "Your ticket's time limit", urValidS: 'An unreserved ticket for up to 199 km is valid for 3 hours from when you buy it, or until the first train after that leaves.',
+    noSmsBtn: 'No SMS? Find your train', noSmsAdd: 'Unreserved ticket? Pick your train in Trains',
+    generalT: 'I have a general ticket', generalS: 'Hides reserved-only trains, such as Rajdhani, Shatabdi and Vande Bharat.', hiddenN: 'Reserved-only trains hidden: {n}.',
+    tagReserved: 'Reserved only', tagSuperfast: 'Superfast', tagGeneral: 'All unreserved', tagLeft: 'Left',
+    sfNote: 'Superfast trains need the superfast charge on a general ticket.', saveRoute: 'Save route', routeSaved: 'Route saved', removeRoute: 'Remove route',
+    takeTrain: 'Take this train', takeTrainS: 'For an unreserved ticket from {from} to {to} on {date}. You get the pass, the warnings and the wake-up alarm.',
+    urReservedOnly: "Reserved only: a general ticket isn't valid on this train.", haveReserved: 'I have a reserved ticket', urOpened: 'You already have this trip'
   },
   ml: {
     tabPass: 'പാസ്', tabJourney: 'യാത്ര', tabSafety: 'സുരക്ഷ',
@@ -180,7 +192,19 @@ const I18N = {
     ntesBtn: 'ഔദ്യോഗിക തത്സമയ നില', pnrBtn: 'PNR നില', noCopied: 'ട്രെയിൻ നമ്പർ {no} പകർത്തി. പേജിൽ ഒട്ടിക്കുക.', pnrCopied: 'PNR പകർത്തി. പേജിൽ ഒട്ടിക്കുക.',
     privacyT: 'സ്വകാര്യതാ നയം', privacyS: 'TrainGuard എന്ത് സൂക്ഷിക്കുന്നു, എന്ത് ഒരിക്കലും ഫോൺ വിട്ടുപോകില്ല.',
     testAlarmT: 'ഉണർത്തൽ അലാറം പരീക്ഷിക്കുക', testAlarmS: '10 സെക്കൻഡിൽ മുഴങ്ങും, അത് പ്രവർത്തിക്കുന്നുണ്ടോ, ശബ്ദം മതിയോ എന്ന് പരിശോധിക്കാം. ഫോൺ ലോക്ക് ചെയ്യാം.',
-    testAlarmTitle: 'TrainGuard പരീക്ഷണ അലാറം', testAlarmSet: 'പരീക്ഷണ അലാറം സെറ്റ് ചെയ്തു. 10 സെക്കൻഡിൽ മുഴങ്ങും.'
+    testAlarmTitle: 'TrainGuard പരീക്ഷണ അലാറം', testAlarmSet: 'പരീക്ഷണ അലാറം സെറ്റ് ചെയ്തു. 10 സെക്കൻഡിൽ മുഴങ്ങും.',
+    statusUr: 'റിസർവ് ചെയ്യാത്ത ടിക്കറ്റ്', genWhere: 'ട്രെയിനിന്റെ മുന്നിലോ പിന്നിലോ', urSeat: 'ഒഴിവുള്ള ഏത് സീറ്റും',
+    urBack: 'റിസർവ് ചെയ്യാത്ത ടിക്കറ്റിന് PNR-ഓ സീറ്റ് നമ്പറോ ഇല്ല. പരിശോധനയ്ക്ക് ടിക്കറ്റോ UTS ആപ്പോ തയ്യാറാക്കി വെക്കുക.',
+    urSuperfast: 'സൂപ്പർഫാസ്റ്റ് ട്രെയിൻ: നിങ്ങളുടെ റിസർവ് ചെയ്യാത്ത ടിക്കറ്റിൽ സൂപ്പർഫാസ്റ്റ് ചാർജ് ഉൾപ്പെട്ടിരിക്കണം.', urReserved: 'ഈ ട്രെയിൻ റിസർവ്ഡ് മാത്രമാണ്. ജനറൽ ടിക്കറ്റ് ഇതിൽ സാധുവല്ല.',
+    boardingUrS: 'അതിൽ {no} എന്ന് കാണണം. റിസർവ് ചെയ്യാത്ത കോച്ചുകൾ സാധാരണയായി ആദ്യത്തേതും അവസാനത്തേതുമാണ്.', stationPfUrS: 'എന്നിട്ട് റിസർവ് ചെയ്യാത്ത കോച്ചുകൾക്കായി പ്ലാറ്റ്ഫോമിന്റെ മുന്നിലേക്കോ പിന്നിലേക്കോ പോകുക.',
+    genT: 'റിസർവ് ചെയ്യാത്ത കോച്ചുകൾ എവിടെ', genS: 'സാധാരണയായി എഞ്ചിനും ഗാർഡ് വാനിനും അടുത്തുള്ള ആദ്യത്തെയും അവസാനത്തെയും കോച്ചുകൾ. ഓരോ ട്രെയിനിലും വ്യത്യാസപ്പെടാം, അതിനാൽ കോച്ച് ബോർഡ് നോക്കുക.',
+    urValidT: 'നിങ്ങളുടെ ടിക്കറ്റിന്റെ സമയപരിധി', urValidS: '199 കി.മീ വരെയുള്ള റിസർവ് ചെയ്യാത്ത ടിക്കറ്റ് വാങ്ങിയതു മുതൽ 3 മണിക്കൂർ, അല്ലെങ്കിൽ അതിനുശേഷമുള്ള ആദ്യ ട്രെയിൻ പുറപ്പെടുന്നതുവരെ, സാധുവാണ്.',
+    noSmsBtn: 'SMS ഇല്ലേ? നിങ്ങളുടെ ട്രെയിൻ കണ്ടെത്തുക', noSmsAdd: 'റിസർവ് ചെയ്യാത്ത ടിക്കറ്റാണോ? ട്രെയിൻ ടാബിൽ നിങ്ങളുടെ ട്രെയിൻ തിരഞ്ഞെടുക്കുക',
+    generalT: 'എനിക്ക് ജനറൽ ടിക്കറ്റാണ്', generalS: 'രാജധാനി, ശതാബ്ദി, വന്ദേ ഭാരത് പോലുള്ള റിസർവ്ഡ് മാത്രമുള്ള ട്രെയിനുകൾ മറയ്ക്കുന്നു.', hiddenN: 'മറച്ച റിസർവ്ഡ് മാത്രമുള്ള ട്രെയിനുകൾ: {n}.',
+    tagReserved: 'റിസർവ്ഡ് മാത്രം', tagSuperfast: 'സൂപ്പർഫാസ്റ്റ്', tagGeneral: 'പൂർണമായും ജനറൽ', tagLeft: 'പോയി',
+    sfNote: 'സൂപ്പർഫാസ്റ്റ് ട്രെയിനുകൾക്ക് ജനറൽ ടിക്കറ്റിൽ സൂപ്പർഫാസ്റ്റ് ചാർജ് വേണം.', saveRoute: 'റൂട്ട് സേവ് ചെയ്യുക', routeSaved: 'റൂട്ട് സേവ് ചെയ്തു', removeRoute: 'റൂട്ട് നീക്കുക',
+    takeTrain: 'ഈ ട്രെയിൻ എടുക്കുക', takeTrainS: '{date}-ന് {from}-ൽ നിന്ന് {to}-ലേക്കുള്ള റിസർവ് ചെയ്യാത്ത ടിക്കറ്റിന്. പാസും മുന്നറിയിപ്പുകളും ഉണർത്തൽ അലാറവും ലഭിക്കും.',
+    urReservedOnly: 'റിസർവ്ഡ് മാത്രം: ഈ ട്രെയിനിൽ ജനറൽ ടിക്കറ്റ് സാധുവല്ല.', haveReserved: 'എനിക്ക് റിസർവ് ചെയ്ത ടിക്കറ്റുണ്ട്', urOpened: 'ഈ യാത്ര നിങ്ങൾക്ക് ഇതിനകം ഉണ്ട്'
   },
   hi: {
     tabPass: 'पास', tabJourney: 'यात्रा', tabSafety: 'सुरक्षा',
@@ -271,7 +295,19 @@ const I18N = {
     ntesBtn: 'आधिकारिक लाइव स्थिति', pnrBtn: 'PNR स्थिति', noCopied: 'ट्रेन नंबर {no} कॉपी हुआ। पेज पर पेस्ट करें।', pnrCopied: 'PNR कॉपी हुआ। पेज पर पेस्ट करें।',
     privacyT: 'गोपनीयता नीति', privacyS: 'TrainGuard क्या रखता है, और क्या कभी आपके फ़ोन से बाहर नहीं जाता।',
     testAlarmT: 'जगाने वाला अलार्म जाँचें', testAlarmS: '10 सेकंड में बजेगा, ताकि आप देख सकें कि यह काम करता है और आवाज़ काफ़ी है। आप फ़ोन लॉक कर सकते हैं।',
-    testAlarmTitle: 'TrainGuard टेस्ट अलार्म', testAlarmSet: 'टेस्ट अलार्म सेट हो गया। 10 सेकंड में बजेगा।'
+    testAlarmTitle: 'TrainGuard टेस्ट अलार्म', testAlarmSet: 'टेस्ट अलार्म सेट हो गया। 10 सेकंड में बजेगा।',
+    statusUr: 'अनारक्षित टिकट', genWhere: 'ट्रेन के आगे या पीछे', urSeat: 'कोई भी खाली सीट',
+    urBack: 'अनारक्षित टिकट में PNR या सीट नंबर नहीं होता। जाँच के लिए टिकट या UTS ऐप तैयार रखें।',
+    urSuperfast: 'सुपरफास्ट ट्रेन: आपके अनारक्षित टिकट में सुपरफास्ट चार्ज शामिल होना चाहिए।', urReserved: 'यह ट्रेन केवल आरक्षित है। इसमें जनरल टिकट मान्य नहीं है।',
+    boardingUrS: 'उस पर {no} लिखा होना चाहिए। अनारक्षित कोच आमतौर पर पहले और आखिरी होते हैं।', stationPfUrS: 'फिर अनारक्षित कोच के लिए प्लेटफ़ॉर्म के आगे या पीछे जाएँ।',
+    genT: 'अनारक्षित कोच कहाँ होते हैं', genS: 'आमतौर पर इंजन और गार्ड के डिब्बे के पास वाले पहले और आखिरी कोच। हर ट्रेन में अलग हो सकता है, इसलिए कोच बोर्ड देखें।',
+    urValidT: 'आपके टिकट की समय सीमा', urValidS: '199 किमी तक का अनारक्षित टिकट खरीदने के 3 घंटे तक, या उसके बाद पहली ट्रेन छूटने तक, मान्य रहता है।',
+    noSmsBtn: 'SMS नहीं है? अपनी ट्रेन खोजें', noSmsAdd: 'अनारक्षित टिकट है? ट्रेनें टैब में अपनी ट्रेन चुनें',
+    generalT: 'मेरे पास जनरल टिकट है', generalS: 'राजधानी, शताब्दी और वंदे भारत जैसी केवल आरक्षित ट्रेनें छिपाता है।', hiddenN: 'छिपाई गई केवल आरक्षित ट्रेनें: {n}।',
+    tagReserved: 'केवल आरक्षित', tagSuperfast: 'सुपरफास्ट', tagGeneral: 'पूरी अनारक्षित', tagLeft: 'छूट गई',
+    sfNote: 'सुपरफास्ट ट्रेनों में जनरल टिकट पर सुपरफास्ट चार्ज लगता है।', saveRoute: 'रूट सेव करें', routeSaved: 'रूट सेव हो गया', removeRoute: 'रूट हटाएँ',
+    takeTrain: 'यह ट्रेन लें', takeTrainS: '{date} को {from} से {to} तक अनारक्षित टिकट के लिए। आपको पास, चेतावनियाँ और जगाने वाला अलार्म मिलेगा।',
+    urReservedOnly: 'केवल आरक्षित: इस ट्रेन में जनरल टिकट मान्य नहीं है।', haveReserved: 'मेरे पास आरक्षित टिकट है', urOpened: 'यह यात्रा आपके पास पहले से है'
   },
   ta: {
     tabPass: 'பாஸ்', tabJourney: 'பயணம்', tabSafety: 'பாதுகாப்பு',
@@ -362,7 +398,19 @@ const I18N = {
     ntesBtn: 'அதிகாரப்பூர்வ நேரடி நிலை', pnrBtn: 'PNR நிலை', noCopied: 'ரயில் எண் {no} நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.', pnrCopied: 'PNR நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.',
     privacyT: 'தனியுரிமைக் கொள்கை', privacyS: 'TrainGuard எதைச் சேமிக்கிறது, எது ஒருபோதும் உங்கள் ஃபோனை விட்டு வெளியேறாது.',
     testAlarmT: 'எழுப்பும் அலாரத்தைச் சோதி', testAlarmS: '10 விநாடிகளில் ஒலிக்கும், அது செயல்படுகிறதா, சத்தம் போதுமா என்று சரிபார்க்கலாம். ஃபோனைப் பூட்டலாம்.',
-    testAlarmTitle: 'TrainGuard சோதனை அலாரம்', testAlarmSet: 'சோதனை அலாரம் அமைக்கப்பட்டது. 10 விநாடிகளில் ஒலிக்கும்.'
+    testAlarmTitle: 'TrainGuard சோதனை அலாரம்', testAlarmSet: 'சோதனை அலாரம் அமைக்கப்பட்டது. 10 விநாடிகளில் ஒலிக்கும்.',
+    statusUr: 'முன்பதிவில்லா டிக்கெட்', genWhere: 'ரயிலின் முன்னால் அல்லது பின்னால்', urSeat: 'காலியான எந்த இருக்கையும்',
+    urBack: 'முன்பதிவில்லா டிக்கெட்டில் PNR அல்லது இருக்கை எண் இல்லை. சோதனைக்கு டிக்கெட் அல்லது UTS செயலியைத் தயாராக வைத்திருங்கள்.',
+    urSuperfast: 'சூப்பர்ஃபாஸ்ட் ரயில்: உங்கள் முன்பதிவில்லா டிக்கெட்டில் சூப்பர்ஃபாஸ்ட் கட்டணம் சேர்ந்திருக்க வேண்டும்.', urReserved: 'இந்த ரயில் முன்பதிவு மட்டுமே. இதில் பொது டிக்கெட் செல்லாது.',
+    boardingUrS: 'அதில் {no} என்று இருக்க வேண்டும். முன்பதிவில்லா பெட்டிகள் பொதுவாக முதலும் கடைசியும் இருக்கும்.', stationPfUrS: 'பிறகு முன்பதிவில்லா பெட்டிகளுக்கு நடைமேடையின் முன் அல்லது பின் பகுதிக்குச் செல்லுங்கள்.',
+    genT: 'முன்பதிவில்லா பெட்டிகள் எங்கே', genS: 'பொதுவாக இஞ்சின் மற்றும் கார்டு பெட்டிக்கு அருகிலுள்ள முதல் மற்றும் கடைசி பெட்டிகள். ரயிலுக்கு ரயில் மாறலாம், எனவே பெட்டிப் பலகையைப் பாருங்கள்.',
+    urValidT: 'உங்கள் டிக்கெட்டின் நேர வரம்பு', urValidS: '199 கி.மீ வரையிலான முன்பதிவில்லா டிக்கெட் வாங்கியதிலிருந்து 3 மணி நேரம், அல்லது அதன் பிறகு முதல் ரயில் புறப்படும் வரை, செல்லுபடியாகும்.',
+    noSmsBtn: 'SMS இல்லையா? உங்கள் ரயிலைத் தேடுங்கள்', noSmsAdd: 'முன்பதிவில்லா டிக்கெட்டா? ரயில் பகுதியில் உங்கள் ரயிலைத் தேர்ந்தெடுங்கள்',
+    generalT: 'என்னிடம் பொது டிக்கெட் உள்ளது', generalS: 'ராஜ்தானி, சதாப்தி, வந்தே பாரத் போன்ற முன்பதிவு மட்டுமான ரயில்களை மறைக்கும்.', hiddenN: 'மறைக்கப்பட்ட முன்பதிவு மட்டுமான ரயில்கள்: {n}.',
+    tagReserved: 'முன்பதிவு மட்டும்', tagSuperfast: 'சூப்பர்ஃபாஸ்ட்', tagGeneral: 'முழுதும் பொது', tagLeft: 'புறப்பட்டது',
+    sfNote: 'சூப்பர்ஃபாஸ்ட் ரயில்களுக்கு பொது டிக்கெட்டில் சூப்பர்ஃபாஸ்ட் கட்டணம் தேவை.', saveRoute: 'வழியைச் சேமி', routeSaved: 'வழி சேமிக்கப்பட்டது', removeRoute: 'வழியை நீக்கு',
+    takeTrain: 'இந்த ரயிலில் செல்', takeTrainS: '{date} அன்று {from} இலிருந்து {to} வரை முன்பதிவில்லா டிக்கெட்டுக்கு. பாஸ், எச்சரிக்கைகள், எழுப்பும் அலாரம் கிடைக்கும்.',
+    urReservedOnly: 'முன்பதிவு மட்டும்: இந்த ரயிலில் பொது டிக்கெட் செல்லாது.', haveReserved: 'என்னிடம் முன்பதிவு டிக்கெட் உள்ளது', urOpened: 'இந்தப் பயணம் ஏற்கனவே உங்களிடம் உள்ளது'
   }
 };
 

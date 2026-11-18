@@ -7,7 +7,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const APP_URL = 'https://trainguard-cyan.vercel.app/';
 const PNR_URL = 'https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en';
 const NTES_URL = 'https://enquiry.indianrail.gov.in';
-const KEY = { trips: 'trainguard_trips_v2', legacy: 'trainguard_saved_ticket_v1', theme: 'trainguard_theme_v2', lang: 'trainguard_lang', sound: 'trainguard_sound_enabled', haptic: 'trainguard_haptic_enabled', commute: 'trainguard_commute_min', gps: 'trainguard_gps_wake', backup: 'trainguard_backup_alarm', liveNow: 'trainguard_live_now' };
+const KEY = { trips: 'trainguard_trips_v2', legacy: 'trainguard_saved_ticket_v1', theme: 'trainguard_theme_v2', lang: 'trainguard_lang', sound: 'trainguard_sound_enabled', haptic: 'trainguard_haptic_enabled', commute: 'trainguard_commute_min', gps: 'trainguard_gps_wake', backup: 'trainguard_backup_alarm', liveNow: 'trainguard_live_now', general: 'trainguard_general_ticket', routes: 'trainguard_routes' };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
@@ -55,7 +55,7 @@ const state = {
   commute: parseInt(store.get(KEY.commute, '30'), 10) || 30,
   gps: store.get(KEY.gps, 'false') === 'true', backup: store.get(KEY.backup, 'false') === 'true', // off until asked for, because each one triggers a permission prompt
   add: {}, pay: {}, share: { seat: true, pnr: false },
-  find: { from: null, to: null, fromText: '', toText: '', date: '', results: null, error: '', no: '', noError: '', touched: false },
+  find: { from: null, to: null, fromText: '', toText: '', date: '', results: null, error: '', no: '', noError: '', touched: false, general: store.get(KEY.general, 'false') === 'true' },
   sched: null, live: null
 };
 if (!I18N[state.lang]) state.lang = 'en';
@@ -85,8 +85,13 @@ const firstName = n => n ? n.trim().split(/\s+/)[0].replace(/^(\w)(\w*)$/, (_, a
 const titleName = n => n ? n.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()) : '';
 const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 state.find.date = todayISO();
-// The look-alike warning matters until the train leaves; after that it only gets in the way.
-const notShown = t => t.not && !(t.departureDate && Date.now() >= +t.departureDate) ? t.not : null;
+// The look-alike worth warning about is the closest one that hasn't left yet. Once your own train has left, none is.
+function notShown(t) {
+  if (!t.near || !t.departureDate) return t.not;
+  const now = Date.now(), dep = +t.departureDate;
+  if (now >= dep) return null;
+  return t.near.way.filter(x => !x.you && dep + x.delta * 60000 > now).sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta))[0] || null;
+}
 const stationLabel = code => { const s = TT && code ? ttStation(TT, code) : null; return s ? `${s.name} (${code})` : code || ''; };
 function resolveStation(text) {
   if (!TT || !text) return null;
@@ -114,6 +119,8 @@ function loadRecords() {
   return out;
 }
 let recs = loadRecords();
+// Routes someone travels often, such as a daily commute, one tap from today's trains.
+let routes = (() => { try { return JSON.parse(store.get(KEY.routes, '[]')) || []; } catch (e) { return []; } })();
 let sharedRec = readSharedLink();
 let TT = null;
 let cache = new WeakMap();
@@ -160,16 +167,23 @@ function shareLink(t, opts) {
   return `${APP_URL}#trip=${enc}`;
 }
 
+// A train someone picked for an unreserved ticket: no SMS, so no PNR, coach or berth.
+function urBase(u) {
+  if (!u || !/^\d{5}$/.test(u.trainNo || '')) return null;
+  return { trainNo: u.trainNo, trainName: null, time: u.time || null, time12: fmt(u.time), fromStn: u.fromStn, toStn: u.toStn, date: u.dateISO, dateISO: u.dateISO, departureDate: null, coach: null, berthNo: null, berthType: null, pnr: null, status: { code: 'UR', number: null }, passengers: [], classCode: null, className: null, fare: null, missing: [] };
+}
 function buildTrip(rec) {
-  const base = rec.raw ? parseTicketText(rec.raw) : rec.shared;
+  const base = rec.raw ? parseTicketText(rec.raw) : rec.shared || urBase(rec.ur);
   if (!base) return null;
-  const t = { ...base, rec, id: rec.id, platform: rec.platform || null, isShared: !rec.raw, sample: !!rec.sample, missing: [...(base.missing || [])] };
+  // fromLink is only the unsaved trip from a shared link; once saved, it's a shared trip like any other.
+  const t = { ...base, rec, id: rec.id, platform: rec.platform || null, isShared: !!rec.shared, fromLink: rec.id === 'shared', unreserved: !!rec.ur, sample: !!rec.sample, missing: [...(base.missing || [])] };
   if (!t.time && rec.time) { t.time = rec.time; t.time12 = fmt(rec.time); t.missing = t.missing.filter(m => m !== 'time'); }
   if (!t.dateISO && rec.dateISO) { t.dateISO = rec.dateISO; t.missing = t.missing.filter(m => m !== 'date'); }
   t.departureDate = null;
   if (t.time && t.dateISO) { const d = ttDate(t.dateISO), [h, m] = t.time.split(':').map(Number); d.setHours(h, m, 0, 0); t.departureDate = d; }
   t.facts = TT ? ttTrainFacts(TT, t) : null;
   t.name = t.trainName ? titleName(t.trainName) : t.facts?.name || null;
+  t.kind = ttKind(t.trainNo, t.facts?.name || t.name || '');
   const from = TT && t.fromStn ? ttStation(TT, t.fromStn) : null, to = TT && t.toStn ? ttStation(TT, t.toStn) : null;
   t.fromName = from?.name || t.fromStn || '?';
   t.toName = to?.name || t.toStn || '?';
@@ -237,15 +251,16 @@ function stageInfo(t) {
   const stage = stageOf(t);
   const v = { time: atTime(leaveAt(t)), min: state.commute, from: t.fromName, to: t.toName, no: t.trainNo, coach: p.coach || '—', berth: seatText(p), dep: fmt(t.time), arr: t.arrivalDate ? atTime(t.arrivalDate) : '' };
   const chip = stageChip(t, stage);
-  if (stage === 'station' && t.platform) return { title: L('stationPfT', { pf: t.platform }), sub: L('stationPfS', v), chip, act: 'tabJourney' };
-  const sub = stage === 'onboard' && !t.arrivalDate ? L('onboardNoArrS') : L(`${stage}S`, v);
+  // An unreserved ticket has no coach or berth to look for, only the general coaches at the ends.
+  if (stage === 'station' && t.platform) return { title: L('stationPfT', { pf: t.platform }), sub: L(t.unreserved ? 'stationPfUrS' : 'stationPfS', v), chip, act: 'tabJourney' };
+  const sub = stage === 'onboard' && !t.arrivalDate ? L('onboardNoArrS') : t.unreserved && stage === 'boarding' ? L('boardingUrS', v) : L(`${stage}S`, v);
   return { title: L(`${stage}T`, v), sub, chip, act: stage === 'station' ? 'openPlatform' : 'tabJourney' };
 }
 
 /* ---------- Views ---------- */
 function statusChip(t) {
   const s = t.status;
-  const [tone, text] = t.isShared ? ['ok', L('sharedChip')] : !s ? ['warn', L('statusUnknown')] : s.code === 'CNF' ? ['ok', L('statusCnf')] : s.code === 'RAC' ? ['warn', L('statusRac', { n: s.number })] : s.code === 'WL' ? ['bad', L('statusWl', { n: s.number })] : ['bad', L('statusCan')];
+  const [tone, text] = t.unreserved ? ['ok', L('statusUr')] : t.isShared ? ['ok', L('sharedChip')] : !s ?['warn', L('statusUnknown')] : s.code === 'CNF' ? ['ok', L('statusCnf')] : s.code === 'RAC' ? ['warn', L('statusRac', { n: s.number })] : s.code === 'WL' ? ['bad', L('statusWl', { n: s.number })] : ['bad', L('statusCan')];
   return `<span class="chip ${tone}"><span class="dot"></span>${esc(text)}</span>`;
 }
 function timetableBanner(t) {
@@ -274,6 +289,7 @@ function viewEmpty() {
       <li>${ico('alarm')}<div><b>${esc(L('f3T'))}</b><span>${esc(L('f3S'))}</span></div></li>
     </ul>
     <button class="btn primary" data-act="add">${esc(L('addYourTicket'))}</button>
+    <button class="btn ghost" data-act="findYourTrain">${ico('search', 18)}${esc(L('noSmsBtn'))}</button>
     <button class="btn ghost" data-act="trySample">${esc(L('trySample'))}</button>
     <p class="fine">${esc(L('privacy'))}</p></div>`;
 }
@@ -302,15 +318,15 @@ function viewPass() {
         <div class="stn r"><b>${esc(t.toStn || '?')}</b><span>${t.arrivalDate ? esc(atTime(t.arrivalDate)) : esc(L('timeUnknown'))}</span></div>
       </div>
       <div class="tiles">
-        <div class="tile"><span class="k">${esc(L('coach'))}</span><span class="v">${esc(p.coach || '—')}</span><span class="s">${esc(p.coach ? t.className || '' : code === 'RAC' ? L('seatUnknown') : L('noSeat'))}</span></div>
-        <div class="tile"><span class="k">${esc(L('berth'))}</span><span class="v">${esc(seatText(p))}</span><span class="s">${esc(seatSub)}</span></div>
+        <div class="tile"><span class="k">${esc(L('coach'))}</span><span class="v">${esc(t.unreserved ? 'GEN' : p.coach || '—')}</span><span class="s">${esc(t.unreserved ? L('genWhere') : p.coach ? t.className || '' : code === 'RAC' ? L('seatUnknown') : L('noSeat'))}</span></div>
+        <div class="tile"><span class="k">${esc(L('berth'))}</span><span class="v">${esc(seatText(p))}</span><span class="s">${esc(t.unreserved ? L('urSeat') : seatSub)}</span></div>
         <button class="tile tap ${t.platform ? 'set' : ''}" data-act="openPlatform"><span class="k">${esc(L('platform'))}</span><span class="v">${esc(t.platform || '—')}</span><span class="s">${esc(t.platform ? L('setByYou') : L('notAnnounced'))}</span></button>
       </div>
       <div class="foot"><span><b>${esc(titleName(p.name) || L('passengerN', { n: 1 }))}</b>${pax.length > 1 ? ` +${pax.length - 1}` : ''}</span>
         <button class="flipbtn" data-act="flip">${ico('flip', 16)}<span>${esc(L('flip'))}</span></button></div>
     </div></div>`;
   const back = `<div class="face back"><div class="backtop">
-      <div class="pnr"><div><span>PNR</span><b>${esc(spaced(t.pnr))}</b></div>${t.pnr ? `<button data-act="copyPnr" aria-label="${esc(L('aCopyPnr'))}">${ico('copy', 20)}</button>` : ''}</div>
+      ${t.unreserved ? `<p class="legal">${esc(L('urBack'))}</p>` : `<div class="pnr"><div><span>PNR</span><b>${esc(spaced(t.pnr))}</b></div>${t.pnr ? `<button data-act="copyPnr" aria-label="${esc(L('aCopyPnr'))}">${ico('copy', 20)}</button>` : ''}</div>`}
       ${pax.length ? `<div>${pax.map((x, i) => `<div class="paxrow"><span>${esc(titleName(x.name) || L('passengerN', { n: i + 1 }))}</span><b>${esc(x.coach ? `${x.coach}/` : '')}${esc(seatText(x))}${x.berthType ? ` ${esc(berthWord(x.berthType))}` : ''}</b></div>`).join('')}</div>` : ''}
       ${t.rec.raw ? `<div class="smsl">${esc(L('smsTitle'))}</div><pre class="sms">${esc(t.rec.raw)}</pre>` : ''}
       <p class="legal">${esc(L('legal'))}</p>
@@ -318,9 +334,11 @@ function viewPass() {
     </div></div>`;
   const tag = si.href ? 'a' : si.act ? 'button' : 'div';
   const attrs = si.href ? `href="${si.href}" target="_blank" rel="noopener"` : si.act ? `data-act="${si.act}"` : '';
-  return `${t.isShared ? `<div class="banner ok"><span style="flex:1">${esc(L('sharedNote'))}<button class="btn primary" data-act="saveShared">${esc(L('saveTrip'))}</button></span></div>` : ''}
+  return `${t.fromLink ? `<div class="banner ok"><span style="flex:1">${esc(L('sharedNote'))}<button class="btn primary" data-act="saveShared">${esc(L('saveTrip'))}</button></span></div>` : ''}
     <div class="pass-3d ${state.flipped ? 'is-flipped' : ''}" id="pass3d"><div class="pass-tilt" id="passTilt"><div class="pass-flip">${front}${back}</div></div></div>
     ${code === 'RAC' ? `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('racBody'))}</span></div>` : ''}
+    ${t.unreserved && t.kind.reserved ? `<div class="banner bad">${ico('alert', 20)}<span>${esc(L('urReserved'))}</span></div>` : ''}
+    ${t.unreserved && t.kind.superfast ? `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('urSuperfast'))}</span></div>` : ''}
     ${timetableBanner(t)}
     ${signingBanner(t)}
     <${tag} class="next ${si.tone || ''}" ${attrs}>
@@ -390,6 +408,8 @@ function viewJourney() {
     <div class="card">${list.length ? `<ol class="track">${list.map(e => `<li class="${e.cls}"><div class="tm">${esc(atTime(e.at))}</div><div class="rail"><span class="pin"></span></div><div class="ti"><b>${esc(e.b)}</b><span>${esc(e.s)}</span>${e.mins ? `<div class="mins" role="group" aria-label="${esc(L('commuteT'))}">${COMMUTES.map(m => `<button data-act="commute" data-v="${m}" aria-pressed="${state.commute === m}">${m}</button>`).join('')}</div>` : ''}</div></li>`).join('')}</ol>` : `<p class="dim" style="margin:0">${esc(L('noTimeline'))}</p>${dateOrTimeBtn(t, 'btn ghost', 'margin-top:8px')}`}</div>
     ${onTrip ? '' : live}
     ${p.coach ? `<div class="card"><h3>${esc(L('findCoachT', { coach: p.coach }))}</h3><p class="dim" style="margin:0">${esc(L('findCoachS'))}</p></div>` : ''}
+    ${t.unreserved ? `<div class="card"><h3>${esc(L('genT'))}</h3><p class="dim" style="margin:0">${esc(L('genS'))}</p></div>
+      <div class="card"><h3>${esc(L('urValidT'))}</h3><p class="dim" style="margin:0">${esc(L('urValidS'))}</p></div>` : ''}
     ${berthMap(t)}
     <div class="card" id="alerts"><h3>${esc(L('alertsT'))}</h3>
       ${hasWakeUp ? `${isIOSNative() ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>` : ''}
@@ -496,16 +516,32 @@ function viewTrains() {
   if (!f.touched && !f.from && !f.to && t && ttStation(TT, t.fromStn || '') && ttStation(TT, t.toStn || '')) Object.assign(f, { from: t.fromStn, to: t.toStn, fromText: stationLabel(t.fromStn), toText: stationLabel(t.toStn) });
   const r = f.results, err = msg => msg ? `<div class="ferr" role="alert">${ico('alert', 16)}<span>${esc(msg)}</span></div>` : '';
   const station = (k, id, hint) => `<input class="field" id="${id}" value="${esc(f[k + 'Text'])}" placeholder="${esc(L('stationPh'))}" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="${hint}"><div class="sugg" id="sg-${k}"></div>`;
-  const rows = r && r.list.map(x => `<button class="t" data-act="showSchedule" data-v="${esc(x.no)}" data-from="${esc(r.from)}" data-to="${esc(r.to)}"><span class="h">${esc(fmt(x.dep))}</span><span><b>${esc(x.no)}</b><span class="n">${esc(x.name)}</span><span class="d">${esc(L('reachesAt', { station: r.toName, time: fmt(x.arr) }))}${x.days ? ` +${x.days}` : ''} · ${esc(durText(x.durMin * 60000))}</span></span></button>`).join('');
+  // Today, trains that have gone are dimmed and the next ones say how soon they leave.
+  const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes(), today = !!r && r.date === todayISO();
+  const listed = r ? r.list.map(x => ({ ...x, kind: ttKind(x.no, x.name) })) : [];
+  const shown = f.general ? listed.filter(x => !x.kind.reserved) : listed, hidden = listed.length - shown.length;
+  const next = today ? shown.find(x => x.at >= nowMin) : null, tag = (cls, text) => `<span class="tag ${cls}">${esc(text)}</span>`;
+  const rows = shown.map(x => {
+    const gone = today && x.at < nowMin;
+    const tags = [gone ? tag('', L('tagLeft')) : today && x.at - nowMin <= 180 ? tag('soon', L('inDur', { d: durText((x.at - nowMin) * 60000) })) : '',
+      x.kind.reserved ? tag('bad', L('tagReserved')) : '', x.kind.superfast ? tag('warn', L('tagSuperfast')) : '', x.kind.allGeneral ? tag('ok', L('tagGeneral')) : ''].join('');
+    return `<button class="t ${gone ? 'gone' : ''} ${x === next ? 'nextup' : ''}" data-act="showSchedule" data-v="${esc(x.no)}" data-from="${esc(r.from)}" data-to="${esc(r.to)}" data-date="${esc(r.date)}"><span class="h">${esc(fmt(x.dep))}</span><span><b>${esc(x.no)}</b><span class="n">${esc(x.name)}</span><span class="d">${esc(L('reachesAt', { station: r.toName, time: fmt(x.arr) }))}${x.days ? ` +${x.days}` : ''} · ${esc(durText(x.durMin * 60000))}</span>${tags ? `<span class="tags">${tags}</span>` : ''}</span></button>`;
+  }).join('');
+  const name = code => ttStation(TT, code)?.name || code, saved = !!r && routes.some(x => x.from === r.from && x.to === r.to);
+  const chips = routes.map((x, i) => `<span class="rchip"><button data-act="openRoute" data-v="${i}">${esc(name(x.from))} → ${esc(name(x.to))}</button><button class="x" data-act="removeRoute" data-v="${i}" aria-label="${esc(L('removeRoute'))}">${ico('x', 14)}</button></span>`).join('');
   return `<h1 class="ltitle">${esc(L('findT'))}</h1><p class="lsub">${esc(L('findS'))}</p>
+    ${chips ? `<div class="routes">${chips}</div>` : ''}
     <div class="card find">
       <label class="flabel" for="qFrom">${esc(L('fromLabel'))}</label>${station('from', 'qFrom', 'next')}
       <div class="frow"><label class="flabel" for="qTo">${esc(L('toLabel'))}</label><button class="swap" data-act="swapStations" aria-label="${esc(L('swapA'))}">${ico('swap', 18)}</button></div>${station('to', 'qTo', 'search')}
       <label class="flabel" for="qDate">${esc(L('payDate'))}</label><input class="field" id="qDate" type="date" value="${esc(f.date)}">
+      <div class="tog first"><div class="tx"><b>${esc(L('generalT'))}</b>${esc(L('generalS'))}</div><button class="sw" role="switch" aria-checked="${f.general}" aria-label="${esc(L('generalT'))}" data-act="toggleGeneral"></button></div>
       ${err(f.error)}
       <button class="btn primary" data-act="findTrains">${ico('search', 18)}${esc(L('findBtn'))}</button>
     </div>
-    ${r ? `<div class="sect" id="found">${esc(L('foundN', { n: r.list.length, date: fmtDate(r.date) }))}</div>${rows ? `<div class="tlist">${rows}</div>` : `<div class="card"><p class="dim" style="margin:0">${esc(L('noneFound', { from: r.fromName, to: r.toName }))}</p></div>`}` : ''}
+    ${r ? `<div class="sect srow" id="found"><span>${esc(L('foundN', { n: shown.length, date: fmtDate(r.date) }))}</span>${saved ? '' : `<button class="linkbtn" data-act="saveRoute">${ico('plus', 14)}${esc(L('saveRoute'))}</button>`}</div>
+      ${hidden ? `<p class="fine">${esc(L('hiddenN', { n: hidden }))}</p>` : ''}
+      ${rows ? `<div class="tlist">${rows}</div>${shown.some(x => x.kind.superfast) ? `<p class="fine">${esc(L('sfNote'))}</p>` : ''}` : `<div class="card"><p class="dim" style="margin:0">${esc(L('noneFound', { from: r.fromName, to: r.toName }))}</p></div>`}` : ''}
     <div class="card"><h3>${esc(L('checkNoT'))}</h3><p class="dim">${esc(L('checkNoS'))}</p>
       <div class="row2"><input class="field" id="qNo" inputmode="numeric" maxlength="5" placeholder="16630" autocomplete="off" value="${esc(f.no)}" aria-label="${esc(L('checkNoT'))}"><button class="btn ghost" data-act="checkNo">${esc(L('checkBtn'))}</button></div>
       ${err(f.noError)}</div>
@@ -525,7 +561,7 @@ function calEvent(t, kind) {
   const p = t.passengers[0] || {};
   if (kind === 'wake') {
     const wake = wakeAt(t);
-    return { title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), location: `${t.toName} railway station`, notes: L('calWakeNotes', { to: t.toName, coach: p.coach || '—', berth: seatText(p) }), start: wake, end: t.arrivalDate, alarms: [0] };
+    return { title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), location: `${t.toName} railway station`, notes: t.unreserved ? L('wakeS') : L('calWakeNotes', { to: t.toName, coach: p.coach || '—', berth: seatText(p) }), start: wake, end: t.arrivalDate, alarms: [0] };
   }
   const notes = [L('calBoard', { no: t.trainNo }), p.coach ? `${L('coach')} ${p.coach}, ${L('berth')} ${seatText(p)}` : '', t.pnr ? `PNR ${t.pnr}` : '', t.not ? L('calNot', { no: t.not.no, name: t.not.name, station: t.fromName, time: fmt(t.not.dep) }) : ''].filter(Boolean).join('\n');
   const end = t.arrivalDate || new Date(+t.departureDate + 36e5);
@@ -624,7 +660,8 @@ function sheetHTML() {
       <div class="group"><label class="flabel" for="exp">${esc(L('expLabel'))}</label>
         <input class="field" id="exp" value="${esc(a.expected)}" placeholder="${esc(L('expPh'))}" autocomplete="off">
         <p class="fhelp">${esc(L('expHelp'))}</p></div>
-      <button class="btn primary" data-act="readTicket">${esc(L('readBtn'))}</button>`);
+      <button class="btn primary" data-act="readTicket">${esc(L('readBtn'))}</button>
+      <button class="btn ghost" data-act="findYourTrain">${ico('search', 18)}${esc(L('noSmsAdd'))}</button>`);
   }
   if (s === 'pay') {
     const a = state.pay;
@@ -674,9 +711,14 @@ function sheetHTML() {
   if (s === 'schedule') {
     const sc = TT && state.sched ? ttSchedule(TT, state.sched.no) : null;
     if (!sc) return frame(L('checkNoT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('payUnknown'))}</span></div>`);
-    const mine = [state.sched.from, state.sched.to], last = sc.stops.length - 1;
+    const mine = [state.sched.from, state.sched.to], last = sc.stops.length - 1, k = ttKind(sc.no, sc.name);
+    // Taking a train needs a route it runs in order and a date, which only a search or the number check gives.
+    const a = sc.stops.findIndex(x => x.code === state.sched.from), b = sc.stops.findIndex((x, i) => i > a && x.code === state.sched.to);
+    const take = state.sched.date && a !== -1 && b !== -1 ? k.reserved
+      ? `<div class="banner bad">${ico('alert', 20)}<span>${esc(L('urReservedOnly'))}</span></div><button class="btn ghost" data-act="add">${esc(L('haveReserved'))}</button>`
+      : `<button class="btn primary" data-act="takeTrain">${esc(L('takeTrain'))}</button><p class="fhelp" style="margin:0 2px">${esc(L('takeTrainS', { from: sc.stops[a].name, to: sc.stops[b].name, date: fmtDate(state.sched.date) }))}</p>` : '';
     const rows = sc.stops.map((x, i) => `<div class="t ${mine.includes(x.code) ? 'you' : ''}"><span class="h">${esc(fmt(x.dep || x.arr))}</span><span><span class="n">${esc(x.name)}</span><span class="d">${esc([x.code, L('dayN', { n: x.day }), !i ? L('startsHere') : i === last ? L('lastStop') : x.arr !== x.dep ? L('arrivesShort', { time: fmt(x.arr) }) : ''].filter(Boolean).join(' · '))}</span></span></div>`).join('');
-    return frame(`${sc.no} ${sc.name}`, `<p class="fhelp" style="margin:0 2px">${esc(runsText(sc.days))} · ${esc(L('stopsN', { n: sc.stops.length }))}</p><div class="tlist">${rows}</div>`);
+    return frame(`${sc.no} ${sc.name}`, `${take}<p class="fhelp" style="margin:0 2px">${esc(runsText(sc.days))} · ${esc(L('stopsN', { n: sc.stops.length }))}</p><div class="tlist">${rows}</div>`);
   }
   if (s === 'settings') {
     const standalone = matchMedia('(display-mode:standalone)').matches || navigator.standalone || isNative();
@@ -700,12 +742,12 @@ function bigHTML() {
   if (!t) return '';
   const p = t.passengers[0] || {};
   const num = s => state.sun ? esc(s) : `<span class="ledwrap"><span class="led">${esc(s)}</span></span>`;
-  const seatBig = p.status?.code === 'RAC' ? 'RAC' : p.status?.code === 'WL' ? 'WL' : (p.berthNo ?? '—');
+  const seatBig = p.status?.code === 'RAC' ? 'RAC' : p.status?.code === 'WL' ? 'WL' : (p.berthNo ?? '—'), not = notShown(t);
   const sub = p.status?.code === 'RAC' || p.status?.code === 'WL' ? seatText(p) : berthWord(p.berthType);
   return `<div class="big ${state.sun ? 'sun' : ''}" role="dialog" aria-label="${esc(L('qBig'))}"><div class="bigtop"><button data-act="toggleSun">${ico('sun', 18)}${esc(L(state.sun ? 'night' : 'sunlight'))}</button><button data-act="bigClose">${ico('x', 18)}${esc(L('aClose'))}</button></div>
     <div class="bigmain"><div class="biglab">${esc(L('bigTrain'))}</div><div class="bignum">${num(t.trainNo)}</div>
-      <div class="bigrow"><div><div class="biglab">${esc(L('coach'))}</div><div class="bigsub">${num(p.coach || '—')}</div></div><div><div class="biglab">${esc(L('berth'))}</div><div class="bigsub">${num(seatBig)}<small>${esc(sub)}</small></div></div></div>
-      ${notShown(t) ? `<div class="bignot">${esc(L('notTrain', { no: t.not.no, name: t.not.name }))}</div>` : ''}</div></div>`;
+      <div class="bigrow"><div><div class="biglab">${esc(L('coach'))}</div><div class="bigsub">${num(t.unreserved ? 'GEN' : p.coach || '—')}</div></div><div><div class="biglab">${esc(L('berth'))}</div><div class="bigsub">${num(seatBig)}<small>${esc(sub)}</small></div></div></div>
+      ${not ? `<div class="bignot">${esc(L('notTrain', { no: not.no, name: not.name }))}</div>` : ''}</div></div>`;
 }
 
 /* ---------- Sound and haptics ---------- */
@@ -782,7 +824,7 @@ function triggerHaptic(style = 'light') {
   } catch (e) {}
 }
 function hapticStyle(b) {
-  if (['readTicket', 'readYes', 'add', 'addPay', 'flip', 'bigOpen', 'payCheck', 'payYes', 'saveShared'].includes(b.dataset.act)) return 'medium';
+  if (['readTicket', 'readYes', 'add', 'addPay', 'flip', 'bigOpen', 'payCheck', 'payYes', 'saveShared', 'takeTrain'].includes(b.dataset.act)) return 'medium';
   if (['readNo', 'payNo', 'removeTrip'].includes(b.dataset.act)) return 'warning';
   if (b.matches('.sw,.langs button,.mins button,.pfgrid button')) return 'selection';
   return 'light';
@@ -824,7 +866,7 @@ function syncLiveActivity() {
   liveKey = key;
   if (!on) { liveResult = {}; plugin.stopActivity?.().catch(() => {}); return; }
   const done = r => { liveResult = r; renderViews(); };
-  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), departure: +t.departureDate, startAt: now ? 0 : +t.departureDate - LIVE_LEAD, alertTitle: `${t.trainNo} ${t.name || ''}`.trim(), alertBody: L('tlArriveS', { no: t.trainNo }), hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) })
+  plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: t.unreserved ? 'GEN' : p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), departure: +t.departureDate, startAt: now ? 0 : +t.departureDate - LIVE_LEAD, alertTitle: `${t.trainNo} ${t.name || ''}`.trim(), alertBody: L('tlArriveS', { no: t.trainNo }), hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) })
     .then(r => done(r || {})).catch(e => done({ status: 'failed', why: e?.message || '' }));
 }
 // Both apps have the timed alarm. GPS wake-up is iPhone-only so far.
@@ -1125,16 +1167,50 @@ const ACT = {
     }
     document.activeElement?.blur?.();
     renderView('trains');
-    const found = $('#found');
-    if (found) $('#view-trains').scrollTo({ top: found.offsetTop - 80, behavior: REDUCED() ? 'auto' : 'smooth' });
+    // Today, the next train to leave is what someone at the station wants first.
+    const target = $('#view-trains .t.nextup') || $('#found');
+    if (target) $('#view-trains').scrollTo({ top: target.offsetTop - 80, behavior: REDUCED() ? 'auto' : 'smooth' });
   },
   checkNo() {
     const f = state.find, no = f.no.trim();
     f.noError = !/^\d{5}$/.test(no) ? L('payErrNo') : TT && !TT.tr[no] ? L('payUnknown') : '';
     renderView('trains');
-    if (!f.noError && TT) { state.sched = { no, from: f.from, to: f.to }; openSheet('schedule'); }
+    if (!f.noError && TT) { state.sched = { no, from: f.from, to: f.to, date: f.date }; openSheet('schedule'); }
   },
-  showSchedule(b) { state.sched = { no: b.dataset.v, from: b.dataset.from || null, to: b.dataset.to || null }; openSheet('schedule'); }
+  showSchedule(b) { state.sched = { no: b.dataset.v, from: b.dataset.from || null, to: b.dataset.to || null, date: b.dataset.date || null }; openSheet('schedule'); },
+  findYourTrain() { closeNow(); setTab('trains'); },
+  toggleGeneral(b) {
+    const f = state.find;
+    f.general = !f.general; store.set(KEY.general, f.general);
+    b.setAttribute('aria-checked', f.general); // keeps the thumb's spring, then the list follows
+    setTimeout(() => renderView('trains'), 280);
+  },
+  saveRoute() {
+    const r = state.find.results;
+    if (!r) return;
+    routes = [{ from: r.from, to: r.to }, ...routes.filter(x => x.from !== r.from || x.to !== r.to)].slice(0, 6);
+    store.set(KEY.routes, JSON.stringify(routes)); renderView('trains'); toast(L('routeSaved'));
+  },
+  openRoute(b) {
+    const x = routes[+b.dataset.v];
+    if (!x) return;
+    Object.assign(state.find, { from: x.from, to: x.to, fromText: stationLabel(x.from), toText: stationLabel(x.to), date: todayISO(), touched: true });
+    ACT.findTrains();
+  },
+  removeRoute(b) { routes.splice(+b.dataset.v, 1); store.set(KEY.routes, JSON.stringify(routes)); renderView('trains'); },
+  // An unreserved ticket has no SMS, so the trip is the train they chose, with the timetable's times.
+  takeTrain() {
+    const s = state.sched;
+    if (!TT || !s?.from || !s.to || !s.date) return;
+    const facts = ttTrainFacts(TT, { trainNo: s.no, fromStn: s.from, toStn: s.to, time: null, dateISO: s.date });
+    if (!facts?.dep || !facts.callsAtDestination) return;
+    if (facts.runs === false) { toast(L('ttNoRun')); return; }
+    const same = recs.find(r => r.ur && r.ur.trainNo === s.no && r.ur.dateISO === s.date && r.ur.fromStn === s.from && r.ur.toStn === s.to);
+    const rec = same || { id: uid(), ur: { trainNo: s.no, fromStn: s.from, toStn: s.to, dateISO: s.date, time: facts.dep } };
+    if (!same) { recs.push(rec); saveRecords(); }
+    state.tripId = rec.id; state.tab = 'pass'; state.flipped = false;
+    closeNow(); chrome(); renderViews(true); playRailwayChime(); triggerHaptic('success'); toast(L(same ? 'urOpened' : 'savedToast'));
+  }
 };
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');

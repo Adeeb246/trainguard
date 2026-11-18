@@ -224,6 +224,22 @@ try:
             ctx.set_offline(False)
         check('Still works with no internet, timetable included', offline, 2400)
 
+        def unreserved():
+            # Last, because it adds a trip that leaves earlier than the others
+            tap('#tab-trains', 700)
+            app.locator('#qFrom').fill(''); app.locator('#qFrom').press_sequentially('kannur', delay=90); page.wait_for_timeout(400); tap('#sg-from button', 400)
+            app.locator('#qTo').fill(''); app.locator('#qTo').press_sequentially('kozhikode', delay=90); page.wait_for_timeout(400); tap('#sg-to button', 400)
+            app.locator('#qDate').fill('2026-11-16'); page.wait_for_timeout(300)
+            tap('[data-act="toggleGeneral"]', 800)
+            tap('[data-act="findTrains"]', 1200)
+            must(app.locator('.view.on .t.nextup').count() == 1, 'no next train')
+            tap('.view.on .t.nextup', 1000)
+            tap('#sheet [data-act="takeTrain"]', 1200)
+            t = text('.view.on')
+            must('Unreserved ticket' in t and 'GEN' in t, 'no unreserved pass')
+            shot('unreserved')
+        check('General ticket: hide reserved trains, take the next one', unreserved, 1600)
+
         page.wait_for_timeout(6000)  # Leaves the finished list on screen
         print('passed', page.evaluate("document.querySelector('#count').firstChild.textContent"))
         video = page.video

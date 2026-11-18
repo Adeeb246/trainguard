@@ -153,6 +153,21 @@ function ttFindStations(tt, text, limit = 6) {
   return out.sort((a, b) => a.rank - b.rank || b.calls - a.calls).slice(0, limit).map(({ code, name }) => ({ code, name }));
 }
 
+/**
+ * What an unreserved (general) ticket holder needs to know about a train, from its name and number.
+ * Reserved-only trains have no general coaches. On superfast trains a general ticket needs the superfast charge.
+ */
+function ttKind(no, name) {
+  const n = String(name || '');
+  const reserved = /\b(Rajdhani|Vande Bharat|Tejas|Humsafar|Garib Rath|Duronto)\b/i.test(n) || (/\bShatabdi\b/i.test(n) && !/\bJan\s+Shatabdi\b/i.test(n));
+  return {
+    reserved,
+    allGeneral: !reserved && (/\bAntyodaya\b/i.test(n) || /\bUR\b/.test(n)),
+    // 12xxx, 20xxx and 22xxx are the superfast number series.
+    superfast: !reserved && (/\bSuperfast\b/i.test(n) || /^(12|20|22)\d{3}$/.test(String(no)))
+  };
+}
+
 /** Every train that calls at `fromCode` and later at `toCode`, leaving `fromCode` on the given date, earliest first. */
 function ttBetween(tt, fromCode, toCode, dateISO) {
   const a = ttStationId(tt, fromCode), b = ttStationId(tt, toCode);
@@ -208,5 +223,5 @@ function ttLocate(tt, trainNo, fromCode, lat, lon, nowMin) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ttTrainFacts, ttTrainsNear, ttStation, ttRunsOn, ttHHMM, ttMinutes, ttDate, ttFindStations, ttBetween, ttSchedule, ttLocate };
+  module.exports = { ttTrainFacts, ttTrainsNear, ttStation, ttRunsOn, ttHHMM, ttMinutes, ttDate, ttFindStations, ttBetween, ttSchedule, ttLocate, ttKind };
 }

@@ -246,6 +246,21 @@ a.mini{text-decoration:none}
 .row2 .field{flex:1;min-width:0}
 .row2 .btn{width:auto;flex:none;min-height:44px;padding:0 20px}
 
+/* Unreserved travel: train tags, today's departures, saved routes */
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.tag{display:inline-flex;align-items:center;min-height:20px;padding:0 8px;border-radius:10px;background:var(--card-2);color:var(--ink-2);font-size:11px;font-weight:700}
+.tag.bad{background:var(--danger-soft);color:var(--danger-text)}
+.tag.warn{background:var(--warn-soft);color:var(--warn-text)}
+.tag.ok,.tag.soon{background:var(--live-soft);color:var(--live-text)}
+.tlist .t.gone{opacity:.45}
+.tlist .t.nextup{box-shadow:inset 3px 0 0 var(--live)}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.linkbtn{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--live-text);font-size:13px;font-weight:700}
+.routes{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{display:inline-flex;align-items:center;max-width:100%;border-radius:22px;background:var(--card);overflow:hidden}
+.rchip button{min-height:44px;border:0;background:none;color:var(--ink);font-size:14px;font-weight:600;padding:0 4px 0 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rchip .x{flex:none;padding:0 12px 0 6px;color:var(--ink-2)}
+
 /* Where is my train */
 .live{display:flex;flex-direction:column;gap:10px}
 .live>h3{margin:0}
