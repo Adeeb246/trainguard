@@ -686,6 +686,7 @@ function sheetHTML() {
       <div class="group"><div class="tog first"><div class="tx"><b>${esc(L('soundsT'))}</b>${esc(L('soundsS'))}</div><button class="sw" role="switch" aria-checked="${state.sound}" aria-label="${esc(L('soundsT'))}" data-act="toggle" data-k="sound"></button></div>
       <div class="tog"><div class="tx"><b>${esc(L('hapticsT'))}</b>${esc(L(matchMedia('(pointer:coarse)').matches ? 'hapticsS' : 'hapticsDesk'))}</div><button class="sw" role="switch" aria-checked="${state.haptics}" aria-label="${esc(L('hapticsT'))}" data-act="toggle" data-k="haptics"></button></div></div>
       ${standalone ? '' : `<button class="mini" data-act="installApp">${ico('phone')}<span class="tx"><b>${esc(L('installT'))}</b>${esc(L('installS'))}</span>${ico('chevron', 18)}</button>`}
+      <a class="mini" href="${APP_URL}privacy.html" target="_blank" rel="noopener"><span class="tx"><b>${esc(L('privacyT'))}</b>${esc(L('privacyS'))}</span>${ico('external', 18)}</a>
       <p class="fine">${esc(L('aboutS'))} ${TT ? esc(L('aboutTT', { date: TT.asOf })) : ''}</p>`);
   }
   if (s === 'install') return frame(L('installT'), `<div class="group"><p class="gtitle">iPhone</p><p class="fhelp" style="margin:0">${esc(L('installIos'))}</p></div><div class="group"><p class="gtitle">Android</p><p class="fhelp" style="margin:0">${esc(L('installAndroid'))}</p></div>`);

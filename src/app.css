@@ -169,6 +169,7 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .card>h3{margin:0 0 3px;font-size:16px;font-weight:700}
 .card>.dim{margin:0 0 10px;color:var(--ink-2);font-size:13px;line-height:1.35}
 .mini{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;box-sizing:border-box;border:0;border-radius:18px;background:var(--card);text-align:left;color:var(--ink);min-height:60px}
+a.mini{text-decoration:none}
 .mini .no{font:800 20px/1 var(--display);font-variant-numeric:tabular-nums}
 .mini .tx{min-width:0;flex:1;font-size:13px;color:var(--ink-2);line-height:1.3}
 .mini .tx b{display:block;color:var(--ink);font-weight:700;font-size:14px}

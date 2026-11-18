@@ -86,7 +86,8 @@ const I18N = {
     posAt: 'At {station}', posBetween: 'Between {a} and {b}', posNext: 'Next stop {station} in about {d}',
     posLate: 'Running about {d} late', posOnTime: 'Running on time', posEarly: 'Ahead of the timetable', posReach: 'Reaching {station} around {time}',
     posNote: "An estimate from your phone's location and the timetable. Nothing leaves your phone.",
-    ntesBtn: 'Official live status', pnrBtn: 'PNR status', noCopied: 'Train number {no} copied. Paste it on the page.', pnrCopied: 'PNR copied. Paste it on the page.'
+    ntesBtn: 'Official live status', pnrBtn: 'PNR status', noCopied: 'Train number {no} copied. Paste it on the page.', pnrCopied: 'PNR copied. Paste it on the page.',
+    privacyT: 'Privacy policy', privacyS: 'What TrainGuard keeps, and what never leaves your phone.'
   },
   ml: {
     tabPass: 'പാസ്', tabJourney: 'യാത്ര', tabSafety: 'സുരക്ഷ',
@@ -174,7 +175,8 @@ const I18N = {
     posAt: '{station}-ൽ', posBetween: '{a}-നും {b}-നും ഇടയിൽ', posNext: 'അടുത്ത സ്റ്റോപ്പ് {station}, ഏകദേശം {d} കഴിഞ്ഞ്',
     posLate: 'ഏകദേശം {d} വൈകി ഓടുന്നു', posOnTime: 'കൃത്യസമയത്ത് ഓടുന്നു', posEarly: 'സമയപ്പട്ടികയെക്കാൾ മുന്നിൽ', posReach: '{station} ഏകദേശം {time}-ന് എത്തും',
     posNote: 'ഫോണിന്റെ ലൊക്കേഷനും സമയപ്പട്ടികയും വെച്ചുള്ള ഏകദേശ കണക്ക്. ഒന്നും ഫോണിൽ നിന്ന് പുറത്തുപോകില്ല.',
-    ntesBtn: 'ഔദ്യോഗിക തത്സമയ നില', pnrBtn: 'PNR നില', noCopied: 'ട്രെയിൻ നമ്പർ {no} പകർത്തി. പേജിൽ ഒട്ടിക്കുക.', pnrCopied: 'PNR പകർത്തി. പേജിൽ ഒട്ടിക്കുക.'
+    ntesBtn: 'ഔദ്യോഗിക തത്സമയ നില', pnrBtn: 'PNR നില', noCopied: 'ട്രെയിൻ നമ്പർ {no} പകർത്തി. പേജിൽ ഒട്ടിക്കുക.', pnrCopied: 'PNR പകർത്തി. പേജിൽ ഒട്ടിക്കുക.',
+    privacyT: 'സ്വകാര്യതാ നയം', privacyS: 'TrainGuard എന്ത് സൂക്ഷിക്കുന്നു, എന്ത് ഒരിക്കലും ഫോൺ വിട്ടുപോകില്ല.'
   },
   hi: {
     tabPass: 'पास', tabJourney: 'यात्रा', tabSafety: 'सुरक्षा',
@@ -262,7 +264,8 @@ const I18N = {
     posAt: '{station} पर', posBetween: '{a} और {b} के बीच', posNext: 'अगला स्टॉप {station}, लगभग {d} में',
     posLate: 'लगभग {d} देर से चल रही है', posOnTime: 'समय पर चल रही है', posEarly: 'समय-सारणी से आगे', posReach: '{station} लगभग {time} तक पहुँचेगी',
     posNote: 'फ़ोन की लोकेशन और समय-सारणी से अनुमान। कुछ भी फ़ोन से बाहर नहीं जाता।',
-    ntesBtn: 'आधिकारिक लाइव स्थिति', pnrBtn: 'PNR स्थिति', noCopied: 'ट्रेन नंबर {no} कॉपी हुआ। पेज पर पेस्ट करें।', pnrCopied: 'PNR कॉपी हुआ। पेज पर पेस्ट करें।'
+    ntesBtn: 'आधिकारिक लाइव स्थिति', pnrBtn: 'PNR स्थिति', noCopied: 'ट्रेन नंबर {no} कॉपी हुआ। पेज पर पेस्ट करें।', pnrCopied: 'PNR कॉपी हुआ। पेज पर पेस्ट करें।',
+    privacyT: 'गोपनीयता नीति', privacyS: 'TrainGuard क्या रखता है, और क्या कभी आपके फ़ोन से बाहर नहीं जाता।'
   },
   ta: {
     tabPass: 'பாஸ்', tabJourney: 'பயணம்', tabSafety: 'பாதுகாப்பு',
@@ -350,7 +353,8 @@ const I18N = {
     posAt: '{station}-இல்', posBetween: '{a} மற்றும் {b} இடையே', posNext: 'அடுத்த நிறுத்தம் {station}, சுமார் {d}-இல்',
     posLate: 'சுமார் {d} தாமதமாக ஓடுகிறது', posOnTime: 'சரியான நேரத்தில் ஓடுகிறது', posEarly: 'கால அட்டவணையை விட முன்னால்', posReach: '{station} சுமார் {time}-க்கு அடையும்',
     posNote: 'ஃபோனின் இருப்பிடம் மற்றும் கால அட்டவணையிலிருந்து ஒரு மதிப்பீடு. எதுவும் ஃபோனை விட்டு வெளியே போகாது.',
-    ntesBtn: 'அதிகாரப்பூர்வ நேரடி நிலை', pnrBtn: 'PNR நிலை', noCopied: 'ரயில் எண் {no} நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.', pnrCopied: 'PNR நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.'
+    ntesBtn: 'அதிகாரப்பூர்வ நேரடி நிலை', pnrBtn: 'PNR நிலை', noCopied: 'ரயில் எண் {no} நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.', pnrCopied: 'PNR நகலெடுக்கப்பட்டது. பக்கத்தில் ஒட்டுங்கள்.',
+    privacyT: 'தனியுரிமைக் கொள்கை', privacyS: 'TrainGuard எதைச் சேமிக்கிறது, எது ஒருபோதும் உங்கள் ஃபோனை விட்டு வெளியேறாது.'
   }
 };
 

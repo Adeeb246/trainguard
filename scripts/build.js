@@ -10,7 +10,7 @@ const html = read('index.html')
   .replace(/<link rel="stylesheet" href="\.\/(src\/[^"]+)">/g, (_, file) => `<style>${read(file)}</style>`)
   .replace(/<script src="\.\/(src\/[^"]+)"><\/script>/g, (_, file) => `<script>${read(file).replace(/<\/script/gi, '<\\/script')}</script>`);
 
-const copied = ['manifest.json', 'emulator.html', 'data/timetable.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
+const copied = ['manifest.json', 'emulator.html', 'privacy.html', 'data/timetable.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const hash = crypto.createHash('sha256');
 hash.update(html);
 for (const file of copied) hash.update(fs.readFileSync(path.join(root, file)));
