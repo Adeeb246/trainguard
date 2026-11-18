@@ -67,8 +67,8 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .gcap button:active{background:var(--lens)}
 .badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:var(--live);color:var(--live-ink);font-size:12px;font-weight:700;line-height:18px;text-align:center;z-index:2}
 .dock{position:absolute;left:max(var(--gut),env(safe-area-inset-left,0px));right:max(var(--gut),env(safe-area-inset-right,0px));bottom:max(10px,calc(var(--sab) - 8px));display:flex;gap:8px;z-index:6}
-.tabbar{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,1fr);height:62px;padding:4px;box-sizing:border-box;border-radius:31px;touch-action:none;-webkit-user-select:none;user-select:none}
-.tab{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:54px;border:0;border-radius:27px;background:none;color:var(--tab-ink);font-size:12px;font-weight:600;min-width:0;transition:color .2s}
+.tabbar{flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,1fr);height:62px;padding:4px;box-sizing:border-box;border-radius:31px;touch-action:none;-webkit-user-select:none;user-select:none}
+.tab{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:54px;padding:0 2px;border:0;border-radius:27px;background:none;color:var(--tab-ink);font-size:11px;font-weight:600;min-width:0;transition:color .2s}
 .tab span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tab[aria-selected=true],.tab.near{color:var(--live-text)}
 .tab svg{transition:transform .3s var(--sp-snap)}
@@ -224,6 +224,37 @@ a{color:inherit;-webkit-tap-highlight-color:transparent}
 .t.you{background:var(--live-soft)}
 .t.you b,.t.you .n,.t.you .d{color:var(--live-text)}
 .t.hot b,.t.hot .n,.t.hot .d{color:var(--danger-text)}
+.t>span:last-child{min-width:0}
+.tlist button.t{width:100%;border:0;border-top:1px solid var(--hair);background:none;color:inherit;font:inherit;text-align:left}
+.tlist button.t:first-child{border-top:0}
+.tlist button.t:active{background:var(--card-2)}
+
+/* Find trains */
+.find{display:flex;flex-direction:column;gap:6px}
+.find .flabel{margin:6px 0 0}
+.frow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.swap{display:grid;place-items:center;flex:none;width:44px;height:44px;margin-bottom:-4px;border:0;border-radius:50%;background:var(--card-2);color:var(--ink);transition:transform .32s var(--sp-snap)}
+.swap:active{transform:rotate(180deg) scale(.92)}
+.sugg{display:flex;flex-direction:column;gap:4px}
+.sugg:empty{display:none}
+.sugg button{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:0 12px;border:0;border-radius:12px;background:var(--card-2);color:var(--ink);font-size:15px;text-align:left}
+.sugg button b{min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugg button span{flex:none;font-size:12px;font-weight:700;color:var(--ink-2)}
+.find .btn{margin-top:8px}
+.row2{display:flex;gap:8px}
+.row2 .field{flex:1;min-width:0}
+.row2 .btn{width:auto;flex:none;min-height:44px;padding:0 20px}
+
+/* Where is my train */
+.live{display:flex;flex-direction:column;gap:10px}
+.live>h3{margin:0}
+.live .dim{margin:0;color:var(--ink-2);font-size:13px;line-height:1.35}
+.pos{display:flex;flex-direction:column;gap:3px;font-size:14px;line-height:1.35;color:var(--ink-2)}
+.pos b{font:800 21px/1.15 var(--display);color:var(--ink);letter-spacing:-.01em}
+.pos .late{color:var(--warn-text);font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two .btn{min-height:44px;padding:0 10px;font-size:14px}
+.two .btn:only-child{grid-column:1/-1}
 .sect{margin:6px 2px -6px;font-size:13px;font-weight:700;color:var(--ink-2)}
 details.also{display:flex;flex-direction:column;gap:8px}
 details.also summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 14px;border-radius:14px;background:var(--card);font-size:14px;font-weight:600;cursor:pointer;list-style:none}

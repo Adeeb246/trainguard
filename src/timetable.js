@@ -118,6 +118,77 @@ function ttTrainsNear(tt, ticket) {
   return { way, other, nearest };
 }
 
+/** Stations matching typed text: exact code first, then names starting with it, then names containing it. Busier stations rank higher. */
+function ttFindStations(tt, text, limit = 6) {
+  const q = String(text || '').trim().toUpperCase();
+  if (!q) return [];
+  if (!tt.calls) {
+    tt.calls = new Uint16Array(tt.st.length);
+    for (const no in tt.tr) { const flat = tt.tr[no][4]; for (let i = 0; i < flat.length; i += 3) tt.calls[flat[i]]++; }
+  }
+  const out = [];
+  tt.st.forEach((s, i) => {
+    const name = s[1].toUpperCase();
+    const rank = s[0] === q ? 0 : name.startsWith(q) ? 1 : s[0].startsWith(q) ? 2 : name.includes(q) ? 3 : -1;
+    if (rank !== -1) out.push({ rank, calls: tt.calls[i], code: s[0], name: s[1] });
+  });
+  return out.sort((a, b) => a.rank - b.rank || b.calls - a.calls).slice(0, limit).map(({ code, name }) => ({ code, name }));
+}
+
+/** Every train that calls at `fromCode` and later at `toCode`, leaving `fromCode` on the given date, earliest first. */
+function ttBetween(tt, fromCode, toCode, dateISO) {
+  const a = ttStationId(tt, fromCode), b = ttStationId(tt, toCode);
+  if (a === undefined || b === undefined || a === b || !dateISO) return null;
+  const date = ttDate(dateISO), out = [];
+  for (const no of Object.keys(tt.tr)) {
+    const rec = tt.tr[no], flat = rec[4], i = ttStopIndex(flat, a);
+    if (i === -1) continue;
+    let j = -1;
+    for (let k = i + 3; k < flat.length; k += 3) if (flat[k] === b) { j = k; break; }
+    if (j === -1 || !ttRunsOn(rec, flat[i + 2], date)) continue;
+    const dep = flat[i + 2], arr = flat[j + 1];
+    out.push({ no, name: rec[0], dep: ttHHMM(dep), arr: ttHHMM(arr), durMin: arr - dep, days: Math.floor(arr / 1440) - Math.floor(dep / 1440), at: dep % 1440 });
+  }
+  return out.sort((x, y) => x.at - y.at);
+}
+
+/** A train's stops in order, with times and the day of the journey each one falls on. */
+function ttSchedule(tt, trainNo) {
+  const rec = tt.tr[trainNo];
+  if (!rec) return null;
+  const flat = rec[4], last = flat.length - 3, stops = [];
+  for (let i = 0; i < flat.length; i += 3) {
+    const [code, name] = tt.st[flat[i]];
+    stops.push({ code, name, arr: i ? ttHHMM(flat[i + 1]) : null, dep: i < last ? ttHHMM(flat[i + 2]) : null, day: Math.floor((i ? flat[i + 1] : flat[i + 2]) / 1440) + 1 });
+  }
+  return { no: trainNo, name: rec[0], days: rec[1], stops };
+}
+
+/**
+ * Where a phone is along a train's route. Finds the pair of stops the position fits between, using straight
+ * lines, so curves make it an estimate. All times are minutes after the scheduled departure from `fromCode`,
+ * and `nowMin` is the current time on that scale.
+ */
+function ttLocate(tt, trainNo, fromCode, lat, lon, nowMin) {
+  const rec = tt.tr[trainNo];
+  if (!rec || rec[4].length < 6) return null;
+  const flat = rec[4], cos = Math.cos(lat * Math.PI / 180);
+  const km = (s, y, x) => Math.hypot((s[3] - x) * 111.32 * cos, (s[2] - y) * 110.57);
+  const fromId = ttStationId(tt, fromCode), f0 = fromId === undefined ? -1 : ttStopIndex(flat, fromId), f = Math.max(f0, 0), base = flat[f + 2];
+  const legs = [];
+  for (let i = 0; i + 3 < flat.length; i += 3) {
+    const A = tt.st[flat[i]], B = tt.st[flat[i + 3]], da = km(A, lat, lon), db = km(B, lat, lon), ab = km(A, B[2], B[3]);
+    const frac = da + db ? da / (da + db) : 0;
+    legs.push({ i, da, db, ab, extra: da + db - ab, due: flat[i + 2] + frac * (flat[i + 4] - flat[i + 2]) - base });
+  }
+  const min = Math.min(...legs.map(l => l.extra));
+  // Close fits happen at a stop (the legs in and out) and where a route passes a place twice, so the clock decides.
+  const best = legs.filter(l => l.extra <= min + 0.5).sort((x, y) => Math.abs(x.due - nowMin) - Math.abs(y.due - nowMin))[0];
+  if (best.extra > 8 + best.ab * 0.1) return { off: true };
+  const { i, da, db } = best, near = da < 1.5 ? i : db < 1.5 ? i + 3 : -1;
+  return { off: false, behind: i < f, due: best.due, prev: tt.st[flat[i]][1], next: tt.st[flat[i + 3]][1], nextDue: flat[i + 4] - base, at: near === -1 ? null : tt.st[flat[near]][1] };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ttTrainFacts, ttTrainsNear, ttStation, ttRunsOn, ttHHMM, ttMinutes, ttDate };
+  module.exports = { ttTrainFacts, ttTrainsNear, ttStation, ttRunsOn, ttHHMM, ttMinutes, ttDate, ttFindStations, ttBetween, ttSchedule, ttLocate };
 }

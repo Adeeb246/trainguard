@@ -6,6 +6,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 
 const APP_URL = 'https://trainguard-cyan.vercel.app/';
 const PNR_URL = 'https://www.indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en';
+const NTES_URL = 'https://enquiry.indianrail.gov.in';
 const KEY = { trips: 'trainguard_trips_v2', legacy: 'trainguard_saved_ticket_v1', theme: 'trainguard_theme_v2', lang: 'trainguard_lang', sound: 'trainguard_sound_enabled', haptic: 'trainguard_haptic_enabled', commute: 'trainguard_commute_min', gps: 'trainguard_gps_wake', backup: 'trainguard_backup_alarm', liveNow: 'trainguard_live_now' };
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
@@ -33,14 +34,17 @@ const ICONS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
   external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
-  phone: '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>'
+  phone: '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  swap: '<path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/>',
+  locate: '<polygon points="3 11 22 2 13 21 11 13 3 11"/>'
 };
 const ico = (n, s = 22, w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 const LOGO = '<svg class="logo" viewBox="0 0 120 120" role="img" aria-label="TrainGuard"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A2C2B"/><stop offset="1" stop-color="#0C0D0C"/></linearGradient></defs><rect width="120" height="120" fill="url(#lg)"/><g stroke="#4ADE80" stroke-linecap="round" fill="none"><path d="M34 102 54 36" stroke-width="7"/><path d="M86 102 66 36" stroke-width="7"/><path d="M38 88h44" stroke-width="5.5"/><path d="M44 69h32" stroke-width="5"/><path d="M49 52h22" stroke-width="4.5"/></g><circle cx="60" cy="23" r="7.5" fill="#4ADE80"/><circle cx="60" cy="23" r="13" fill="#4ADE80" opacity=".18"/></svg>';
 
 const LANGS = [['en', 'English'], ['ml', 'മലയാളം'], ['hi', 'हिंदी'], ['ta', 'தமிழ்']];
 const LOCALES = { en: 'en-GB', ml: 'ml-IN', hi: 'hi-IN', ta: 'ta-IN' };
-const TAB_ORDER = ['pass', 'journey', 'safety'];
+const TAB_ORDER = ['pass', 'journey', 'trains', 'safety'];
 const COMMUTES = [15, 30, 45, 60, 90];
 const STATION_BUFFER = 30;
 
@@ -50,7 +54,9 @@ const state = {
   sound: store.get(KEY.sound, 'true') === 'true', haptics: store.get(KEY.haptic, 'true') === 'true',
   commute: parseInt(store.get(KEY.commute, '30'), 10) || 30,
   gps: store.get(KEY.gps, 'false') === 'true', backup: store.get(KEY.backup, 'false') === 'true', // off until asked for, because each one triggers a permission prompt
-  add: {}, pay: {}, share: { seat: true, pnr: false }
+  add: {}, pay: {}, share: { seat: true, pnr: false },
+  find: { from: null, to: null, fromText: '', toText: '', date: '', results: null, error: '', no: '', noError: '', touched: false },
+  sched: null, live: null
 };
 if (!I18N[state.lang]) state.lang = 'en';
 const L = (k, v) => tr(state.lang, k, v);
@@ -77,6 +83,24 @@ const berthWord = code => code && BERTH_KEYS[code] ? L(BERTH_KEYS[code]) : '';
 const seatText = p => p.status?.code === 'RAC' ? `RAC ${p.status.number}` : p.status?.code === 'WL' ? `WL ${p.status.number}` : (p.berthNo ?? '—');
 const firstName = n => n ? n.trim().split(/\s+/)[0].replace(/^(\w)(\w*)$/, (_, a, b) => a + b.toLowerCase()) : '';
 const titleName = n => n ? n.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase()) : '';
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+state.find.date = todayISO();
+// The look-alike warning matters until the train leaves; after that it only gets in the way.
+const notShown = t => t.not && !(t.departureDate && Date.now() >= +t.departureDate) ? t.not : null;
+const stationLabel = code => { const s = TT && code ? ttStation(TT, code) : null; return s ? `${s.name} (${code})` : code || ''; };
+function resolveStation(text) {
+  if (!TT || !text) return null;
+  const m = String(text).match(/\(([A-Z]{2,5})\)\s*$/);
+  if (m && ttStation(TT, m[1])) return m[1];
+  const hit = ttFindStations(TT, text, 1)[0];
+  return hit ? hit.code : null;
+}
+function runsText(mask) {
+  if (mask === 127) return L('runsDaily');
+  const day = new Intl.DateTimeFormat(LOCALES[state.lang], { weekday: 'short' });
+  // 16 Nov 2026 is a Monday, and bit 0 of the mask is Monday.
+  return L('runsOn', { days: [0, 1, 2, 3, 4, 5, 6].filter(i => (mask >> i) & 1).map(i => day.format(new Date(2026, 10, 16 + i))).join(', ') });
+}
 
 /* ---------- Trips: records hold the raw ticket, everything else is derived ---------- */
 function loadRecords() {
@@ -256,7 +280,7 @@ function viewEmpty() {
 function viewPass() {
   const t = current();
   if (!t) return viewEmpty();
-  const p = t.passengers[0] || {}, si = stageInfo(t), code = t.status?.code, not = t.not;
+  const p = t.passengers[0] || {}, si = stageInfo(t), code = t.status?.code, not = notShown(t);
   const boardingNow = t.departureDate && stageOf(t) === 'boarding' && code !== 'WL' && code !== 'CAN';
   const eyebrow = code === 'WL' || code === 'CAN' ? L('ticketFor') : boardingNow ? L('boardCheck') : L('boardOnly');
   const seatSub = code === 'RAC' ? L('racShared') : code === 'WL' ? L('noSeat') : p.berthNo ? berthWord(p.berthType) : L('seatUnknown');
@@ -269,7 +293,7 @@ function viewPass() {
       <div class="hero-no ${boardingNow ? 'check' : ''}">${esc(t.trainNo)}</div>
       <div class="hero-name">${esc(t.name || (TT ? L('nameUnknown') : ''))}</div>
       ${t.facts?.board ? `<div class="hero-board">${esc(L('coachBoards', { route: t.facts.board }))}</div>` : ''}
-      ${not ? `<button class="notrow" data-act="tabSafety">${ico('x', 18, 2.6)}<span><b>${esc(L('notTrain', { no: not.no, name: not.name }))}</b><small>${esc(L('leavesHere', { time: fmt(not.dep) }))}</small></span><span class="cv">${ico('chevron', 16)}</span></button>` : ''}
+      ${not ? `<button class="notrow" data-act="tabSafety">${ico('alert', 18, 2.4)}<span><b>${esc(L('notTrain', { no: not.no, name: not.name }))}</b><small>${esc(L('leavesHere', { time: fmt(not.dep) }))}</small></span><span class="cv">${ico('chevron', 16)}</span></button>` : ''}
     </div>
     <div class="pb">
       <div class="route">
@@ -359,8 +383,12 @@ function viewJourney() {
   const list = timeline(t);
   const wake = wakeAt(t);
   const hasWakeUp = !!wakePlugin();
+  // On the journey itself, where the train is matters most, so the card moves to the top.
+  const live = liveCard(t), onTrip = liveWindow(t);
   return `<h1 class="ltitle">${esc(L('tabJourney'))}</h1><p class="lsub">${esc(t.trainNo)} · ${esc(L('routeTo', { from: t.fromName, to: t.toName }))} · ${esc(fmtDate(t.dateISO))}</p>
+    ${onTrip ? live : ''}
     <div class="card">${list.length ? `<ol class="track">${list.map(e => `<li class="${e.cls}"><div class="tm">${esc(atTime(e.at))}</div><div class="rail"><span class="pin"></span></div><div class="ti"><b>${esc(e.b)}</b><span>${esc(e.s)}</span>${e.mins ? `<div class="mins" role="group" aria-label="${esc(L('commuteT'))}">${COMMUTES.map(m => `<button data-act="commute" data-v="${m}" aria-pressed="${state.commute === m}">${m}</button>`).join('')}</div>` : ''}</div></li>`).join('')}</ol>` : `<p class="dim" style="margin:0">${esc(L('noTimeline'))}</p>${dateOrTimeBtn(t, 'btn ghost', 'margin-top:8px')}`}</div>
+    ${onTrip ? '' : live}
     ${p.coach ? `<div class="card"><h3>${esc(L('findCoachT', { coach: p.coach }))}</h3><p class="dim" style="margin:0">${esc(L('findCoachS'))}</p></div>` : ''}
     ${berthMap(t)}
     <div class="card" id="alerts"><h3>${esc(L('alertsT'))}</h3>
@@ -406,6 +434,88 @@ function viewSafety() {
       <a class="w" href="https://enquiry.indianrail.gov.in" target="_blank" rel="noopener">${esc(L('hNtes'))} ${ico('external', 16)}</a>
       <a class="w" href="https://railmadad.indianrailways.gov.in" target="_blank" rel="noopener">${esc(L('hRail'))} ${ico('external', 16)}</a>
       <a class="w" href="https://www.ecatering.irctc.co.in" target="_blank" rel="noopener">${esc(L('hFood'))} ${ico('external', 16)}</a></div></div>`;
+}
+
+/* ---------- Where is my train: the phone's position against the timetable, worked out on the phone ---------- */
+const liveWindow = t => !!t.departureDate && Date.now() >= +t.departureDate - 10 * 60000 && Date.now() <= +(t.arrivalDate || +t.departureDate + 864e5) + 2 * 36e5;
+function liveCard(t) {
+  const known = !!(TT && TT.tr[t.trainNo]), dep = t.departureDate;
+  const copyLink = (href, value, done, label) => `<a class="btn ghost" href="${href}" target="_blank" rel="noopener" data-copy="${esc(value)}" data-copied="${esc(done)}">${esc(label)}</a>`;
+  const links = `<div class="two">${copyLink(NTES_URL, t.trainNo, L('noCopied', { no: t.trainNo }), L('ntesBtn'))}${t.pnr ? copyLink(PNR_URL, t.pnr, L('pnrCopied'), L('pnrBtn')) : ''}</div>`;
+  let body = '';
+  if (known && dep && !t.isShared) {
+    if (!liveWindow(t)) body = `<p class="dim">${esc(Date.now() < +dep ? L('posBefore', { time: fmt(t.time) }) : L('posAfter'))}</p>`;
+    else if (state.live === 'on' && liveFix) body = posHTML(t);
+    else body = `<p class="dim">${esc(L({ asking: 'posAsking', denied: 'posDenied', error: 'posError' }[state.live] || 'posIntro'))}</p>
+      ${state.live === 'asking' ? '' : `<button class="btn primary" data-act="liveStart">${ico('locate', 18)}${esc(L('posBtn'))}</button>`}`;
+  }
+  return `<div class="card live" id="liveCard"><h3>${esc(L('whereT'))}</h3>${body}${links}
+    ${known ? `<button class="btn ghost" data-act="showSchedule" data-v="${esc(t.trainNo)}" data-from="${esc(t.fromStn || '')}" data-to="${esc(t.toStn || '')}">${esc(L('allStops'))}</button>` : ''}</div>`;
+}
+function posHTML(t) {
+  const note = `<p class="fine">${esc(L('posNote'))}</p>`, say = text => `<p class="dim">${esc(text)}</p>${note}`;
+  const nowMin = (Date.now() - +t.departureDate) / 60000;
+  if (liveFix.acc > 3000) return say(L('posRough', { km: Math.round(liveFix.acc / 1000) }));
+  const p = ttLocate(TT, t.trainNo, t.fromStn, liveFix.lat, liveFix.lon, nowMin);
+  if (!p || p.off) return say(L('posOff', { no: t.trainNo }));
+  if (p.at && p.at === t.fromName && nowMin < 10) return `<div class="pos"><b>${esc(L('posAt', { station: p.at }))}</b><span>${esc(L('tlArriveS', { no: t.trainNo }))}</span></div>${note}`;
+  if (p.behind) return say(L('posBehind', { station: t.fromName }));
+  const late = Math.round(nowMin - p.due);
+  // Trains in India can run many hours late, but a position this far off the clock is more likely someone not on board.
+  if (late > 720 || late < -30) return say(L('posOdd', { no: t.trainNo }));
+  const lateText = late >= 5 ? L('posLate', { d: durText(Math.round(late / 5) * 5 * 60000) }) : late <= -10 ? L('posEarly') : L('posOnTime');
+  const reach = t.arrivalDate ? new Date(+t.arrivalDate + Math.max(0, late) * 60000) : null;
+  return `<div class="pos"><b>${esc(p.at ? L('posAt', { station: p.at }) : L('posBetween', { a: p.prev, b: p.next }))}</b>
+    ${p.at === p.next ? '' : `<span>${esc(L('posNext', { station: p.next, d: durText(Math.max(0, p.nextDue - p.due) * 60000) }))}</span>`}
+    <span class="${late >= 5 ? 'late' : ''}">${esc(lateText)}</span>
+    ${reach ? `<span>${esc(L('posReach', { station: t.toName, time: atTime(reach) }))}</span>` : ''}</div>${note}`;
+}
+let liveWatch = null, liveFix = null;
+function stopWatch() { if (liveWatch !== null) try { navigator.geolocation.clearWatch(liveWatch); } catch (e) {} liveWatch = null; }
+function startWatch() {
+  stopWatch();
+  if (!navigator.geolocation) { state.live = 'error'; renderLive(); return; }
+  if (state.live !== 'on') { state.live = 'asking'; renderLive(); }
+  liveWatch = navigator.geolocation.watchPosition(p => {
+    liveFix = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
+    state.live = 'on'; renderLive();
+  }, e => {
+    if (e.code === 1) { state.live = 'denied'; stopWatch(); } else if (!liveFix) state.live = 'error';
+    renderLive();
+  }, { enableHighAccuracy: true, maximumAge: 20000, timeout: 45000 });
+}
+function renderLive() { const el = $('#liveCard'), t = current(); if (el && t) el.outerHTML = liveCard(t); }
+// The GPS runs only while someone is looking, to save the battery.
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopWatch(); else if (state.live === 'on') startWatch(); });
+
+/* ---------- Find trains between two stations, from the timetable on the phone ---------- */
+function viewTrains() {
+  const f = state.find, t = current();
+  if (!TT) return `<h1 class="ltitle">${esc(L('findT'))}</h1><div class="card"><h3>${esc(L('ttLoadingT'))}</h3><p class="dim" style="margin:0">${esc(L('ttLoadingS'))}</p></div>`;
+  // Start from the trip someone already has, so they can see the other trains on their route.
+  if (!f.touched && !f.from && !f.to && t && ttStation(TT, t.fromStn || '') && ttStation(TT, t.toStn || '')) Object.assign(f, { from: t.fromStn, to: t.toStn, fromText: stationLabel(t.fromStn), toText: stationLabel(t.toStn) });
+  const r = f.results, err = msg => msg ? `<div class="ferr" role="alert">${ico('alert', 16)}<span>${esc(msg)}</span></div>` : '';
+  const station = (k, id, hint) => `<input class="field" id="${id}" value="${esc(f[k + 'Text'])}" placeholder="${esc(L('stationPh'))}" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="${hint}"><div class="sugg" id="sg-${k}"></div>`;
+  const rows = r && r.list.map(x => `<button class="t" data-act="showSchedule" data-v="${esc(x.no)}" data-from="${esc(r.from)}" data-to="${esc(r.to)}"><span class="h">${esc(fmt(x.dep))}</span><span><b>${esc(x.no)}</b><span class="n">${esc(x.name)}</span><span class="d">${esc(L('reachesAt', { station: r.toName, time: fmt(x.arr) }))}${x.days ? ` +${x.days}` : ''} · ${esc(durText(x.durMin * 60000))}</span></span></button>`).join('');
+  return `<h1 class="ltitle">${esc(L('findT'))}</h1><p class="lsub">${esc(L('findS'))}</p>
+    <div class="card find">
+      <label class="flabel" for="qFrom">${esc(L('fromLabel'))}</label>${station('from', 'qFrom', 'next')}
+      <div class="frow"><label class="flabel" for="qTo">${esc(L('toLabel'))}</label><button class="swap" data-act="swapStations" aria-label="${esc(L('swapA'))}">${ico('swap', 18)}</button></div>${station('to', 'qTo', 'search')}
+      <label class="flabel" for="qDate">${esc(L('payDate'))}</label><input class="field" id="qDate" type="date" value="${esc(f.date)}">
+      ${err(f.error)}
+      <button class="btn primary" data-act="findTrains">${ico('search', 18)}${esc(L('findBtn'))}</button>
+    </div>
+    ${r ? `<div class="sect" id="found">${esc(L('foundN', { n: r.list.length, date: fmtDate(r.date) }))}</div>${rows ? `<div class="tlist">${rows}</div>` : `<div class="card"><p class="dim" style="margin:0">${esc(L('noneFound', { from: r.fromName, to: r.toName }))}</p></div>`}` : ''}
+    <div class="card"><h3>${esc(L('checkNoT'))}</h3><p class="dim">${esc(L('checkNoS'))}</p>
+      <div class="row2"><input class="field" id="qNo" inputmode="numeric" maxlength="5" placeholder="16630" autocomplete="off" value="${esc(f.no)}" aria-label="${esc(L('checkNoT'))}"><button class="btn ghost" data-act="checkNo">${esc(L('checkBtn'))}</button></div>
+      ${err(f.noError)}</div>
+    <p class="fine">${esc(L('ttAsOf', { date: new Intl.DateTimeFormat(LOCALES[state.lang], { day: 'numeric', month: 'short', year: 'numeric' }).format(ttDate(TT.asOf)) }))}</p>`;
+}
+function suggest(k, text) {
+  const box = $('#sg-' + k);
+  if (!box) return;
+  const list = TT && text.trim().length >= 2 ? ttFindStations(TT, text, 5) : [];
+  box.innerHTML = list.map(s => `<button data-act="pickStation" data-k="${k}" data-v="${esc(s.code)}"><b>${esc(s.name)}</b><span>${esc(s.code)}</span></button>`).join('');
 }
 
 /* ---------- Calendar ---------- */
@@ -561,6 +671,13 @@ function sheetHTML() {
     return frame(L('calT'), `<div class="group"><p class="gtitle">${esc(L('calJourneyT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calJourneyS'))}</p>${buttons('trip')}</div>
       ${wake ? `<div class="group"><p class="gtitle">${esc(L('calWakeT'))}</p><p class="fhelp" style="margin:0 0 10px">${esc(L('calWakeS', { time: atTime(wake), to: t.toName }))}</p>${buttons('wake')}</div>` : ''}<p class="fhelp">${esc(L('calAlertNote'))}</p>`);
   }
+  if (s === 'schedule') {
+    const sc = TT && state.sched ? ttSchedule(TT, state.sched.no) : null;
+    if (!sc) return frame(L('checkNoT'), `<div class="banner warn">${ico('alert', 20)}<span>${esc(L('payUnknown'))}</span></div>`);
+    const mine = [state.sched.from, state.sched.to], last = sc.stops.length - 1;
+    const rows = sc.stops.map((x, i) => `<div class="t ${mine.includes(x.code) ? 'you' : ''}"><span class="h">${esc(fmt(x.dep || x.arr))}</span><span><span class="n">${esc(x.name)}</span><span class="d">${esc([x.code, L('dayN', { n: x.day }), !i ? L('startsHere') : i === last ? L('lastStop') : x.arr !== x.dep ? L('arrivesShort', { time: fmt(x.arr) }) : ''].filter(Boolean).join(' · '))}</span></span></div>`).join('');
+    return frame(`${sc.no} ${sc.name}`, `<p class="fhelp" style="margin:0 2px">${esc(runsText(sc.days))} · ${esc(L('stopsN', { n: sc.stops.length }))}</p><div class="tlist">${rows}</div>`);
+  }
   if (s === 'settings') {
     const standalone = matchMedia('(display-mode:standalone)').matches || navigator.standalone || isNative();
     return frame(L('settingsT'), `<div class="group"><div class="flabel">${esc(L('langLabel'))}</div><div class="langs">${LANGS.map(([v, l]) => `<button data-act="setLang" data-v="${v}" aria-pressed="${state.lang === v}" lang="${v}">${l}</button>`).join('')}</div></div>
@@ -586,7 +703,7 @@ function bigHTML() {
   return `<div class="big ${state.sun ? 'sun' : ''}" role="dialog" aria-label="${esc(L('qBig'))}"><div class="bigtop"><button data-act="toggleSun">${ico('sun', 18)}${esc(L(state.sun ? 'night' : 'sunlight'))}</button><button data-act="bigClose">${ico('x', 18)}${esc(L('aClose'))}</button></div>
     <div class="bigmain"><div class="biglab">${esc(L('bigTrain'))}</div><div class="bignum">${num(t.trainNo)}</div>
       <div class="bigrow"><div><div class="biglab">${esc(L('coach'))}</div><div class="bigsub">${num(p.coach || '—')}</div></div><div><div class="biglab">${esc(L('berth'))}</div><div class="bigsub">${num(seatBig)}<small>${esc(sub)}</small></div></div></div>
-      ${t.not ? `<div class="bignot">${esc(L('notTrain', { no: t.not.no, name: t.not.name }))}</div>` : ''}</div></div>`;
+      ${notShown(t) ? `<div class="bignot">${esc(L('notTrain', { no: t.not.no, name: t.not.name }))}</div>` : ''}</div></div>`;
 }
 
 /* ---------- Sound and haptics ---------- */
@@ -741,11 +858,19 @@ function chrome() {
   if (!$('#tabbar')) {
     $('#dock').innerHTML = `<div class="tabbar glass" id="tabbar" role="tablist">
       <span class="lens" id="lens" aria-hidden="true"></span>
-      ${[['pass', 'ticket', 'tabPass'], ['journey', 'route', 'tabJourney'], ['safety', 'shield', 'tabSafety']].map(([k, i, l]) => `<button class="tab" role="tab" id="tab-${k}" data-tab="${k}">${ico(i, 24)}<span data-l="${l}"></span></button>`).join('')}
+      ${[['pass', 'ticket', 'tabPass'], ['journey', 'route', 'tabJourney'], ['trains', 'search', 'tabTrains'], ['safety', 'shield', 'tabSafety']].map(([k, i, l]) => `<button class="tab" role="tab" id="tab-${k}" data-tab="${k}">${ico(i, 24)}<span data-l="${l}"></span></button>`).join('')}
     </div><button class="gbtn add glass" data-act="add" aria-label="${esc(L('addT'))}">${ico('plus', 28, 2.4)}</button>`;
     bindTabbar();
   }
   document.querySelectorAll('.tab span').forEach(l => { l.textContent = L(l.dataset.l); });
+  fitTabs();
+}
+// Some Malayalam and Tamil words are too long for four tabs, so those labels shrink until they fit.
+function fitTabs() {
+  document.querySelectorAll('.tab span').forEach(s => {
+    s.style.fontSize = '';
+    if (s.scrollWidth > s.clientWidth + 1) s.style.fontSize = `${Math.max(8.5, 11 * s.clientWidth / s.scrollWidth).toFixed(1)}px`;
+  });
 }
 function placeLens() {
   const bar = $('#tabbar'), lens = $('#lens'); if (!bar) return;
@@ -804,14 +929,17 @@ function bindTabbar() {
 }
 
 /* ---------- Render: only what changed ---------- */
-const VIEWS = { pass: viewPass, journey: viewJourney, safety: viewSafety };
+const VIEWS = { pass: viewPass, journey: viewJourney, trains: viewTrains, safety: viewSafety };
 let lastStage = null;
+function renderView(k, enter) {
+  const v = $('#view-' + k), st = v.scrollTop;
+  v.innerHTML = `<div class="view-inner ${enter && k === state.tab ? 'enter' : ''}">${VIEWS[k]()}</div>`;
+  v.scrollTop = enter ? 0 : st;
+}
 function renderViews(enter) {
-  for (const k of TAB_ORDER) {
-    const v = $('#view-' + k), st = v.scrollTop;
-    v.innerHTML = `<div class="view-inner ${enter && k === state.tab ? 'enter' : ''}">${VIEWS[k]()}</div>`;
-    v.scrollTop = enter ? 0 : st;
-  }
+  const typing = document.activeElement?.matches?.('input,textarea') ? document.activeElement : null;
+  // Redrawing the view someone is typing in would take their keyboard away.
+  for (const k of TAB_ORDER) if (enter || !typing || !$('#view-' + k).contains(typing)) renderView(k, enter);
   syncTabs();
   syncLiveActivity();
   syncWakeUp();
@@ -965,13 +1093,60 @@ const ACT = {
   copyMsg(b) { copyText(b.dataset.msg, L('msgCopied')); },
   bigOpen() { closeNow(); if (!current()) { toast(L('addFirst')); return; } state.big = true; renderOverlay(); try { navigator.wakeLock?.request('screen').then(l => { ACT.wl = l; }).catch(() => {}); } catch (e) {} },
   bigClose() { $('.big')?.classList.add('out'); try { ACT.wl?.release(); } catch (e) {} setTimeout(() => { state.big = false; renderOverlay(); }, 180); },
-  toggleSun() { state.sun = !state.sun; renderOverlay(); $('.big').style.animation = 'none'; }
+  toggleSun() { state.sun = !state.sun; renderOverlay(); $('.big').style.animation = 'none'; },
+  liveStart() { startWatch(); },
+  pickStation(b) {
+    const k = b.dataset.k, f = state.find, input = $(k === 'from' ? '#qFrom' : '#qTo');
+    Object.assign(f, { [k]: b.dataset.v, [k + 'Text']: stationLabel(b.dataset.v), touched: true, error: '' });
+    if (input) input.value = f[k + 'Text'];
+    $('#sg-' + k).innerHTML = '';
+    if (k === 'from' && !f.to) $('#qTo')?.focus(); else input?.blur();
+  },
+  swapStations() { const f = state.find; [f.from, f.to, f.fromText, f.toText] = [f.to, f.from, f.toText, f.fromText]; f.touched = true; renderView('trains'); },
+  findTrains() {
+    const f = state.find;
+    if (!TT) return;
+    const from = f.from || resolveStation(f.fromText), to = f.to || resolveStation(f.toText);
+    f.error = !from || !to ? L('findPick') : from === to ? L('findSame') : /^\d{4}-\d{2}-\d{2}$/.test(f.date) ? '' : L('findDate');
+    if (!f.error) {
+      Object.assign(f, { from, to, fromText: stationLabel(from), toText: stationLabel(to), touched: true });
+      f.results = { from, to, date: f.date, fromName: ttStation(TT, from).name, toName: ttStation(TT, to).name, list: ttBetween(TT, from, to, f.date) || [] };
+    }
+    document.activeElement?.blur?.();
+    renderView('trains');
+    const found = $('#found');
+    if (found) $('#view-trains').scrollTo({ top: found.offsetTop - 80, behavior: REDUCED() ? 'auto' : 'smooth' });
+  },
+  checkNo() {
+    const f = state.find, no = f.no.trim();
+    f.noError = !/^\d{5}$/.test(no) ? L('payErrNo') : TT && !TT.tr[no] ? L('payUnknown') : '';
+    renderView('trains');
+    if (!f.noError && TT) { state.sched = { no, from: f.from, to: f.to }; openSheet('schedule'); }
+  },
+  showSchedule(b) { state.sched = { no: b.dataset.v, from: b.dataset.from || null, to: b.dataset.to || null }; openSheet('schedule'); }
 };
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]');
   if (!b) return;
   const fn = ACT[b.dataset.act];
   if (fn) { e.preventDefault(); fn(b, e); }
+});
+// Official pages can't be filled in from outside, so the number goes on the clipboard on the way there.
+document.addEventListener('click', e => { const a = e.target.closest('[data-copy]'); if (a) copyText(a.dataset.copy, a.dataset.copied); });
+document.addEventListener('input', e => {
+  const el = e.target, f = state.find;
+  if (el.id === 'qFrom' || el.id === 'qTo') { const k = el.id === 'qFrom' ? 'from' : 'to'; Object.assign(f, { [k + 'Text']: el.value, [k]: null, touched: true }); suggest(k, el.value); }
+  else if (el.id === 'qDate') f.date = el.value;
+  else if (el.id === 'qNo') f.no = el.value;
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const id = e.target.id;
+  if (id === 'qFrom' || id === 'qTo') {
+    e.preventDefault();
+    const first = $(`#sg-${id === 'qFrom' ? 'from' : 'to'} button`);
+    if (first) first.click(); else if (id === 'qTo') ACT.findTrains(); else $('#qTo')?.focus();
+  } else if (id === 'qNo') { e.preventDefault(); ACT.checkNo(); }
 });
 const back = () => { if (state.sheet) closeSheet(); else if (state.big) ACT.bigClose(); else return false; return true; };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') back(); });
@@ -1045,7 +1220,7 @@ function tick() {
 }
 setInterval(tick, 20000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
-addEventListener('resize', placeLens);
+addEventListener('resize', () => { placeLens(); fitTabs(); });
 
 /* ---------- Timetable: loaded once, cached by the service worker for offline use ---------- */
 fetch('./data/timetable.json').then(r => r.ok ? r.json() : null).then(data => {
@@ -1061,7 +1236,7 @@ render(true);
 // The native plugin ignores selectionChanged until this has run once.
 window.Capacitor?.Plugins?.Haptics?.selectionStart().catch(() => {});
 window.Capacitor?.Plugins?.Signing?.expiry().then(r => { if (r?.date) { signExpiry = r.date; renderViews(); } }).catch(() => {});
-if (document.fonts?.ready) document.fonts.ready.then(placeLens);
+if (document.fonts?.ready) document.fonts.ready.then(() => { placeLens(); fitTabs(); });
 // Used by the Android app, and by tests.
 window.__tg = { state, render, ACT, tripOf, back, get recs() { return recs; } };
 })();

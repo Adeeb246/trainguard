@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { ttTrainFacts, ttTrainsNear, ttStation } = require('../src/timetable');
+const { ttTrainFacts, ttTrainsNear, ttStation, ttFindStations, ttBetween, ttSchedule, ttLocate } = require('../src/timetable');
 
 const tt = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'timetable.json'), 'utf8'));
 const numbers = list => list.filter(t => !t.you).map(t => t.no);
@@ -69,5 +69,48 @@ assert.strictEqual(unknown.way.find(t => t.you).no, '99999');
 assert.strictEqual(ttTrainsNear(tt, { ...monday, time: null }), null);
 assert.strictEqual(ttTrainsNear(tt, { ...monday, dateISO: null }), null);
 assert.strictEqual(ttTrainsNear(tt, { ...monday, fromStn: 'ZZZZZ' }), null);
+
+// Station search ranks the busy station first and lets an exact code win
+assert.strictEqual(ttFindStations(tt, 'Kannur')[0].code, 'CAN', 'Kannur before Kannur South');
+assert.strictEqual(ttFindStations(tt, 'can')[0].code, 'CAN');
+assert.ok(ttFindStations(tt, 'kazha').some(s => s.code === 'KZK'));
+assert.deepStrictEqual(ttFindStations(tt, '  '), []);
+
+// Trains between two stations on a day, the way people plan a trip
+const between = ttBetween(tt, 'CAN', 'KZK', '2026-11-16');
+const malabar = between.find(t => t.no === '16630');
+assert.deepStrictEqual([malabar.dep, malabar.arr, malabar.durMin, malabar.days], ['20:55', '07:25', 630, 1]);
+assert.ok(!between.some(t => t.no === '16629'), 'the opposite direction is left out');
+assert.ok(between.every((t, i) => !i || between[i - 1].at <= t.at), 'earliest first');
+assert.ok(ttBetween(tt, 'KZK', 'CAN', '2026-11-21').some(t => t.no === '16629' && t.dep === '18:56'));
+const weeklyEnd = ttSchedule(tt, '22654').stops.at(-1).code;
+assert.ok(ttBetween(tt, 'CAN', weeklyEnd, '2026-11-17').some(t => t.no === '22654'), 'a weekly train on its day at Kannur');
+assert.ok(!ttBetween(tt, 'CAN', weeklyEnd, '2026-11-16').some(t => t.no === '22654'), 'and not the day before');
+assert.strictEqual(ttBetween(tt, 'CAN', 'CAN', '2026-11-16'), null);
+assert.strictEqual(ttBetween(tt, 'CAN', 'ZZZZZ', '2026-11-16'), null);
+
+// A train's full schedule
+const sched = ttSchedule(tt, '16630');
+assert.deepStrictEqual([sched.stops[0].code, sched.stops[0].arr], ['MAQ', null]);
+assert.deepStrictEqual([sched.stops.at(-1).code, sched.stops.at(-1).dep], ['TVC', null]);
+const canStop = sched.stops.find(s => s.code === 'CAN'), kzkStop = sched.stops.find(s => s.code === 'KZK');
+assert.deepStrictEqual([canStop.arr, canStop.dep, canStop.day], ['20:52', '20:55', 1]);
+assert.deepStrictEqual([kzkStop.arr, kzkStop.day], ['07:25', 2], 'the next morning is day 2');
+assert.strictEqual(sched.days, 127, 'runs daily');
+assert.strictEqual(ttSchedule(tt, '99999'), null);
+
+// Where the phone is along the route: halfway between two stops is due halfway between their times
+const stn = code => tt.st.find(s => s[0] === code);
+const flat = tt.tr['16630'][4], ci = flat.findIndex((v, i) => i % 3 === 0 && tt.st[v][0] === 'CAN');
+const kan = stn('CAN'), nextStop = tt.st[flat[ci + 3]], legMin = flat[ci + 4] - flat[ci + 2];
+const mid = ttLocate(tt, '16630', 'CAN', (kan[2] + nextStop[2]) / 2, (kan[3] + nextStop[3]) / 2, legMin / 2 + 15);
+assert.deepStrictEqual([mid.off, mid.behind, mid.prev, mid.next, mid.at], [false, false, 'Kannur', nextStop[1], null]);
+assert.ok(Math.abs(mid.due - legMin / 2) < 1, `due ${mid.due}, expected ${legMin / 2}`);
+assert.strictEqual(mid.nextDue, legMin);
+assert.strictEqual(ttLocate(tt, '16630', 'CAN', kan[2], kan[3], 0).at, 'Kannur');
+assert.strictEqual(ttLocate(tt, '16630', 'CAN', 28.61, 77.21, 60).off, true, 'Delhi is nowhere near the Malabar');
+const maq = stn('MAQ');
+assert.strictEqual(ttLocate(tt, '16630', 'CAN', maq[2], maq[3], -100).behind, true, 'Mangaluru is before Kannur');
+assert.strictEqual(ttLocate(tt, '99999', 'CAN', kan[2], kan[3], 0), null);
 
 console.log('timetable: all checks passed');

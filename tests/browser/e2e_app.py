@@ -218,9 +218,52 @@ with sync_playwright() as p:
         ok(f'Clock stage: {label}', want in text(pg), text(pg)[:0] + want)
         if label == 'boarding':
             ok('Boarding turns the number green and says what to check', 'The coach board must say' in text(pg) and pg.locator('.view.on .hero-no.check').count() == 1); shot(pg, 'Boarding')
+            ok('The look-alike row shows a warning sign, not a close cross', pg.locator('#view-pass .notrow svg path').first.get_attribute('d').startswith('m21.73'))
+        if label == 'onboard':
+            ok('Once the train has left, the look-alike row is gone', pg.locator('#view-pass .notrow').count() == 0)
     c.clock.set_fixed_time(at(17, 18, 0)); pg.reload(wait_until='load'); pg.wait_for_timeout(500)
     tap(pg, '[data-act="openTrips"]'); pg.wait_for_timeout(200)
     ok('A finished trip moves to Past', 'Past' in text(pg, '#sheet') and 'Upcoming' not in text(pg, '#sheet')); c.close()
+
+    # ---------- Find trains between two stations ----------
+    c = ctx(); pg = page(c, [])
+    tap(pg, '#tab-trains'); pg.wait_for_timeout(300)
+    ok('The Trains tab opens the search', 'Find trains' in text(pg) and pg.locator('#qFrom').count() == 1)
+    pg.locator('#qFrom').fill('kann'); pg.wait_for_timeout(150)
+    ok('Typing suggests the busy Kannur first', pg.locator('#sg-from button').first.inner_text().startswith('Kannur'), pg.locator('#sg-from').inner_text()[:80])
+    tap(pg, '#sg-from button'); pg.locator('#qTo').fill('kazhak'); pg.wait_for_timeout(150); tap(pg, '#sg-to button')
+    pg.locator('#qDate').fill('2026-11-16'); tap(pg, '[data-act="findTrains"]'); pg.wait_for_timeout(300); t = text(pg)
+    ok('Search lists that day\'s trains, Malabar included', all(s in t for s in ['Trains on', '16630', 'Malabar Express', 'Reaches Kazhakuttam 7:25 AM +1']), t[:300])
+    shot(pg, 'Find trains')
+    tap(pg, '.view.on button.t[data-v="16630"]'); pg.wait_for_timeout(500); t = text(pg, '#sheet')
+    ok('A train opens its full schedule with your stations marked', all(s in t for s in ['16630 Malabar Express', 'Runs daily', 'Mangalore Central', 'starts here', 'last stop', 'Day 2']) and pg.locator('#sheet .t.you').count() == 2, t[:200])
+    shot(pg, 'Schedule'); tap(pg, '#sheet .xbtn'); pg.wait_for_timeout(330)
+    tap(pg, '[data-act="swapStations"]'); pg.wait_for_timeout(150)
+    ok('Swap turns the route around', pg.locator('#qFrom').input_value().startswith('Kazhakuttam') and pg.locator('#qTo').input_value().startswith('Kannur'))
+    pg.locator('#qTo').fill(pg.locator('#qFrom').input_value()); tap(pg, '[data-act="findTrains"]')
+    ok('The same station twice is refused', 'two different stations' in text(pg))
+    pg.locator('#qNo').fill('16603'); tap(pg, '[data-act="checkNo"]'); pg.wait_for_timeout(500)
+    ok('A train number opens its schedule', 'Maveli' in text(pg, '#sheet') and 'Runs' in text(pg, '#sheet'))
+    tap(pg, '#sheet .xbtn'); pg.wait_for_timeout(330)
+    pg.locator('#qNo').fill('99999'); tap(pg, '[data-act="checkNo"]')
+    ok('An unknown number says so', "isn't in the timetable" in text(pg)); c.close()
+    c = ctx(); pg = page(c, [SMS]); tap(pg, '#tab-trains'); pg.wait_for_timeout(300)
+    ok('Search starts from your own route', pg.locator('#qFrom').input_value() == 'Kannur (CAN)' and pg.locator('#qTo').input_value() == 'Kazhakuttam (KZK)'); c.close()
+
+    # ---------- Where is my train: the phone's position against the timetable ----------
+    tt = json.load(open(REPO / 'data' / 'timetable.json', encoding='utf-8'))
+    flat = tt['tr']['16630'][4]; ci = next(i for i in range(0, len(flat), 3) if tt['st'][flat[i]][0] == 'CAN')
+    A, B = tt['st'][flat[ci]], tt['st'][flat[ci + 3]]; half = (flat[ci + 4] - flat[ci + 2]) / 2
+    c = ctx(when=at(16, 20, 55) + datetime.timedelta(minutes=half + 15)); c.grant_permissions(['geolocation'])
+    c.set_geolocation({'latitude': (A[2] + B[2]) / 2, 'longitude': (A[3] + B[3]) / 2, 'accuracy': 30})
+    pg = page(c, [SMS]); tap(pg, '#tab-journey'); pg.wait_for_timeout(200); t = text(pg)
+    ok('On the journey, Where is my train comes first', -1 < t.find('Where is my train') < t.find('Leave for the station'), t[:160])
+    tap(pg, '[data-act="liveStart"]'); pg.wait_for_timeout(900); t = text(pg, '#liveCard')
+    ok('Live position: right stops, about 15 min late, later arrival', all(s in t for s in [f'Between Kannur and {B[1]}', 'Running about 15m late', 'Reaching Kazhakuttam around 7:40 AM', 'Nothing leaves your phone']), t[:300])
+    ok('Official live status and PNR buttons are there', pg.locator('#liveCard a[data-copy="16630"]').count() == 1 and pg.locator('#liveCard a[data-copy="1234567890"]').count() == 1)
+    shot(pg, 'Where is my train'); c.close()
+    c = ctx(); pg = page(c, [SMS]); tap(pg, '#tab-journey'); pg.wait_for_timeout(200); t = text(pg)
+    ok('Before the train leaves, it says when the position starts', 'This works once your train leaves at 8:55 PM' in t and pg.locator('[data-act="liveStart"]').count() == 0, t[:200]); c.close()
 
     # ---------- Old data and links ----------
     c = ctx(); pg = c.new_page(); pg.goto(BASE, wait_until='load'); pg.evaluate("(s)=>{localStorage.clear();localStorage.setItem('trainguard_saved_ticket_v1',s);localStorage.setItem('trainguard_theme_v2','light')}", SMS); pg.reload(wait_until='load'); pg.wait_for_timeout(500)

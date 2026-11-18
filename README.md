@@ -13,6 +13,8 @@ Paste your IRCTC SMS and TrainGuard turns it into a clear pass, warns you about 
 - **Is this your train?** It reads your ticket back and asks. If you say you meant a different train, it tells you straight away.
 - **Before you pay.** Type the train number from the booking page and check it before you spend money you can't get back.
 - **Not your train.** Every train at your station within two hours of yours on that date, with the ones going your way first.
+- **Find trains.** Every train between two stations on a date, and any train's full schedule, straight from the timetable on the phone.
+- **Where is my train.** On board, the phone's location and the timetable estimate where you are, the next stop and how late you're running. The location never leaves the phone. Buttons open the official live status and PNR pages with the number copied.
 - **It never guesses.** A waitlisted ticket shows no seat. Anything it can't read says so and asks you. Other SMS, like OTPs, are rejected.
 - **The screen follows your journey:** leave-by time, finding your platform, checking the coach board, waking up before your stop.
 - **Multiple trips and family.** Keep return journeys, see every passenger's berth, and share a trip without exposing your PNR.
