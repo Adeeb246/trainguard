@@ -101,8 +101,16 @@ try:
         check('Android offers the phone calendar and Google Calendar', 'calPhone' in html and 'google.com/calendar' in html.replace('&amp;', '&'), html[:200])
         check('Android back closes the calendar sheet', page.evaluate('window.__tg.back()') is True)
         page.wait_for_timeout(350)
-        check('Android shows no iPhone-only alarm toggles', 'switch' not in page.evaluate("document.querySelector('#alerts')?.innerHTML || ''"))
+        check('An Android app without the alarm plugin shows no alarm toggles', 'switch' not in page.evaluate("document.querySelector('#alerts')?.innerHTML || ''"))
         check('Android shows no iPhone-only countdown row', 'Lock Screen' not in page.evaluate("document.querySelector('#alerts')?.innerText || ''"))
+        ctx.close()
+        # Android with the alarm plugin: the timed alarm only, because GPS wake-up is iPhone-only so far
+        ctx, page = open_page("window.__wake=[];window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{WakeUp:{schedule:o=>{window.__wake.push(o);return Promise.resolve({alarm:true,location:'unsupported'})},cancel:()=>Promise.resolve()}}};")
+        alerts = page.evaluate("document.querySelector('#alerts')?.innerHTML || ''")
+        check('Android offers the timed alarm and no GPS switch', alerts.count('role="switch"') == 1 and 'data-k="backup"' in alerts and 'data-k="gps"' not in alerts, alerts[:200])
+        page.evaluate("document.querySelector('[data-k=backup]').click()"); page.wait_for_timeout(200)
+        sent = page.evaluate("window.__wake.at(-1) || null")
+        check('Turning it on sets the alarm for 30 min before arrival, without GPS', bool(sent) and sent.get('backup') is True and sent.get('gps') is False and sent.get('backupDate', 0) > 0, sent)
         ctx.close()
 
         # Browser: phone calendar still offered, and no countdown row

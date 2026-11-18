@@ -392,8 +392,8 @@ function viewJourney() {
     ${p.coach ? `<div class="card"><h3>${esc(L('findCoachT', { coach: p.coach }))}</h3><p class="dim" style="margin:0">${esc(L('findCoachS'))}</p></div>` : ''}
     ${berthMap(t)}
     <div class="card" id="alerts"><h3>${esc(L('alertsT'))}</h3>
-      ${hasWakeUp ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>
-      <div class="tog"><div class="tx"><b>${esc(wake ? L('backupT', { time: atTime(wake) }) : L('backupNoTime'))}</b>${esc(L('backupS'))}</div><button class="sw" role="switch" aria-checked="${state.backup}" aria-label="${esc(L('backupNoTime'))}" data-act="toggle" data-k="backup"></button></div>`
+      ${hasWakeUp ? `${isIOSNative() ? `<div class="tog first"><div class="tx"><b>${esc(L('gpsT'))}</b>${esc(L('gpsS', { to: t.toName }))}</div><button class="sw" role="switch" aria-checked="${state.gps}" aria-label="${esc(L('gpsT'))}" data-act="toggle" data-k="gps"></button></div>` : ''}
+      <div class="tog ${isIOSNative() ? '' : 'first'}"><div class="tx"><b>${esc(wake ? L('backupT', { time: atTime(wake) }) : L('backupNoTime'))}</b>${esc(L('backupS'))}</div><button class="sw" role="switch" aria-checked="${state.backup}" aria-label="${esc(L('backupNoTime'))}" data-act="toggle" data-k="backup"></button></div>`
       : `<p class="dim" style="margin:0 0 10px;color:var(--ink-2);font-size:13px">${esc(wake ? L('wakeWebS', { time: atTime(wake), to: t.toName }) : L('wakeNoArr'))}</p>`}
       ${liveRow(t)}
       <button class="btn ghost" data-act="openCalendar">${ico('calendar', 18)}${esc(L('addCal'))}</button>
@@ -825,7 +825,8 @@ function syncLiveActivity() {
   plugin.startActivity({ trainNumber: t.trainNo, trainName: t.name || '', coach: p.coach || '—', seat: `${seatText(p)}${p.berthType ? ` (${p.berthType})` : ''}`, platform: t.platform ? `PF ${t.platform}` : 'PF ?', departureTime: fmt(t.time), departure: +t.departureDate, startAt: now ? 0 : +t.departureDate - LIVE_LEAD, alertTitle: `${t.trainNo} ${t.name || ''}`.trim(), alertBody: L('tlArriveS', { no: t.trainNo }), hasClash: !!t.not, clashDetails: t.not ? L('notTrain', { no: t.not.no, name: t.not.name }) : '', coachLabel: L('coach'), berthLabel: L('berth'), leavesLabel: L('rbLeaves'), checkCoach: L('tlArriveS', { no: t.trainNo }) })
     .then(r => done(r || {})).catch(e => done({ status: 'failed', why: e?.message || '' }));
 }
-function wakePlugin() { return isIOSNative() ? window.Capacitor.Plugins?.WakeUp || null : null; }
+// Both apps have the timed alarm. GPS wake-up is iPhone-only so far.
+function wakePlugin() { return isNative() ? window.Capacitor.Plugins?.WakeUp || null : null; }
 let wakeKey = null;
 function syncWakeUp() {
   const plugin = wakePlugin();
@@ -835,7 +836,7 @@ function syncWakeUp() {
   if (key === wakeKey) return;
   wakeKey = key;
   if (!t) { plugin.cancel().catch(() => {}); return; }
-  plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), stopLabel: L('alarmStop'), gps: state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
+  plugin.schedule({ title: L('calWakeTitle', { to: t.toName, no: t.trainNo }), stopLabel: L('alarmStop'), gps: isIOSNative() && state.gps && !!t.toCoords, latitude: t.toCoords?.lat ?? 0, longitude: t.toCoords?.lon ?? 0, backup: state.backup, backupDate: +wakeAt(t), notBefore: +t.departureDate, expires: +t.arrivalDate + 2 * 36e5 })
     .then(r => { if (state.backup && r?.alarm === false) toast(L('alarmDenied')); else if (state.gps && ['denied', 'whenInUse'].includes(r?.location)) toast(L('locationDenied')); })
     .catch(() => {});
 }
